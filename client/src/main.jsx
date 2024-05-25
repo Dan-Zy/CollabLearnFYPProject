@@ -9,6 +9,8 @@ import { MainPage } from "./frontend/Home";
 import { SignIn } from "./frontend/component/SignIn";
 import { SignUp } from "./frontend/component/SignUp"; // Add this import
 
+
+// Hassan first changing
 const router = createBrowserRouter([
   {
     path: "/Home",
