@@ -13,6 +13,7 @@ import editComment from "../controllers/editComment.js";
 import deleteComment from "../controllers/deleteComment.js";
 import { getPosts } from "../controllers/getPosts.js";
 
+// Daniyal's first test commit
 const router = express.Router();
 
 // Upload Post
@@ -22,7 +23,7 @@ router.post("/uploadPost", verifyToken, uploadP.fields([
     { name: 'video', maxCount: 1 }
 ]), uploadPost);
 
-// Edit Post with hassan
+// Edit Post
 router.put("/editPost/:postId", verifyToken , uploadP.fields([
     { name: 'image', maxCount: 1 },
     { name: 'document', maxCount: 1 },
