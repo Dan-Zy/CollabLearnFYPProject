@@ -119,4 +119,24 @@
     };
 
 
-    export { registerUser, loginUser };
+    const logoutUser = async (req, res) => {
+        try {
+            // JWT tokens are stateless, so the only thing we need to do on logout
+            // is to return a successful response.
+            res.status(200).send({
+                success: true,
+                message: "Logout Successfully"
+            });
+        } catch (error) {
+            console.log("Error in Logout: ", error);
+            res.status(500).send({
+                success: false,
+                message: "Error in Logout",
+                error
+            });
+        }
+    };
+    
+    
+
+    export { registerUser, loginUser, logoutUser};

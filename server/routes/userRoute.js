@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser, loginUser } from "../controllers/authController.js";
+import { registerUser, loginUser, logoutUser } from "../controllers/authController.js";
 import upload from "../config/multer.js";
 import { verifyToken } from "../middlewares/authorization.js";
 import { uploadProfilePicture } from "../controllers/uploadPfp.js";
@@ -12,6 +12,9 @@ router.post("/register", registerUser);
 
 // Login User
 router.post("/login", loginUser);
+
+// Logout User
+router.get("/logout", logoutUser);
 
 
 // upload picture
