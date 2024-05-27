@@ -12,6 +12,7 @@ import deletePost from "../controllers/postControllers/deletePost.js";
 import editComment from "../controllers/postControllers/editComment.js";
 import deleteComment from "../controllers/postControllers/deleteComment.js";
 import { getPosts } from "../controllers/postControllers/getPosts.js";
+import getComments from "../controllers/postControllers/getComments.js";
 
 // Daniyal's first test commit
 const router = express.Router();
@@ -44,7 +45,10 @@ router.post("/addComment/:postId", verifyToken, upload.single("image"), addComme
 router.put("/editComment/:commentId", verifyToken, upload.single("image"), editComment);
 
 // Delete Comment
-router.delete("/deleteComment/:commentId", verifyToken, deleteComment)
+router.delete("/deleteComment/:commentId", verifyToken, deleteComment);
+
+// Get Comments
+router.get("/getComments/:postId", verifyToken, getComments);
 
 
 // Upvote Post
