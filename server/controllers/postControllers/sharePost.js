@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Post } from "../models/postModel.js";
+import { Post } from "../../models/postModel.js";
 
 const sharePost = async (req, res) => {
     try {

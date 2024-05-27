@@ -61,7 +61,7 @@
 
 
 
-import { Post } from "../models/postModel.js";
+import { Post } from "../../models/postModel.js";
 import fs from "fs";
 
 export const uploadPost = async (req, res) => {

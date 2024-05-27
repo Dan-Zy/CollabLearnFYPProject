@@ -1,4 +1,4 @@
-import { Comment } from "../models/postModel.js";
+import { Comment } from "../../models/postModel.js";
 
 const deleteComment = async (req, res) => {
     try {

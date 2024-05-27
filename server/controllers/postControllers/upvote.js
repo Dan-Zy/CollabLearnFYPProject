@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import {Post, Comment} from "../models/postModel.js";
+import {Post, Comment} from "../../models/postModel.js";
 
-const devotePost = async (req , res) => {
+const upvotePost = async (req , res) => {
     try {
         
         const {postId} = req.params;
@@ -24,7 +24,7 @@ const devotePost = async (req , res) => {
         //     });
         // }
 
-        const post = await Post.findByIdAndUpdate(postId, { $addToSet: { devotes: userId } } , {new: true});
+        const post = await Post.findByIdAndUpdate(postId, { $addToSet: { upvotes: userId } } , {new: true});
 
         if(!post) {
             return res.status(404).json({
@@ -36,7 +36,7 @@ const devotePost = async (req , res) => {
 
         res.status(200).json({
             success: true,
-            message: "devote has been added to the post",
+            message: "Upvote has been added to the post",
             post: post
         })
 
@@ -51,7 +51,7 @@ const devotePost = async (req , res) => {
 
 
 
-const devoteComment = async (req , res) => {
+const upvoteComment = async (req , res) => {
     try {
         
         const {commentId} = req.params;
@@ -74,7 +74,7 @@ const devoteComment = async (req , res) => {
         //     });
         // }
 
-        const comment = await Comment.findByIdAndUpdate(commentId, { $addToSet: { devotes: userId } } , {new: true});
+        const comment = await Comment.findByIdAndUpdate(commentId, { $addToSet: { upvotes: userId } } , {new: true});
 
         if(!comment) {
             return res.status(404).json({
@@ -86,7 +86,7 @@ const devoteComment = async (req , res) => {
 
         res.status(200).json({
             success: true,
-            message: "devote has been added to the comment",
+            message: "Upvote has been added to the comment",
             comment: comment
         })
 
@@ -100,4 +100,4 @@ const devoteComment = async (req , res) => {
 }
 
 
-export { devotePost, devoteComment};
+export { upvotePost, upvoteComment};

@@ -1,4 +1,4 @@
-import { Comment } from "../models/postModel.js";
+import { Comment } from "../../models/postModel.js";
 import fs from "fs";
 
 const editComment = async (req, res) => {

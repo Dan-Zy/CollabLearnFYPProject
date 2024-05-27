@@ -1,6 +1,6 @@
 import fs from 'fs';
 import mongoose from 'mongoose';
-import { Comment, Post } from '../models/postModel.js';
+import { Comment, Post } from '../../models/postModel.js';
 
 export const addComment = async (req, res) => {
     try {

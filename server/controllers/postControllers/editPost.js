@@ -1,5 +1,5 @@
 import { log } from "console";
-import {Post} from "../models/postModel.js";
+import {Post} from "../../models/postModel.js";
 import fs from "fs";
 
 const editPost = async (req, res) => {
