@@ -1,4 +1,4 @@
-import {Post} from "../../models/postModel.js";
+import {Post, Comment} from "../../models/postModel.js";
 
 const deletePost = async (req, res) => {
     try {
@@ -22,11 +22,22 @@ const deletePost = async (req, res) => {
             });
         }
 
+
+        const { comments } = post;
+        let commentIds = comments.map(comment => comment.commentId);
+
+        for (let index = 0; index < commentIds.length; index++) {
+            await Comment.deleteOne({_id: commentIds[index]});
+        }
+
+        
+
         await Post.deleteOne({_id: postId});
 
         res.status(200).json({
             success: true,
-            message: "Post has been deleted Successfully"
+            message: "Post has been deleted Successfully",
+            commentIds
         });
 
 
