@@ -1,13 +1,14 @@
-// eslint-disable-next-line no-unused-vars
 import React, { useContext, createContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { ChevronLeft, ChevronRight, Home, Users, Calendar, HelpCircle, MessageSquare, } from 'lucide-react';
 import Logo from '../../assets/Logo.png';
 import { CreatePostModal } from './CreatePost/CreatePostModal';
+
 const SidebarContext = createContext();
 
 export default function Sidebar({ children }) {
   const [expanded, setExpanded] = useState(true);
+  const [activeItem, setActiveItem] = useState('Home'); // State to track the active item
 
   return (
     <aside className="h-screen flex flex-col">
@@ -27,20 +28,20 @@ export default function Sidebar({ children }) {
         </div>
 
         <SidebarContext.Provider value={{ expanded }}>
-          <ul className=" flex-1 px-3 space-y-2">
-            <SidebarItem icon={<Home />} text="Home" active />
-            <SidebarItem icon={<Users />} text="Community" />
-            <SidebarItem icon={<Calendar />} text="Events" />
-            <SidebarItem icon={<Users />} text="My Collabs" />
+          <ul className="flex-1 px-3 space-y-2">
+            <SidebarItem icon={<Home />} text="Home" active={activeItem === 'Home'} onClick={() => setActiveItem('Home')} />
+            <SidebarItem icon={<Users />} text="Community" active={activeItem === 'Community'} onClick={() => setActiveItem('Community')} />
+            <SidebarItem icon={<Calendar />} text="Events" active={activeItem === 'Events'} onClick={() => setActiveItem('Events')} />
+            <SidebarItem icon={<Users />} text="My Collabs" active={activeItem === 'My Collabs'} onClick={() => setActiveItem('My Collabs')} />
             <div className="border-t my-2" />
-            <SidebarItem icon={<HelpCircle />} text="Help" />
-            <SidebarItem icon={<MessageSquare />} text="Feedback" />
+            <SidebarItem icon={<HelpCircle />} text="Help" active={activeItem === 'Help'} onClick={() => setActiveItem('Help')} />
+            <SidebarItem icon={<MessageSquare />} text="Feedback" active={activeItem === 'Feedback'} onClick={() => setActiveItem('Feedback')} />
             {children}
           </ul>
         </SidebarContext.Provider>
 
         <div className="p-3 flex justify-center">
-          <CreatePostModal/>
+          <CreatePostModal />
         </div>
       </nav>
     </aside>
@@ -51,11 +52,12 @@ Sidebar.propTypes = {
   children: PropTypes.node,
 };
 
-export function SidebarItem({ icon, text, active, alert }) {
+export function SidebarItem({ icon, text, active, onClick, alert }) {
   const { expanded } = useContext(SidebarContext);
 
   return (
     <li
+      onClick={onClick}
       className={`relative flex items-center py-2 px-3 my-1 font-small rounded-md cursor-pointer transition-colors group ${
         active
           ? "bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800"
@@ -82,10 +84,12 @@ SidebarItem.propTypes = {
   icon: PropTypes.node.isRequired,
   text: PropTypes.string.isRequired,
   active: PropTypes.bool,
+  onClick: PropTypes.func,
   alert: PropTypes.bool,
 };
 
 SidebarItem.defaultProps = {
   active: false,
+  onClick: () => {},
   alert: false,
 };
