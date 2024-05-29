@@ -1,22 +1,25 @@
-import fs from 'fs';
-import mongoose from 'mongoose';
-import { Comment, Post } from '../../models/postModel.js';
+import fs from "fs";
+import mongoose from "mongoose";
+import { Comment } from "../../models/postModel.js";
 
-export const addComment = async (req, res) => {
+
+const addCommentReply = async (req, res) => {
+
     try {
-        const { postId } = req.params;
+        
+        const { commentId } = req.params;
         const { content } = req.body;
         const image = req.file ? req.file.path : "";
 
-        // Validate the postId
-        if (!postId || !mongoose.Types.ObjectId.isValid(postId)) {
-            return res.status(400).json({ message: 'Invalid PostID' });
+        // Validate the commentId
+        if (!commentId || !mongoose.Types.ObjectId.isValid(commentId)) {
+            return res.status(400).json({ message: 'Invalid CommentID' });
         }
 
-        // Ensure the post exists
-        const post = await Post.findById(postId);
-        if (!post) {
-            return res.status(404).json({ message: 'Post not found' });
+        // Ensure the comment exists
+        const comment = await Comment.findById(commentId);
+        if (!comment) {
+            return res.status(404).json({ message: 'Comment not found' });
         }
 
         if (!content) {
@@ -25,6 +28,7 @@ export const addComment = async (req, res) => {
                 message: "Content is required"
             });
         }
+
 
         const contentLength = content.split(/\s+/).length;
         if (contentLength > 500) {
@@ -55,9 +59,10 @@ export const addComment = async (req, res) => {
             }
         }
 
+
         const newComment = new Comment({
             userId: req.userId,
-            parentCommentId: null,
+            parentCommentId: commentId,
             content,
             image,
             upvotes: [],
@@ -68,25 +73,21 @@ export const addComment = async (req, res) => {
 
         await newComment.save();
 
-        // Add the comment ID and content to the corresponding post's comments array
-        post.comments.push({
-            commentId: newComment._id,
-            content: newComment.content
-        });
-        
-        await post.save();
-
         res.status(201).json({
             success: true,
-            message: "Comment added successfully!",
+            message: "Comment reply added successfully",
             comment: newComment
-        });
+        })
+
 
     } catch (error) {
-        console.log("Error while adding comment: ", error);
+        console.log("Error while adding reply: ", error);
         return res.status(500).json({
             success: false,
-            message: "Internal server error"
-        });
+            message: "Internal Server Error"
+        })
     }
+
 }
+
+export default addCommentReply;

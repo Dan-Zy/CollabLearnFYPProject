@@ -13,6 +13,7 @@ import editComment from "../controllers/postControllers/editComment.js";
 import deleteComment from "../controllers/postControllers/deleteComment.js";
 import { getPosts } from "../controllers/postControllers/getPosts.js";
 import getComments from "../controllers/postControllers/getComments.js";
+import addCommentReply from "../controllers/postControllers/addCommentReply.js";
 
 // Daniyal's first test commit
 const router = express.Router();
@@ -40,6 +41,9 @@ router.get("/getPosts", getPosts);
 
 // Add Comment
 router.post("/addComment/:postId", verifyToken, upload.single("image"), addComment);
+
+// Add reply to Comment
+router.post("/addCommentReply/:commentId", verifyToken, upload.single("image"), addCommentReply)
 
 // Edit Comment
 router.put("/editComment/:commentId", verifyToken, upload.single("image"), editComment);
