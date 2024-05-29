@@ -14,6 +14,7 @@ import deleteComment from "../controllers/postControllers/deleteComment.js";
 import { getPosts } from "../controllers/postControllers/getPosts.js";
 import getComments from "../controllers/postControllers/getComments.js";
 import addCommentReply from "../controllers/postControllers/addCommentReply.js";
+import getCommentReply from "../controllers/postControllers/getCommentReply.js";
 
 // Daniyal's first test commit
 const router = express.Router();
@@ -53,6 +54,9 @@ router.delete("/deleteComment/:commentId", verifyToken, deleteComment);
 
 // Get Comments
 router.get("/getComments/:postId", verifyToken, getComments);
+
+// Get Comment's replies
+router.get("/getCommentReplies/:commentId", verifyToken, getCommentReply);
 
 
 // Upvote Post

@@ -1,0 +1,40 @@
+import mongoose from "mongoose";
+import { Comment } from "../../models/postModel.js";
+
+const getCommentReply = async (req, res) => {
+
+    try {
+        
+        const { commentId } = req.params;
+
+        // Validate the postId
+        if (!commentId || !mongoose.Types.ObjectId.isValid(commentId)) {
+            return res.status(400).json({ message: 'Invalid CommentID' });
+        }
+
+        // Ensure the post exists
+        const comment = await Comment.findById(commentId);
+
+        if (!comment) {
+            return res.status(404).json({ message: 'Comment not found' });
+        }
+
+        const comments = await Comment.find({parentCommentId: commentId});
+
+        res.status(200).json({
+            success: true,
+            message: "Comments reply fetched successfully",
+            data: comments
+        })
+
+    } catch (error) {
+        console.log("Error while fetching comment's reply: ", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
+
+}
+
+export default getCommentReply;
