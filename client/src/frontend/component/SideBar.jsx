@@ -1,14 +1,14 @@
 import React, { useContext, createContext, useState } from 'react';
 import PropTypes from 'prop-types';
-import { ChevronLeft, ChevronRight, Home, Users, Calendar, HelpCircle, MessageSquare, } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Home, Users, Calendar, HelpCircle, MessageSquare } from 'lucide-react';
 import Logo from '../../assets/Logo.png';
 import { CreatePostModal } from './CreatePost/CreatePostModal';
 
+// Create SidebarContext
 const SidebarContext = createContext();
 
-export default function Sidebar({ children }) {
+export default function Sidebar({ children, activeItem, setActiveItem }) {
   const [expanded, setExpanded] = useState(true);
-  const [activeItem, setActiveItem] = useState('Home'); // State to track the active item
 
   return (
     <aside className="h-screen flex flex-col">
@@ -50,9 +50,12 @@ export default function Sidebar({ children }) {
 
 Sidebar.propTypes = {
   children: PropTypes.node,
+  activeItem: PropTypes.string.isRequired,
+  setActiveItem: PropTypes.func.isRequired,
 };
 
-export function SidebarItem({ icon, text, active, onClick, alert }) {
+// SidebarItem component
+function SidebarItem({ icon, text, active, onClick, alert }) {
   const { expanded } = useContext(SidebarContext);
 
   return (
