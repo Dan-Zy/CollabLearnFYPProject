@@ -15,6 +15,7 @@ import { getPosts } from "../controllers/postControllers/getPosts.js";
 import getComments from "../controllers/postControllers/getComments.js";
 import addCommentReply from "../controllers/postControllers/addCommentReply.js";
 import getCommentReply from "../controllers/postControllers/getCommentReply.js";
+import { removePostUpvote , removeCommentUpvote } from "../controllers/postControllers/removeUpvote.js";
 
 // Daniyal's first test commit
 const router = express.Router();
@@ -62,8 +63,14 @@ router.get("/getCommentReplies/:commentId", verifyToken, getCommentReply);
 // Upvote Post
 router.post("/upvotePost/:postId", verifyToken, upvotePost);
 
+// Remove Post's Upvote
+router.put("/removePostUpvote/:postId", verifyToken, removePostUpvote);
+
 // Upvote Comment
 router.post("/upvoteComment/:commentId", verifyToken, upvoteComment);
+
+// Remove Comment's Upvote
+router.put("/removeCommentUpvote/:commentId", verifyToken, removeCommentUpvote);
 
 
 // Devote Post
