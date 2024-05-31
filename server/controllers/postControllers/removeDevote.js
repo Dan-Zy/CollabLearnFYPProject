@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 import {Post , Comment} from "../../models/postModel.js";
 
-const removePostUpvote = async (req, res) => {
+const removePostDevote = async (req, res) => {
 
     const { postId } = req.params;
     const userId = req.userId;
 
-    if (!mongoose.Types.ObjectId.isValid(postId)) {
+    if (!mongoose.Types.ObjectId.isValid(postId) ) {
         return res.status(400).json({ message: 'Invalid postId' });
     }
 
@@ -20,20 +20,20 @@ const removePostUpvote = async (req, res) => {
             });
         }
 
-        if (!post.upvotes.includes(userId)) {
+        if (!post.devotes.includes(userId)) {
             return res.status(403).json({ 
                 success: false,
-                message: 'You have not upvoted this post' 
+                message: 'You have not devoted this post' 
             });
         }
 
-        post.upvotes = post.upvotes.filter(upvoteId => !upvoteId.equals(userId));
+        post.devotes = post.devotes.filter(devoteId => !devoteId.equals(userId));
 
         await post.save();
         
         return res.status(200).json({ 
             success: true,
-            message: 'Upvote removed successfully', 
+            message: 'Devote removed successfully', 
             post 
         });
 
@@ -46,7 +46,7 @@ const removePostUpvote = async (req, res) => {
 }
 
 
-const removeCommentUpvote = async (req, res) => {
+const removeCommentDevote = async (req, res) => {
 
     const { commentId } = req.params;
     const userId = req.userId;
@@ -66,19 +66,19 @@ const removeCommentUpvote = async (req, res) => {
                 message: 'Comment not found' });
         }
 
-        if (!comment.upvotes.includes(userId)) {
+        if (!comment.devotes.includes(userId)) {
             return res.status(403).json({ 
                 succes: false,
-                message: 'You have not upvoted this comment' });
+                message: 'You have not devoted this comment' });
         }
 
-        comment.upvotes = comment.upvotes.filter(upvoteId => !upvoteId.equals(userId));
+        comment.devotes = comment.devotes.filter(devoteId => !devoteId.equals(userId));
 
         await comment.save();
 
         return res.status(200).json({ 
             success: true,
-            message: 'Upvote removed successfully', 
+            message: 'Devote removed successfully', 
             comment });
 
     } catch (error) {
@@ -87,4 +87,4 @@ const removeCommentUpvote = async (req, res) => {
 }
 
 
-export { removePostUpvote, removeCommentUpvote };
+export { removePostDevote, removeCommentDevote };

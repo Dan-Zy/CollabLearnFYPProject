@@ -16,6 +16,7 @@ import getComments from "../controllers/postControllers/getComments.js";
 import addCommentReply from "../controllers/postControllers/addCommentReply.js";
 import getCommentReply from "../controllers/postControllers/getCommentReply.js";
 import { removePostUpvote , removeCommentUpvote } from "../controllers/postControllers/removeUpvote.js";
+import { removePostDevote, removeCommentDevote } from "../controllers/postControllers/removeDevote.js";
 
 // Daniyal's first test commit
 const router = express.Router();
@@ -60,11 +61,13 @@ router.get("/getComments/:postId", verifyToken, getComments);
 router.get("/getCommentReplies/:commentId", verifyToken, getCommentReply);
 
 
+
 // Upvote Post
 router.post("/upvotePost/:postId", verifyToken, upvotePost);
 
 // Remove Post's Upvote
 router.put("/removePostUpvote/:postId", verifyToken, removePostUpvote);
+
 
 // Upvote Comment
 router.post("/upvoteComment/:commentId", verifyToken, upvoteComment);
@@ -73,11 +76,20 @@ router.post("/upvoteComment/:commentId", verifyToken, upvoteComment);
 router.put("/removeCommentUpvote/:commentId", verifyToken, removeCommentUpvote);
 
 
+
 // Devote Post
 router.post("/devotePost/:postId", verifyToken, devotePost);
 
+// Remove Post's Devote
+router.put("/removePostDevote/:postId", verifyToken, removePostDevote);
+
+
 // Devote Comment
 router.post("/devoteComment/:commentId", verifyToken, devoteComment);
+
+// Remove Comment's Devote
+router.put("/removeCommentDevote/:commentId", verifyToken, removeCommentDevote);
+
 
 // Share Post
 router.post("/sharePost/:postId", verifyToken, sharePost);
