@@ -18,20 +18,42 @@ const liveSpaceSchema = mongoose.Schema({
         required: true
     },
 
+    type: {
+        type: String,
+        enum: ['instant', 'scheduled'],
+        required: true
+    },
+
     startDate: {
-        type: Date,
-        required: true,
-        default: Date.now
+        type: String, // Format: YYYY-MM-DD
+        required: function() {
+            return this.type === 'scheduled';
+        },
     },  
 
     endDate: {
-        type: Date,
-        required: true,
-        default: Date.now
+        type: String, // Format: YYYY-MM-DD
+        required: function() {
+            return this.type === 'scheduled';
+        },
     },   
 
-},
+    startTime: {
+        type: String, // Format: HH:MM
+        required: function() {
+            return this.type === 'scheduled';
+        }
+    },
 
-{ timestamps: true }
+    endTime: {
+        type: String, // Format: HH:MM
+        required: function() {
+            return this.type === 'scheduled';
+        }
+    },
 
-);
+}, { timestamps: true });
+
+
+
+export default mongoose.model('LiveSpace', liveSpaceSchema);
