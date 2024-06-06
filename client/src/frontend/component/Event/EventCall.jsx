@@ -1,10 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import HeaderComponent from './HeaderComponent';
 import EventCardComponent from './EventCard';
+import CreateEvent from './CreateEvent/CreateEvent';
 import img from '../../../assets/OIP (1).jfif';
 import img2 from '../../../assets/OIP (2).jfif';
 
 function EventCall() {
+  const [view, setView] = useState('events');
+
+  const handleCreateEventClick = () => {
+    setView('createEvent');
+  };
+
   const events = [
     {
       title: 'IT\'S GAME TIME',
@@ -28,12 +35,18 @@ function EventCall() {
 
   return (
     <div className="flex flex-col">
-      <HeaderComponent />
-      <section className="flex flex-col">
-        {events.map((event, index) => (
-          <EventCardComponent key={index} {...event} />
-        ))}
-      </section>
+      {view === 'events' ? (
+        <>
+          <HeaderComponent onCreateEvent={handleCreateEventClick} />
+          <section className="flex flex-col">
+            {events.map((event, index) => (
+              <EventCardComponent key={index} {...event} />
+            ))}
+          </section>
+        </>
+      ) : (
+        <CreateEvent />
+      )}
     </div>
   );
 }

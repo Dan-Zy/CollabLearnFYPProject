@@ -8,7 +8,6 @@ import "./index.css";
 import { MainPage } from "./frontend/Home";
 import { SignIn } from "./frontend/component/SignIn";
 import { SignUp } from "./frontend/component/SignUp"; // Add this import
-
 const router = createBrowserRouter([
   {
     path: "/Home",
@@ -22,6 +21,7 @@ const router = createBrowserRouter([
     path: "/SignUp",
     element: <SignUp />,
   },
+  
   
 ]);
 
