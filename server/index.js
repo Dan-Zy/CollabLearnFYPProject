@@ -12,6 +12,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import userRoutes from "./routes/userRoute.js";
 import postRoutes from "./routes/postRoute.js";
+import liveSpaceRoutes from "./routes/liveSpaceRoute.js";
 
 
 /* CONFIGURATIONS */
@@ -51,6 +52,7 @@ const storage = multer.diskStorage({
 
   app.use("/collablearn/user", postRoutes);
 
+  app.use("/collablearn", liveSpaceRoutes);
 
 
 

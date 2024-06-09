@@ -24,33 +24,19 @@ const liveSpaceSchema = mongoose.Schema({
         required: true
     },
 
-    startDate: {
-        type: String, // Format: YYYY-MM-DD
+    startDateTime: {
+        type: Date, // Format: YYYY-MM-DD
         required: function() {
             return this.type === 'scheduled';
         },
     },  
 
-    endDate: {
-        type: String, // Format: YYYY-MM-DD
+    endDateTime: {
+        type: Date, // Format: YYYY-MM-DD
         required: function() {
             return this.type === 'scheduled';
         },
     },   
-
-    startTime: {
-        type: String, // Format: HH:MM
-        required: function() {
-            return this.type === 'scheduled';
-        }
-    },
-
-    endTime: {
-        type: String, // Format: HH:MM
-        required: function() {
-            return this.type === 'scheduled';
-        }
-    },
 
 }, { timestamps: true });
 
