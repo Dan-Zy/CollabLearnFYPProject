@@ -25,14 +25,14 @@ const liveSpaceSchema = mongoose.Schema({
     },
 
     startDateTime: {
-        type: Date, // Format: YYYY-MM-DD
+        type: Date,
         required: function() {
             return this.type === 'scheduled';
         },
     },  
 
     endDateTime: {
-        type: Date, // Format: YYYY-MM-DD
+        type: Date,
         required: function() {
             return this.type === 'scheduled';
         },
