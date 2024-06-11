@@ -1,23 +1,10 @@
 import React from 'react';
 import Header from '../HeaderComponent';
-import EventOptionCard from './EventOptionCard';
-
+import GoLiveCard from './GoLiveCard';
+import CreateEventCard from './CreateEventCard';
 function CreateEvent() {
-  const eventOptions = [
-    {
-      icon: '', 
-      title: 'Go live',
-      description: 'Go live by yourself or with others',
-      buttonText: 'Go Live'
-    },
-    {
-      icon: '', 
-      title: 'Create live video event',
-      description: 'Create an event ahead of time to share with your audience',
-      buttonText: 'Create Event'
-    }
-  ];
-
+  
+  
   return (
     <div className="flex flex-col">
       <Header />
@@ -25,15 +12,8 @@ function CreateEvent() {
         Welcome back, Muhammad Hassan!
       </div>
       <div className="flex flex-row justify-center items-center flex-wrap gap-4">
-        {eventOptions.map((option, index) => (
-          <EventOptionCard
-            key={index}
-            icon={option.icon}
-            title={option.title}
-            description={option.description}
-            buttonText={option.buttonText}
-          />
-        ))}
+          <GoLiveCard/>
+          <CreateEventCard/>
       </div>
     </div>
   );

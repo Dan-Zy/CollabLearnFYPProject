@@ -37,9 +37,10 @@ export function SignIn() {
         setError(response.data.message);
       } else {
         localStorage.setItem("token", response.data.token);
+        localStorage.setItem('email', email);
+        localStorage.setItem('password', password);
         navigate("/Home");
       }
-
       console.log("Token: ", response.data.token);
     } catch (err) {
       setError("Email or Password is not correct.");
