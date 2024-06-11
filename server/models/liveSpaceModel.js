@@ -24,6 +24,14 @@ const liveSpaceSchema = mongoose.Schema({
         required: true
     },
 
+    imageBanner: {
+        type: String,
+        required: function() {
+            return this.type === 'scheduled';
+        },
+        default: ""
+    },
+
     startDateTime: {
         type: Date,
         required: function() {
