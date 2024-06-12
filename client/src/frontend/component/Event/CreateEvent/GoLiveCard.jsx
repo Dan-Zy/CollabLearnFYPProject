@@ -6,7 +6,7 @@ function GoLiveCard() {
   const [EventTitle ,setEventTitle] = useState('')
    
   const handleClick = () => {
-    const displayName = 'dani';
+    const displayName = 'sulman';
     const email = '201400052@gift.edu.pk';
     const password = 'hasmal12';
     const domain = 'meet.jit.si'; // Replace with your Jitsi Meet domain

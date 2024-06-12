@@ -25,7 +25,7 @@ function EventCard({ title, img, time }) {
       </div>
       <div className="flex w-[80%] flex-row p-4">
         <h2 className="flex-1 text-lg font-bold text-start">{title}</h2>
-        <a href="https://meet.jit.si/hassangmail.com" >
+        <a href="https://meet.jit.si/has" >
         <p className="text-gray-600 text-end">{time} </p></a>
       </div>
       

@@ -1,7 +1,7 @@
-// eslint-disable-next-line no-unused-vars
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import jwt_decode from "jwt-decode";
 import fb from "../../assets/facebook_icon.png";
 import google from "../../assets/google_original_icon.png";
 import ln from "../../assets/linkedin_icon.png";
@@ -36,12 +36,30 @@ export function SignIn() {
       if (!response.data.success) {
         setError(response.data.message);
       } else {
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem('email', email);
-        localStorage.setItem('password', password);
+        const token = response.data.token;
+        localStorage.setItem("token", token);
         navigate("/Home");
+
+        // Decode the token and fetch user info
+        const decodedToken = jwt_decode(token);
+        console.log("Decoded Token: ", decodedToken);
+        console.log(decodedToken.id)
+        try {
+          const userInfoResponse = await axios.get(
+            `http://localhost:3001/collablearn/user/getUser/${decodedToken.id}`,
+            {
+              headers: {
+                Authorization: `${token}`,
+              },
+            }
+          );
+          const userInfo = userInfoResponse.data;
+          console.log("User Info: ", userInfo.user);
+          localStorage.setItem('userInfo.user')
+        } catch (error) {
+          console.error("Error fetching user info:", error);
+        }
       }
-      console.log("Token: ", response.data.token);
     } catch (err) {
       setError("Email or Password is not correct.");
     }
@@ -58,9 +76,9 @@ export function SignIn() {
             Sign in to CollabLearn
           </h1>
           <div className="flex justify-center mb-4">
-            <img src={fb} alt="" className="w-8 h-8 mx-2" />
-            <img src={google} alt="" className="w-8 h-8 mx-2" />
-            <img src={ln} alt="" className="w-8 h-8 mx-2" />
+            <img src={fb} alt="Facebook" className="w-8 h-8 mx-2" />
+            <img src={google} alt="Google" className="w-8 h-8 mx-2" />
+            <img src={ln} alt="LinkedIn" className="w-8 h-8 mx-2" />
           </div>
           <p className="text-gray-600 mb-4">or use your email account</p>
           <form onSubmit={handleSubmit} className="w-full md:w-80">
