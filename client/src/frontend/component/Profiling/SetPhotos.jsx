@@ -14,44 +14,46 @@ export default function SetPhotos() {
 
   const handleProfilePicChange = (event) => {
     const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setProfilePic(reader.result);
-    };
-    reader.readAsDataURL(file);
+    setProfilePic(file);
   };
 
   const handleCoverPhotoChange = (event) => {
     const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setCoverPhoto(reader.result);
-    };
-    reader.readAsDataURL(file);
+    setCoverPhoto(file);
   };
 
   const handleSubmit = async () => {
     try {
-      const userData = {
-        username: userInfo.name,
-        email: userInfo.email,
-        password: userInfo.password,  // Assuming password is passed from the previous steps
-        role: role,
-        profilePicture: profilePic,
-        coverPicture: coverPhoto,
-        bio: userInfo.bio || '',  // Assuming bio might be added later
-        studentDetails: role === "Student" ? form : undefined,
-        facultyDetails: role === "Faculty Member" ? form : undefined,
-        industrialDetails: role === "Industrial Professional" ? form : undefined,
-      };
+      const formData = new FormData();
+      formData.append('username', userInfo.name);
+      formData.append('email', userInfo.email);
+      formData.append('password', userInfo.password);
+      formData.append('role', role);
+      if (profilePic) formData.append('profilePhoto', profilePic);
+      if (coverPhoto) formData.append('coverPhoto', coverPhoto);
+      formData.append('bio', userInfo.bio || '');
+      if (role === "Student") {
+        formData.append('studentDetails', JSON.stringify(form));
+      } else if (role === "Faculty Member") {
+        formData.append('facultyDetails', JSON.stringify(form));
+      } else if (role === "Industrial Professional") {
+        formData.append('industrialDetails', JSON.stringify(form));
+      }
 
-      const response = await axios.post('http://localhost:3001/collablearn/user/register', userData);
-      if (response.status === 200) {
+      const response = await axios.post('http://localhost:3001/collablearn/user/register', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
+      });
+
+      if (response.status === 201) {
         alert('User registered successfully');
-        setInProp(false);  // Trigger exit transition
+        const { token } = response.data;
+        localStorage.setItem('token', token); // Store token in localStorage
+        setInProp(false);
         setTimeout(() => {
           navigate('/Welcome');
-        }, 500);  // Match the transition duration
+        }, 500);
       }
     } catch (error) {
       console.error('There was an error registering the user!', error);
@@ -81,8 +83,8 @@ export default function SetPhotos() {
             <p className="mt-4 text-l">Your Information here</p>
           </div>
         </div>
-        <div className="flex flex-1 flex-col items-center p-8 bg-white relative ">
-          <div className="relative w-full h-48 ">
+        <div className="flex flex-1 flex-col items-center p-8 bg-white relative">
+          <div className="relative w-full h-48">
             <input
               type="file"
               accept="image/*"
@@ -91,7 +93,7 @@ export default function SetPhotos() {
               style={{ top: 0, left: 0 }}
             />
             {coverPhoto ? (
-              <img src={coverPhoto} alt="Cover" className="object-cover w-full h-full" />
+              <img src={URL.createObjectURL(coverPhoto)} alt="Cover" className="object-cover w-full h-full" />
             ) : (
               <div className="bg-gray-200 w-full h-full flex items-center justify-center">
                 <p>Upload Cover Photo</p>
@@ -107,16 +109,15 @@ export default function SetPhotos() {
               style={{ top: 0, left: 0 }}
             />
             {profilePic ? (
-              <img src={profilePic} alt="Profile" className="w-24 h-24 rounded-full border-4 border-white" />
+              <img src={URL.createObjectURL(profilePic)} alt="Profile" className="w-24 h-24 rounded-full border-4 border-white" />
             ) : (
               <div className="bg-gray-200 w-24 h-24 rounded-full border-4 border-white flex items-center justify-center">
                 <p>Upload Profile Pic</p>
               </div>
             )}
           </div>
-          
-          <div className="mt-10 w-full overflow-y-auto scroll max-h-screen no-scrollbar ">
-            <h3 className='text-indigo-400 font-bold text-2xl border-indigo-300 border-b-2 '>User Info</h3>
+          <div className="mt-10 w-full overflow-y-auto scroll max-h-screen no-scrollbar">
+            <h3 className='text-indigo-400 font-bold text-2xl border-indigo-300 border-b-2'>User Info</h3>
             {displayFormData()}
             <button 
               type="button" 

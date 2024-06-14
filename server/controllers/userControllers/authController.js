@@ -3,58 +3,76 @@
     import User from "../../models/userModel.js";
 
     // REGISTER USER
-    const registerUser = async (req , res) => {
+    const registerUser = async (req, res) => {
         try {
-            const { username, email, password, role, profilePicture, coverPicture, bio, isActive, studentDetails, facultyDetails, industrialDetails } = req.body;
-
+            console.log('Request Body:', req.body);
+            console.log('Uploaded Files:', req.files);
+    
+            let { username, email, password, role, bio, isActive, studentDetails, facultyDetails, industrialDetails } = req.body;
+    
             // Check user must enter essential fields
             if (!username || !email || !password || !role) {
+                console.log('Missing required fields');
                 return res.status(400).send({ message: "All fields are Required" });
-            };
-
+            }
+    
             const existingEmail = await User.findOne({ email });
-            if(existingEmail){
+            if (existingEmail) {
+                console.log('User already exists');
                 return res.status(200).send({
                     success: true,
-                    message: "User already exist. Please Login"
+                    message: "User already exists. Please Login"
                 });
-            };
-
+            }
+    
             const hashedPassword = await hashPassword(password);
-
+            console.log('Hashed Password:', hashedPassword);
+    
+            const profilePicture = req.files && req.files.profilePhoto ? req.files.profilePhoto[0].path : "";
+            const coverPicture = req.files && req.files.coverPhoto ? req.files.coverPhoto[0].path : "";
+    
+            console.log('Profile Picture Path:', profilePicture);
+            console.log('Cover Picture Path:', coverPicture);
+    
             const newUser = new User({
-                username, 
-                email, 
-                password: hashedPassword, 
-                role, 
-                profilePicture, 
-                coverPicture, 
-                bio, 
-                isActive, 
-                studentDetails, 
-                facultyDetails, 
-                industrialDetails
+                username,
+                email,
+                password: hashedPassword,
+                role,
+                profilePicture,
+                coverPicture,
+                bio,
+                isActive,
+                studentDetails: role === "Student" ? JSON.parse(studentDetails) : undefined,
+                facultyDetails: role === "Faculty Member" ? JSON.parse(facultyDetails) : undefined,
+                industrialDetails: role === "Industrial Professional" ? JSON.parse(industrialDetails) : undefined
             });
-
+    
+            console.log('New User Data:', newUser);
+    
             // Save the User in the database using save function of User Schema 
             const savedUser = await newUser.save();
-
+            console.log('Saved User:', savedUser);
+    
+            const token = await jwt.sign({ id: savedUser._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+    
             res.status(201).send({
                 success: true,
                 message: "User Registered Successfully",
-                user: savedUser
+                user: savedUser,
+                token
             });
-
-        }
-        
-        catch (error) {
-        console.log("Error in Signup: ", error);
-        res.status(500).send({
-            success: false,
-            message: "Internal Server Error"
-        })   
+    
+        } catch (error) {
+            console.log("Error in Signup: ", error);
+            res.status(500).send({
+                success: false,
+                message: "Internal Server Error",
+                error: error.message
+            });
         }
     };
+
 
 
     // LOGIN USER

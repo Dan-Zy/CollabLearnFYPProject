@@ -49,8 +49,14 @@ const storage = multer.diskStorage({
 
   // Configure CORS to allow requests from http://localhost:5173
   const corsOptions = {
-  origin: 'http://localhost:5173',
-  optionsSuccessStatus: 200 // For legacy browser support
+  // origin: 'http://localhost:5173',
+  // optionsSuccessStatus: 200 // For legacy browser support
+
+    origin: 'http://localhost:5173', // Allow this origin
+    methods: 'GET,POST,PUT,DELETE',
+    allowedHeaders: 'Content-Type,Authorization',
+    credentials: true,
+
   };
   app.use(cors(corsOptions));
 

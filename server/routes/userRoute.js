@@ -4,12 +4,16 @@ import upload from "../config/multer.js";
 import { verifyToken } from "../middlewares/authorization.js";
 import { uploadProfilePicture } from "../controllers/userControllers/uploadPfp.js";
 import getUser from "../controllers/userControllers/getUser.js";
+import uploadPfpCvP from "../config/registerMulter.js";
 
 const router = express.Router();
 
 
 // Regiter User
-router.post("/register", registerUser);
+router.post("/register", uploadPfpCvP.fields([
+  { name: 'profilePhoto', maxCount: 1 },
+  { name: 'coverPhoto', maxCount: 1 }
+]), registerUser);
 
 // Login User
 router.post("/login", loginUser);
