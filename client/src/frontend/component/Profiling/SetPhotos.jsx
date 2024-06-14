@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import axios from 'axios';
 import logo from '../../../assets/MainLogo_White.png';
 
 export default function SetPhotos() {
@@ -26,9 +27,32 @@ export default function SetPhotos() {
     reader.readAsDataURL(file);
   };
 
+  const handleSubmit = async () => {
+    try {
+      const userData = {
+        username: userInfo.name,
+        email: userInfo.email,
+        password: userInfo.password,  // Assuming password is passed from the previous steps
+        role: role,
+        profilePicture: profilePic,
+        coverPicture: coverPhoto,
+        bio: userInfo.bio || '',  // Assuming bio might be added later
+        studentDetails: role === "Student" ? form : undefined,
+        facultyDetails: role === "Faculty Member" ? form : undefined,
+        industrialDetails: role === "Industrial Professional" ? form : undefined,
+      };
+
+      const response = await axios.post('http://localhost:3001/collablearn/user/register', userData);
+      if (response.status === 200) {
+        alert('User registered successfully');
+      }
+    } catch (error) {
+      console.error('There was an error registering the user!', error);
+    }
+  };
+
   const displayFormData = () => (
-    <div className='flex  flex-col text-left'>
-      
+    <div className='flex flex-col text-left'>
       <p>Name: {userInfo.name}</p>
       <p>Email: {userInfo.email}</p>
       <h3>Role: {role}</h3>
@@ -40,7 +64,7 @@ export default function SetPhotos() {
 
   return (
     <div className="flex flex-col lg:flex-row h-screen">
-      <div className="flex flex-1 flex-col items-center bg-indigo-600 p-2">
+      <div className="flex flex-1 flex-col items-center bg-gradient-to-r from-indigo-600 to-indigo-400 p-2">
         <div>
           <img src={logo} alt="Logo" className="w-1/2 lg:w-1/4" />
         </div>
@@ -49,7 +73,7 @@ export default function SetPhotos() {
           <p className="mt-4 text-l">Your Information here</p>
         </div>
       </div>
-      <div className="flex flex-1 flex-col items-center p-8 bg-white relative">
+      <div className="flex flex-1 flex-col items-center p-8 bg-white relative ">
         <div className="relative w-full h-48 ">
           <input
             type="file"
@@ -66,7 +90,7 @@ export default function SetPhotos() {
             </div>
           )}
         </div>
-        <div className="absolute top-40 lg:top-40 transform -translate-x-1/2 left-1/2">
+        <div className="absolute top-36 lg:top-36 transform -translate-x-1/2 left-1/2">
           <input
             type="file"
             accept="image/*"
@@ -83,9 +107,16 @@ export default function SetPhotos() {
           )}
         </div>
         
-        <div className="mt-10 overflow-y-auto scroll max-h-screen no-scrollbar">
-        <h3 className='text-indigo-400 font-bold text-2xl border-indigo-300 border-b-2 '> User Info</h3>
+        <div className="mt-10 w-full overflow-y-auto scroll max-h-screen no-scrollbar ">
+          <h3 className='text-indigo-400 font-bold text-2xl border-indigo-300 border-b-2 '>User Info</h3>
           {displayFormData()}
+          <button 
+            type="button" 
+            className="w-[70%] m-2 bg-gradient-to-r from-indigo-600 to-indigo-400 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
+            onClick={handleSubmit}
+          >
+            Ready to SignUp
+          </button>
         </div>
       </div>
     </div>

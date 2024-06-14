@@ -47,6 +47,14 @@ const storage = multer.diskStorage({
   const upload = multer({ storage: storage });
 
 
+  // Configure CORS to allow requests from http://localhost:5173
+  const corsOptions = {
+  origin: 'http://localhost:5173',
+  optionsSuccessStatus: 200 // For legacy browser support
+  };
+  app.use(cors(corsOptions));
+
+
   // ROUTES
   app.use("/collablearn/user", userRoutes);
 
