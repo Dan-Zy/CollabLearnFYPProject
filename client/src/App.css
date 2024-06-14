@@ -52,3 +52,18 @@
 }
 /* Custom CSS for handling very small screens */
 
+/* Add this CSS to your stylesheet */
+.fade-enter {
+  opacity: 0;
+}
+.fade-enter-active {
+  opacity: 1;
+  transition: opacity 500ms;
+}
+.fade-exit {
+  opacity: 1;
+}
+.fade-exit-active {
+  opacity: 0;
+  transition: opacity 500ms;
+}
