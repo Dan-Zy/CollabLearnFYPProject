@@ -1,7 +1,7 @@
-import { useState } from "react";
+import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import back from "../../../assets/backarrow_icon.png";
 import logo from "../../../assets/MainLogo_White.png";
-import { Link } from "react-router-dom";
 
 export default function BasicQuestionFaculty() {
   const [form, setForm] = useState({
@@ -14,6 +14,10 @@ export default function BasicQuestionFaculty() {
     researchInterests: [""],
     interestedSubjects: [""]
   });
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { userInfo, role } = location.state;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -41,7 +45,7 @@ export default function BasicQuestionFaculty() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission logic
+    navigate('/SetProfileImage', { state: { userInfo, role, form } });
   };
 
   return (
@@ -59,7 +63,7 @@ export default function BasicQuestionFaculty() {
 
       <div className="flex flex-1 flex-col justify-start items-center p-8 bg-white overflow-y-auto max-h-screen">
         <div className="mb-8 w-full max-w-md">
-          <Link to='/Role'><img src={back} alt="Back" className="w-6 h-6" /></Link>
+          <img src={back} alt="Back" className="w-6 h-6 cursor-pointer" onClick={() => navigate(-1)} />
         </div>
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-indigo-400">
@@ -183,14 +187,12 @@ export default function BasicQuestionFaculty() {
             </button>
 
             <div className="text-center">
-              <Link to="/ProfilePage3">
-                <button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-indigo-600 to-indigo-400 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  Next
-                </button>
-              </Link>
+              <button
+                type="submit"
+                className="w-full bg-gradient-to-r from-indigo-600 to-indigo-400 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Next
+              </button>
             </div>
           </form>
         </div>

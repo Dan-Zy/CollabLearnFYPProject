@@ -12,6 +12,7 @@ import Role from "./frontend/component/Profiling/Role";
 import BasicQuestionFaculty from "./frontend/component/Profiling/BasicQuestionFaculty";
 import BasicQuestionStudent from "./frontend/component/Profiling/BasicQuestionStudent";
 import BasicQuestionIndustrial from "./frontend/component/Profiling/BasicQuestionIndustrial";
+import SetPhotos from "./frontend/component/Profiling/SetPhotos";
 const router = createBrowserRouter([
   {
     path: "/Home",
@@ -40,6 +41,10 @@ const router = createBrowserRouter([
   {
     path: "/BasicQuestionIndustrial",
     element: <BasicQuestionIndustrial/>
+  },
+  {
+    path: "/SetProfileImage",
+    element: <SetPhotos/>
   }
 
   
