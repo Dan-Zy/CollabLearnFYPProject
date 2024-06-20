@@ -1,17 +1,19 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import jwt_decode from "jwt-decode";
+
 import fb from "../../assets/facebook_icon.png";
 import google from "../../assets/google_original_icon.png";
 import ln from "../../assets/linkedin_icon.png";
 import logo from "../../assets/Logo.png";
+import { CSSTransition } from 'react-transition-group';
 
 export function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState(false);
   const [error, setError] = useState("");
+  const [inProp, setInProp] = useState(true);
   const navigate = useNavigate();
 
   const validateEmail = (email) => {
@@ -38,27 +40,11 @@ export function SignIn() {
       } else {
         const token = response.data.token;
         localStorage.setItem("token", token);
-        navigate("/Home");
+        setInProp(false);
+        setTimeout(() => {
+          navigate('/Welcome');
+        }, 600);
 
-        // Decode the token and fetch user info
-        const decodedToken = jwt_decode(token);
-        console.log("Decoded Token: ", decodedToken);
-        console.log(decodedToken.id)
-        try {
-          const userInfoResponse = await axios.get(
-            `http://localhost:3001/collablearn/user/getUser/${decodedToken.id}`,
-            {
-              headers: {
-                Authorization: `${token}`,
-              },
-            }
-          );
-          const userInfo = userInfoResponse.data;
-          console.log("User Info: ", userInfo.user);
-          localStorage.setItem('userInfo.user')
-        } catch (error) {
-          console.error("Error fetching user info:", error);
-        }
       }
     } catch (err) {
       setError("Email or Password is not correct.");
@@ -66,6 +52,7 @@ export function SignIn() {
   };
 
   return (
+    <CSSTransition in={inProp} timeout={500} classNames="fade" unmountOnExit>
     <div className="flex flex-col lg:flex-row w-screen h-screen">
       <div className="flex flex-col flex-1 bg-gray-50 justify-center items-center p-4">
         <div className="mb-8">
@@ -123,5 +110,6 @@ export function SignIn() {
         </Link>
       </div>
     </div>
+    </CSSTransition>
   );
 }

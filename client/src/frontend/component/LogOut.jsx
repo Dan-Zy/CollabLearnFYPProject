@@ -1,6 +1,4 @@
-// eslint-disable-next-line no-unused-vars
 import { Import } from "lucide-react";
-// eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import cross from "../../assets/cross_icon1.png";
@@ -9,29 +7,26 @@ import axios from "axios";
 export function LogOut() {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+  const image = userInfo.profilePicture;
 
   useEffect(() => {
     if (isModalOpen) {
       document.body.classList.add("modal-open");
+      console.log(userInfo);
     } else {
       document.body.classList.remove("modal-open");
     }
     return () => document.body.classList.remove("modal-open");
-  }, [isModalOpen]);
+  }, [isModalOpen, userInfo]);
 
   const toggleModal = () => {
     setIsModalOpen((prev) => !prev);
   };
 
-  const profileinfo = {
-    name: "Muhammad Hassan",
-    img: "",
-    type: "Student",
-  };
-
   const handleClick = async (event) => {
     event.preventDefault();
-
+    
     console.log("Logout Click");
 
     const response = await axios.get(
@@ -39,21 +34,23 @@ export function LogOut() {
     );
 
     localStorage.removeItem("token");
+    localStorage.removeItem("userInfo");
+    
     navigate("/"); // Redirect to the login page or any other page as needed
   };
 
   return (
     <>
-      <div className="flex items-center cursor-pointer" onClick={toggleModal}>
+      <div className="flex justify-center border-b-2 p-1 border-indigo-100 items-center cursor-pointer "  onClick={toggleModal}>
         <img
-          src="https://via.placeholder.com/40"
+          src={image ? `http://localhost:3001/${image}` : 'https://via.placeholder.com/40'}
           alt="Profile"
-          className="rounded-full w-10 h-10 mr-3"
+          className="flex rounded-full w-12 h-12 mr-3  border border-indigo-500 p-2"
         />
 
         <div>
-          <h4 className="font-semibold">Daniyal Zafar Malik</h4>
-          <p className="text-sm text-gray-500">student</p>
+          <h4 className=" flex font-semibold">{userInfo.username || "User"}</h4>
+          <p className="flex text-sm text-gray-500">{userInfo.role || "Role"}</p>
         </div>
       </div>
 
@@ -67,11 +64,11 @@ export function LogOut() {
             onClick={(e) => e.stopPropagation()}
           >
             <a href="/UserProfile">
-              <div className="flex items-center p-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200">
+              <div className="flex items-center p-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200" >
                 <img
-                  src={profileinfo.img}
+                  src={image ? `http://localhost:3001/${image}` : 'https://via.placeholder.com/40'}
                   alt="Profile"
-                  className="w-8 h-8 rounded-full"
+                  className="w-8 h-8 rounded-full border-2 border-indigo-600"
                 />
                 <p className="ml-2">My Profile</p>
               </div>

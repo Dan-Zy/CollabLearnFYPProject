@@ -39,7 +39,7 @@ export default function SetPhotos() {
       } else if (role === "Industrial Professional") {
         formData.append('industrialDetails', JSON.stringify(form));
       }
-
+      
       const response = await axios.post('http://localhost:3001/collablearn/user/register', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
