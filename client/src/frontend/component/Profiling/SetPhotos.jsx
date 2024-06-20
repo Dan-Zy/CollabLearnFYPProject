@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios';
-import logo from '../../../assets/MainLogo_White.png';
-import { CSSTransition } from 'react-transition-group';
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
+import logo from "../../../assets/MainLogo_White.png";
+import { CSSTransition } from "react-transition-group";
 
 export default function SetPhotos() {
   const location = useLocation();
@@ -25,49 +25,59 @@ export default function SetPhotos() {
   const handleSubmit = async () => {
     try {
       const formData = new FormData();
-      formData.append('username', userInfo.name);
-      formData.append('email', userInfo.email);
-      formData.append('password', userInfo.password);
-      formData.append('role', role);
-      if (profilePic) formData.append('profilePhoto', profilePic);
-      if (coverPhoto) formData.append('coverPhoto', coverPhoto);
-      formData.append('bio', userInfo.bio || '');
+      formData.append("username", userInfo.name);
+      formData.append("email", userInfo.email);
+      formData.append("password", userInfo.password);
+      formData.append("role", role);
+      if (profilePic) formData.append("profilePhoto", profilePic);
+      if (coverPhoto) formData.append("coverPhoto", coverPhoto);
+      formData.append("bio", userInfo.bio || "");
       if (role === "Student") {
-        formData.append('studentDetails', JSON.stringify(form));
+        formData.append("studentDetails", JSON.stringify(form));
       } else if (role === "Faculty Member") {
-        formData.append('facultyDetails', JSON.stringify(form));
+        formData.append("facultyDetails", JSON.stringify(form));
       } else if (role === "Industrial Professional") {
-        formData.append('industrialDetails', JSON.stringify(form));
+        formData.append("industrialDetails", JSON.stringify(form));
       }
-      
-      const response = await axios.post('http://localhost:3001/collablearn/user/register', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
+
+      const response = await axios.post(
+        "http://localhost:3001/collablearn/user/register",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
-      });
+      );
 
       if (response.status === 201) {
-        alert('User registered successfully');
+        alert("User registered successfully");
         const { token } = response.data;
-        localStorage.setItem('token', token); // Store token in localStorage
+        localStorage.setItem("token", token); // Store token in localStorage
         setInProp(false);
         setTimeout(() => {
-          navigate('/Welcome');
+          navigate("/verify-email");
         }, 500);
       }
     } catch (error) {
-      console.error('There was an error registering the user!', error);
+      console.error("There was an error registering the user!", error);
     }
   };
 
   const displayFormData = () => (
-    <div className='flex flex-col text-left'>
+    <div className="flex flex-col text-left">
       <p>Name: {userInfo.name}</p>
       <p>Email: {userInfo.email}</p>
       <h3>Role: {role}</h3>
-      {Object.entries(form).map(([key, value]) => (
-        Array.isArray(value) ? value.map((item, index) => <p key={index}>{`${key} ${index + 1}: ${item}`}</p>) : <p key={key}>{`${key}: ${value}`}</p>
-      ))}
+      {Object.entries(form).map(([key, value]) =>
+        Array.isArray(value) ? (
+          value.map((item, index) => (
+            <p key={index}>{`${key} ${index + 1}: ${item}`}</p>
+          ))
+        ) : (
+          <p key={key}>{`${key}: ${value}`}</p>
+        )
+      )}
     </div>
   );
 
@@ -93,7 +103,11 @@ export default function SetPhotos() {
               style={{ top: 0, left: 0 }}
             />
             {coverPhoto ? (
-              <img src={URL.createObjectURL(coverPhoto)} alt="Cover" className="object-cover w-full h-full" />
+              <img
+                src={URL.createObjectURL(coverPhoto)}
+                alt="Cover"
+                className="object-cover w-full h-full"
+              />
             ) : (
               <div className="bg-gray-200 w-full h-full flex items-center justify-center">
                 <p>Upload Cover Photo</p>
@@ -109,7 +123,11 @@ export default function SetPhotos() {
               style={{ top: 0, left: 0 }}
             />
             {profilePic ? (
-              <img src={URL.createObjectURL(profilePic)} alt="Profile" className="w-24 h-24 rounded-full border-4 border-white" />
+              <img
+                src={URL.createObjectURL(profilePic)}
+                alt="Profile"
+                className="w-24 h-24 rounded-full border-4 border-white"
+              />
             ) : (
               <div className="bg-gray-200 w-24 h-24 rounded-full border-4 border-white flex items-center justify-center">
                 <p>Upload Profile Pic</p>
@@ -117,10 +135,12 @@ export default function SetPhotos() {
             )}
           </div>
           <div className="mt-10 w-full overflow-y-auto scroll max-h-screen no-scrollbar">
-            <h3 className='text-indigo-400 font-bold text-2xl border-indigo-300 border-b-2'>User Info</h3>
+            <h3 className="text-indigo-400 font-bold text-2xl border-indigo-300 border-b-2">
+              User Info
+            </h3>
             {displayFormData()}
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="w-[70%] m-2 bg-gradient-to-r from-indigo-600 to-indigo-400 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
               onClick={handleSubmit}
             >

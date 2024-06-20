@@ -5,6 +5,7 @@ import { verifyToken } from "../middlewares/authorization.js";
 import { uploadProfilePicture } from "../controllers/userControllers/uploadPfp.js";
 import getUser from "../controllers/userControllers/getUser.js";
 import uploadPfpCvP from "../config/registerMulter.js";
+import { verifyEmail } from "../controllers/userControllers/userController.js";
 
 const router = express.Router();
 
@@ -14,6 +15,10 @@ router.post("/register", uploadPfpCvP.fields([
   { name: 'profilePhoto', maxCount: 1 },
   { name: 'coverPhoto', maxCount: 1 }
 ]), registerUser);
+
+// Verify User
+router.get('/verify-email', verifyEmail);
+
 
 // Login User
 router.post("/login", loginUser);

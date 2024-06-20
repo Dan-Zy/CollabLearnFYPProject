@@ -1,6 +1,8 @@
-    import jwt from "jsonwebtoken";
-    import { hashPassword, comparePassword } from "../../helpers/userHelper.js";
-    import User from "../../models/userModel.js";
+import jwt from "jsonwebtoken";
+import { hashPassword, comparePassword } from "../../helpers/userHelper.js";
+import User from "../../models/userModel.js";
+import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 
     // REGISTER USER
     const registerUser = async (req, res) => {
@@ -33,6 +35,10 @@
     
             console.log('Profile Picture Path:', profilePicture);
             console.log('Cover Picture Path:', coverPicture);
+
+            // Generate email verification token
+            const verificationToken = crypto.randomBytes(32).toString('hex');
+            const verificationTokenExpires = Date.now() + 3600000; // 1 hour
     
             const newUser = new User({
                 username,
@@ -45,7 +51,9 @@
                 isActive,
                 studentDetails: role === "Student" ? JSON.parse(studentDetails) : undefined,
                 facultyDetails: role === "Faculty Member" ? JSON.parse(facultyDetails) : undefined,
-                industrialDetails: role === "Industrial Professional" ? JSON.parse(industrialDetails) : undefined
+                industrialDetails: role === "Industrial Professional" ? JSON.parse(industrialDetails) : undefined,
+                verificationToken,
+                verificationTokenExpires
             });
     
             console.log('New User Data:', newUser);
@@ -55,6 +63,39 @@
             console.log('Saved User:', savedUser);
     
             const token = await jwt.sign({ id: savedUser._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+
+            // Send verification email
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            secure: true,
+            port: 465,
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
+
+        const verificationUrl = `http://localhost:3001/collablearn/user/verify-email?token=${verificationToken}`;
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: savedUser.email,
+            subject: 'Email Verification for CollabLearn',
+            text: `Please verify your email by clicking the following link: ${verificationUrl}`
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error('Error sending email:', error);
+                return res.status(500).send('Error sending email');
+            }
+            console.log('Verification email sent:', info.response);
+            res.status(201).send({
+                success: true,
+                message: "User registered successfully. Please check your email to verify your account.",
+                user: savedUser
+            });
+        });
     
             res.status(201).send({
                 success: true,

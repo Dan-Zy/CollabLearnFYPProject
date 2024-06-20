@@ -1,9 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom/client";
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 import { MainPage } from "./frontend/Home";
 import { SignIn } from "./frontend/component/SignIn";
@@ -15,6 +12,8 @@ import BasicQuestionIndustrial from "./frontend/component/Profiling/BasicQuestio
 import SetPhotos from "./frontend/component/Profiling/SetPhotos";
 import Welcome from "./frontend/component/Profiling/Welcome";
 import UserInfo from "./frontend/component/UserInfo";
+import { VerificationPage } from "./frontend/component/VerificationPage";
+
 const router = createBrowserRouter([
   {
     path: "/Home",
@@ -30,35 +29,38 @@ const router = createBrowserRouter([
   },
   {
     path: "/Role",
-    element: <Role/>
+    element: <Role />,
   },
   {
     path: "/BasicQuestionFaculty",
-    element: <BasicQuestionFaculty/>
+    element: <BasicQuestionFaculty />,
   },
   {
     path: "/BasicQuestionStudent",
-    element: <BasicQuestionStudent/>
+    element: <BasicQuestionStudent />,
   },
   {
     path: "/BasicQuestionIndustrial",
-    element: <BasicQuestionIndustrial/>
+    element: <BasicQuestionIndustrial />,
   },
   {
     path: "/SetProfileImage",
-    element: <SetPhotos/>
+    element: <SetPhotos />,
   },
+
+  {
+    path: "/verify-email",
+    element: <VerificationPage />,
+  },
+
   {
     path: "/Welcome",
-    element: <Welcome/>
+    element: <Welcome />,
   },
   {
     path: "/UserInfo",
-    element: <UserInfo/>
-  }
-
-  
-  
+    element: <UserInfo />,
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
