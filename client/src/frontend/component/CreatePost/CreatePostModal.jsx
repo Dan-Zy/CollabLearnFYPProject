@@ -133,7 +133,7 @@ export function CreatePostModal() {
     const response = await fetch(
       'https://api-inference.huggingface.co/models/IMSyPP/hate_speech_en',
       {
-        headers: { Authorization: 'Bearer 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' },
+        headers: { Authorization: 'Bearer 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' },
         method: 'POST',
         body: JSON.stringify(data),
       }
