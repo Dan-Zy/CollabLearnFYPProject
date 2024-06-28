@@ -1,5 +1,6 @@
 // As you can see below I am using import instead of require this is beacause I have write a code line of { "type": "module" } in package.json file
 
+import './helpers/cleanupUser.js';
 import express from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
