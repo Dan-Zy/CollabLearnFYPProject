@@ -62,7 +62,7 @@ export default function Welcome() {
         }`}
       >
         Loading...
-      </div> // You can replace this with any loading animation component
+      </div> 
     );
   }
 

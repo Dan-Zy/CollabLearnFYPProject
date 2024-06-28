@@ -5,7 +5,7 @@ import LeftSidebar from "./LeftSideBar";
 import CollaboratorList from "./component/Collabler/CollaboratorList";
 import { PostCall } from "./component/NewsFeed";
 import EventCall from "./component/Event/EventCall";
-
+import { CommunityHome } from "./component/community/CommunityHome";
 import "../App.css";
 
 export function MainPage() {
@@ -24,6 +24,7 @@ export function MainPage() {
         {activeItem === 'Home' && <PostCall />}
         {activeItem === 'My Collabs' && <CollaboratorList />}
         {activeItem === 'Events' && <EventCall />}
+        {activeItem === 'Community' && <CommunityHome />}
         {/* Render other components based on the active item */}
       </div>
       <div className="flex w-1/5 justify-center h-full overflow-y-auto custom-scrollbar">
