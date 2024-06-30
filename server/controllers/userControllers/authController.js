@@ -203,7 +203,8 @@ import nodemailer from 'nodemailer';
                 res.status(201).send({
                     success: true,
                     message: "User registered successfully. Please check your email to verify your account.",
-                    user: savedUser
+                    user: savedUser,
+                    token
                 });
             });
     
