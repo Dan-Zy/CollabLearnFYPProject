@@ -1,13 +1,39 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import HeaderComponent from './HeaderComponent';
 import EventCardComponent from './EventCard';
 import CreateEvent from './CreateEvent/CreateEvent';
 import MyEvent from './MyEvent/MyEvent';
-import img from '../../../assets/OIP (1).jfif';
-import img2 from '../../../assets/OIP (2).jfif';
+import axios from 'axios';
 
 function EventCall() {
   const [view, setView] = useState('events');
+  const [events, setEvents] = useState([]);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('Token not found');
+        }
+
+        const response = await axios.get('http://localhost:3001/collablearn/getEvents', {
+          headers: {
+            Authorization: `${token}`
+          }
+        });
+
+        setEvents(response.data.events.filter(event => event.type === 'Scheduled'));
+        console.log('====================================');
+        console.log(response.data.events.filter(event => event.type === 'Scheduled'));
+        console.log('====================================');
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const handleCreateEventClick = () => {
     setView('createEvent');
@@ -16,27 +42,6 @@ function EventCall() {
   const handleViewEventsClick = () => {
     setView('myEvents');
   };
-
-  const events = [
-    {
-      title: 'IT\'S GAME TIME',
-      img: img,
-      time: 'Streaming starts at 8 PM',
-      interested: false,
-    },
-    {
-      title: 'GAMING STREAM',
-      img: img2,
-      time: 'Streaming starts at 9 PM',
-      interested: true,
-    },
-    {
-      title: 'IT\'S GAME TIME',
-      img: img,
-      time: 'Streaming starts at 8 PM',
-      interested: false,
-    },
-  ];
 
   return (
     <div className="flex flex-col">

@@ -13,7 +13,7 @@ import SetPhotos from "./frontend/component/Profiling/SetPhotos";
 import Welcome from "./frontend/component/Profiling/Welcome";
 import UserInfo from "./frontend/component/UserInfo";
 import { VerificationPage } from "./frontend/component/VerificationPage";
-
+import CommunityViewHome from "./frontend/component/community/CommunityView/CommunityViewHome";
 const router = createBrowserRouter([
   {
     path: "/Home",
@@ -60,6 +60,10 @@ const router = createBrowserRouter([
   {
     path: "/UserInfo",
     element: <UserInfo />,
+  },
+  {
+    path: "/CommunityViewHome",
+    element: <CommunityViewHome />,
   },
 ]);
 
