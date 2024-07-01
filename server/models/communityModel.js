@@ -19,16 +19,20 @@ const communitySchema = new mongoose.Schema({
         required: true
     },
 
-    communityTopic: {
-        type: String,
-        required: true
-    },
-
     privacy: {
         type: String,
         enum: ["Public", "Private"],
         default: "Public"
     },
+
+    communityGenre: {
+        type: String,
+        required: true
+    },
+
+    // communityPosts: [
+        
+    // ],
 
     totalMembers: {
         type: Number,
