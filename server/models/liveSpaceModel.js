@@ -20,14 +20,14 @@ const liveSpaceSchema = mongoose.Schema({
 
     type: {
         type: String,
-        enum: ['instant', 'scheduled'],
+        enum: ['Instant', 'Scheduled'],
         required: true
     },
 
     imageBanner: {
         type: String,
         required: function() {
-            return this.type === 'scheduled';
+            return this.type === 'Scheduled';
         },
         default: ""
     },
@@ -35,14 +35,14 @@ const liveSpaceSchema = mongoose.Schema({
     startDateTime: {
         type: Date,
         required: function() {
-            return this.type === 'scheduled';
+            return this.type === 'Scheduled';
         },
     },  
 
     endDateTime: {
         type: Date,
         required: function() {
-            return this.type === 'scheduled';
+            return this.type === 'Scheduled';
         },
     },   
 

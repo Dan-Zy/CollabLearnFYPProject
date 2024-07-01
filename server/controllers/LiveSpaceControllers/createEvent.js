@@ -18,7 +18,7 @@ const createEvent = async (req, res) => {
             });
         }
 
-        if (type === "scheduled") {
+        if (type === "Scheduled") {
             if (!startDate || !endDate || !startTime || !endTime) {
                 return res.status(400).json({
                     success: false,
@@ -35,11 +35,11 @@ const createEvent = async (req, res) => {
         }
 
 
-        if(type === "instant"){
+        if(type === "Instant"){
             if (startDate || endDate || startTime || endTime) {
                 return res.status(400).json({
                     success: false,
-                    message: "Date and Time required not required for Instant Events"
+                    message: "Date and Time not required for Instant Events"
                 });
             }
 
@@ -82,8 +82,8 @@ const createEvent = async (req, res) => {
             }
         }
 
-        const startDateTime = type === "scheduled" ? DateTime.fromISO(`${startDate}T${startTime}`) : null;
-        const endDateTime = type === "scheduled" ? DateTime.fromISO(`${endDate}T${endTime}`) : null;
+        const startDateTime = type === "Scheduled" ? DateTime.fromISO(`${startDate}T${startTime}`) : null;
+        const endDateTime = type === "Scheduled" ? DateTime.fromISO(`${endDate}T${endTime}`) : null;
 
         const newLiveSpace = new liveSpaceModel({
             hostId,
@@ -97,7 +97,7 @@ const createEvent = async (req, res) => {
 
         await newLiveSpace.save();
 
-        const responseMessage = type === "scheduled"
+        const responseMessage = type === "Scheduled"
             ? `Scheduled Live Space has been created Successfully and will start at: ${startDateTime.toJSDate()} and will end at ${endDateTime.toJSDate()}`
             : "Instant Live Space has been created Successfully";
 

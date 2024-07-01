@@ -5,6 +5,7 @@ import uploadBanner from "../config/eventMulter.js";
 
 const router = express.Router();
 
+// Create Event
 router.post("/createEvent", verifyToken, uploadBanner.single("image"), createEvent);
 
 export default router;
