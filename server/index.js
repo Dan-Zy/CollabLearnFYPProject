@@ -14,6 +14,8 @@ import { fileURLToPath } from "url";
 import userRoutes from "./routes/userRoute.js";
 import postRoutes from "./routes/postRoute.js";
 import liveSpaceRoutes from "./routes/liveSpaceRoute.js";
+import communityRoutes from "./routes/communityRoute.js";
+import communityPostRoutes from "./routes/communityPostRoute.js"
 
 
 /* CONFIGURATIONS */
@@ -68,6 +70,10 @@ const storage = multer.diskStorage({
   app.use("/collablearn/user", postRoutes);
 
   app.use("/collablearn", liveSpaceRoutes);
+
+  app.use("/collablearn", communityRoutes);
+
+  app.use("/collablearn", communityPostRoutes);
 
 
 

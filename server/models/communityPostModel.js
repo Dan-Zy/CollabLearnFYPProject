@@ -2,56 +2,62 @@ import mongoose from "mongoose";
 // import User from "./userModel";
 
 
-const communityCommentSchema = mongoose.Schema({
+// const communityCommentSchema = mongoose.Schema({
 
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true
-    },
+//     userId: {
+//         type: mongoose.Schema.Types.ObjectId,
+//         ref: "User",
+//         required: true
+//     },
 
-    parentCommentId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Comment",
-        default: null
-    },
+//     parentCommentId: {
+//         type: mongoose.Schema.Types.ObjectId,
+//         ref: "Comment",
+//         default: null
+//     },
 
-    content: {
-        type: String,
-        required: true
-    },
+//     content: {
+//         type: String,
+//         required: true
+//     },
 
-    image: {
-        type: String,
-        default: ""
-    },
+//     image: {
+//         type: String,
+//         default: ""
+//     },
 
-    upvotes: {
-        type: [mongoose.Schema.Types.ObjectId],
-        ref: "User",
-        default: []
-    },
+//     upvotes: {
+//         type: [mongoose.Schema.Types.ObjectId],
+//         ref: "User",
+//         default: []
+//     },
 
-    devotes: {
-        type: [mongoose.Schema.Types.ObjectId],
-        ref: "User",
-        default: []
-    },
+//     devotes: {
+//         type: [mongoose.Schema.Types.ObjectId],
+//         ref: "User",
+//         default: []
+//     },
 
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
+//     createdAt: {
+//         type: Date,
+//         default: Date.now
+//     },
 
-    updatedAt: {
-        type: Date,
-        default: Date.now
-    }
+//     updatedAt: {
+//         type: Date,
+//         default: Date.now
+//     }
 
-})
+// })
 
 
 const communityPostSchema = mongoose.Schema({
+
+    communityId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Community",
+        required: true
+    },
 
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -140,6 +146,6 @@ const communityPostSchema = mongoose.Schema({
 });
 
 const CommunityPost = mongoose.model("CommunityPost", communityPostSchema, "communityPosts");
-const CommunityComment = mongoose.model("CommunityComment", communityCommentSchema, "communityComments");
+// const CommunityComment = mongoose.model("CommunityComment", communityCommentSchema, "communityComments");
 
-export {CommunityPost , CommunityComment}
+export {CommunityPost}

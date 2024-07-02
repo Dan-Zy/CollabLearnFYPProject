@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const communitySchema = new mongoose.Schema({
 
-    userId: {
+    adminId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true
@@ -16,7 +16,11 @@ const communitySchema = new mongoose.Schema({
 
     communityDescription: {
         type: String,
-        required: true
+    },
+
+    communityBanner: {
+        type: String,
+        default: ""
     },
 
     privacy: {
@@ -30,18 +34,29 @@ const communitySchema = new mongoose.Schema({
         required: true
     },
 
-    // communityPosts: [
-        
-    // ],
+    members: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+    }],
 
-    totalMembers: {
-        type: Number,
-    },
+    // createdAt: {
+    //     type: Date,
+    //     default: Date.now
+    // },
+
+    // updatedAt: {
+    //     type: Date,
+    //     default: Date.now
+    // }
 
 
 
-});
+},
 
-const Community = mongoose.Model(communitySchema);
+{timestamps: true}
+
+);
+
+const Community = mongoose.model("Community", communitySchema, "communities");
 
 export default Community;
