@@ -5,8 +5,8 @@ const getCommunity = async (req, res) => {
     try {
         const { communityId } = req.params;
         const userId = req.userId;
-
-        // console.log(community.privacy === "Private");
+    
+        const community = await Community.findById(communityId).populate("adminId").populate("members");
 
         const memb = community.members.find(element => { return JSON.stringify(userId) === JSON.stringify(element._id) });
         console.log("Member: ", memb);
