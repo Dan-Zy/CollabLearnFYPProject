@@ -6,16 +6,32 @@ const getCommunity = async (req, res) => {
         const { communityId } = req.params;
         const userId = req.userId;
 
-        // console.log("Req User ID: ", typeof(reqUserId));
-        // console.log("Param User ID: ", typeof(userId));
+        // console.log(community.privacy === "Private");
 
-        const community = await Community.findById(communityId).populate("adminId").populate("members");
+        const memb = community.members.find(element => { return JSON.stringify(userId) === JSON.stringify(element._id) });
+        console.log("Member: ", memb);
 
-        // if(community.privacy === "Private"){
-        //     if()
-        // }
+        console.log("UserID : ", JSON.stringify(userId));
 
-        console.log("Community Member's ID: ", community.members[0]._id);
+        console.log("Community Member's ID: ", JSON.stringify(community.members[0]._id));
+
+        if(JSON.stringify(userId) === JSON.stringify(community.members[0]._id)){
+            console.log("EQUALLLLLLL");
+        }
+
+        if(community.privacy === "Private" && memb == undefined){
+            return res.status(401).json({
+                success: false,
+                message: "You have to be a member of this community to view this Private Community Details"
+            })
+        }
+
+        
+        
+
+        else{
+            console.log("NOT EQUAL");
+        }
 
         return res.status(200).json({
             success: true,
