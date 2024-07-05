@@ -7,12 +7,12 @@ const getCommentReply = async (req, res) => {
         
         const { commentId } = req.params;
 
-        // Validate the postId
+        // Validate the commentId
         if (!commentId || !mongoose.Types.ObjectId.isValid(commentId)) {
             return res.status(400).json({ message: 'Invalid CommentID' });
         }
 
-        // Ensure the post exists
+        // Ensure the comment exists
         const comment = await Comment.findById(commentId);
 
         if (!comment) {

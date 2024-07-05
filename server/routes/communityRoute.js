@@ -3,6 +3,7 @@ import createCommunity from "../controllers/communityControllers/createCommunity
 import { verifyToken } from "../middlewares/authorization.js";
 import uploadCommunityBanner from './../config/communityMulter.js';
 import getCommunities from './../controllers/communityControllers/getCommunities.js';
+import getCommunity from "./../controllers/communityControllers/getCommunity.js"
 
 const router = express.Router();
 
@@ -11,6 +12,9 @@ router.post("/createCommunity", verifyToken, uploadCommunityBanner.single("image
 
 // GET COMMUNITIES
 router.get("/getCommunities", verifyToken, getCommunities);
+
+// GET COMMUNITY
+router.get("/getCommunity/:communityId", verifyToken, getCommunity);
 
 
 export default router;
