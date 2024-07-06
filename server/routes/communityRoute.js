@@ -5,6 +5,7 @@ import uploadCommunityBanner from './../config/communityMulter.js';
 import getCommunities from './../controllers/communityControllers/getCommunities.js';
 import getCommunity from "./../controllers/communityControllers/getCommunity.js"
 import updateCommunity from "../controllers/communityControllers/updateCommunity.js";
+import deleteCommunity from "../controllers/communityControllers/deleteCommunity.js";
 
 const router = express.Router();
 
@@ -13,6 +14,9 @@ router.post("/createCommunity", verifyToken, uploadCommunityBanner.single("image
 
 // UPDATE COMMUNITY DETAILS
 router.put("/updateCommunity/:communityId", verifyToken, uploadCommunityBanner.single("image"), updateCommunity);
+
+// DELETE COMMUNITY
+router.delete("/deleteCommunity/:communityId", verifyToken, deleteCommunity);
 
 // GET COMMUNITIES
 router.get("/getCommunities", verifyToken, getCommunities);

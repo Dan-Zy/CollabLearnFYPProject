@@ -148,4 +148,4 @@ const communityPostSchema = mongoose.Schema({
 const CommunityPost = mongoose.model("CommunityPost", communityPostSchema, "communityPosts");
 // const CommunityComment = mongoose.model("CommunityComment", communityCommentSchema, "communityComments");
 
-export {CommunityPost}
+export default CommunityPost

@@ -19,7 +19,6 @@ const updateCommunity = async (req, res) => {
         // Fetch the community to be updated
         const community = await Community.findById(communityId);
         if (!community) {
-            console.log("COMMUNITY NOT FOUND");
             return res.status(404).json({
                 success: false,
                 message: "Community not found"

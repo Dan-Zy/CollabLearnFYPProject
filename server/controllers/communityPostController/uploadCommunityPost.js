@@ -1,4 +1,4 @@
-import { CommunityPost } from "../../models/communityPostModel.js";
+import CommunityPost from "../../models/communityPostModel.js";
 import fs from "fs";
 
 export const uploadCommunityPost = async (req, res) => {
