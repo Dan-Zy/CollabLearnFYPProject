@@ -1,7 +1,7 @@
-import {Post} from "../../models/postModel.js";
+import CommunityPost from "../../models/communityPostModel.js";
 import fs from "fs";
 
-const editPost = async (req, res) => {
+const updateCommunityPost = async (req, res) => {
     try {
         
         const {postId} = req.params;
@@ -11,7 +11,7 @@ const editPost = async (req, res) => {
         const document = req.files.document ? req.files.document[0].path : "";
         const video = req.files.video ? req.files.video[0].path : "";
 
-        const post = await Post.findById(postId);
+        const post = await CommunityPost.findById(postId);
 
         if(!post){
             return res.status(404).json({
@@ -119,14 +119,14 @@ const editPost = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            message: "Post has been edited successfully",
+            message: "Community Post has been edited successfully",
             post: post
         });
 
 
 
     } catch (error) {
-        console.log("Error in editing post: ", error);
+        console.log("Error in editing community post: ", error);
         return res.status(500).json({
             success: false,
             message: "Internal server error"
@@ -134,4 +134,4 @@ const editPost = async (req, res) => {
     }
 }
 
-export default editPost
+export default updateCommunityPost;

@@ -32,6 +32,33 @@ const liveSpaceSchema = mongoose.Schema({
         default: ""
     },
 
+    numberOfParticipants: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }],
+
+    eventGenre: {
+        type: String,
+        default: "Not Specified",
+    },
+
+    eventStatus: {
+        type: String,
+        enum: ["Upcoming", "Ongoing", "Completed"],
+        default: function() {
+            if(this.type === 'Instant'){
+                return "Ongoing";
+            }
+
+            return "Upcoming";
+        }
+    },
+
+    eventLink: {
+        type: String,
+        default: ""
+    },
+
     startDateTime: {
         type: Date,
         required: function() {

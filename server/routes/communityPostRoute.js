@@ -2,15 +2,22 @@ import express from "express";
 import uploadP from "../config/postMulter.js";
 import { verifyToken } from "../middlewares/authorization.js";
 import { uploadCommunityPost } from "../controllers/communityPostController/uploadCommunityPost.js";
+import updateCommunityPost from "../controllers/communityPostController/updateCommunityPost.js";
 
 const router = express.Router();
 
 // Upload Post
-router.post("/uploadPost/:communityId", verifyToken, uploadP.fields([
+router.post("/uploadCommunityPost/:communityId", verifyToken, uploadP.fields([
     { name: 'image', maxCount: 1 },
     { name: 'document', maxCount: 1 },
     { name: 'video', maxCount: 1 }
 ]), uploadCommunityPost);
+
+// Update Post
+router.put("/updateCommunityPost/:postId", verifyToken , uploadP.fields([
+    { name: 'image', maxCount: 1 },
+    { name: 'document', maxCount: 1 },
+    { name: 'video', maxCount: 1 }]), updateCommunityPost);
 
 
 export default router;
