@@ -4,6 +4,7 @@ import { verifyToken } from "../middlewares/authorization.js";
 import { uploadCommunityPost } from "../controllers/communityPostController/uploadCommunityPost.js";
 import updateCommunityPost from "../controllers/communityPostController/updateCommunityPost.js";
 import deleteCommunityPost from "../controllers/communityPostController/deleteCommunityPost.js";
+import getCommunityPosts from "../controllers/communityPostController/getCommunityPosts.js";
 
 const router = express.Router();
 
@@ -23,6 +24,9 @@ router.put("/updateCommunityPost/:postId", verifyToken , uploadP.fields([
 
 // Delete Post
 router.delete("/deleteCommunityPost/:postId", verifyToken, deleteCommunityPost);
+
+// Get Posts
+router.get("/getCommunityPosts/:communityId", verifyToken, getCommunityPosts);
 
 
 export default router;
