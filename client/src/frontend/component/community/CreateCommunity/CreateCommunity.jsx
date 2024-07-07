@@ -4,10 +4,12 @@ import axios from 'axios';
 export function CreateCommunity() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [communityName, setCommunityName] = useState('');
-  const [description, setDescription] = useState('');
+  const [communityDescription, setCommunityDescription] = useState('');
   const [communityImage, setCommunityImage] = useState(null);
-  const [privacy, setPrivacy] = useState('public');
-  const [genre, setGenre] = useState('');
+  const [privacy, setPrivacy] = useState('Public');
+  const [communityGenre, setGenre] = useState('');
+  const [error, setError] = useState('');
+  const token = localStorage.getItem('token');
 
   useEffect(() => {
     if (isModalOpen) {
@@ -31,21 +33,26 @@ export function CreateCommunity() {
     event.preventDefault();
     const formData = new FormData();
     formData.append('communityName', communityName);
-    formData.append('description', description);
-    formData.append('communityImage', communityImage);
+    formData.append('communityDescription', communityDescription);
+    formData.append('image', communityImage);
     formData.append('privacy', privacy);
-    formData.append('genre', genre);
+    formData.append('communityGenre', communityGenre);
 
     try {
-      const response = await axios.post('YOUR_API_ENDPOINT', formData, {
+      const response = await axios.post('http://localhost:3001/collablearn/createCommunity', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `${token}` // Include the token in the Authorization header
+        },
       });
-      console.log(response.data);
-      toggleModal(); // Close the modal on successful submission
+      alert(response.data.message);
+      toggleModal();
     } catch (error) {
-      console.error("There was an error creating the community!", error);
+      if (error.response) {
+        setError(error.response.data.message);
+      } else {
+        setError("There was an error creating the community!");
+      }
     }
   };
 
@@ -58,6 +65,7 @@ export function CreateCommunity() {
             <div className="create-community-modal h-full overflow-auto p-6">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <h2 className="text-xl font-bold">Create Community</h2>
+                {error && <p className="text-red-500">{error}</p>}
                 <input
                   type="text"
                   value={communityName}
@@ -67,14 +75,16 @@ export function CreateCommunity() {
                   required
                 />
                 <textarea
-                  value={description}
-                  onChange={e => setDescription(e.target.value)}
+                  value={communityDescription}
+                  onChange={e => setCommunityDescription(e.target.value)}
                   placeholder="Description"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  maxLength="500"
                   required
                 />
                 <input
                   type="file"
+                  accept="image/jpeg, image/png"
                   onChange={e => setCommunityImage(e.target.files[0])}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   required
@@ -84,22 +94,22 @@ export function CreateCommunity() {
                   onChange={e => setPrivacy(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
-                  <option value="public">Public</option>
-                  <option value="private">Private</option>
+                  <option value="Public">Public</option>
+                  <option value="Private">Private</option>
                 </select>
                 <p className="text-sm text-gray-600">
-                  Status: {privacy === 'public' ? 'Everyone can post who’s join it' : 'Admin give the special rights'}
+                  Status: {privacy === 'public' ? 'Everyone can post who’s joined it' : 'Admin gives the special rights'}
                 </p>
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700">Select Genre</label>
                   <div className="flex flex-wrap gap-2">
-                    {['Artificial Intelligence', 'Machine Learning', 'Software Developing', 'Data Science', 'Networking', 'Other'].map(g => (
-                      <label key={g} className={`cursor-pointer px-4 py-2 border border-gray-300 rounded-full ${genre === g ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700'}`}>
+                    {['Artificial Intelligence', 'Machine Learning', 'Human Computer Interaction', 'Software Development', 'Data Science', 'Networking', 'Other'].map(g => (
+                      <label key={g} className={`cursor-pointer px-4 py-2 border border-gray-300 rounded-full ${communityGenre === g ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700'}`}>
                         <input
                           type="radio"
                           name="genre"
                           value={g}
-                          checked={genre === g}
+                          checked={communityGenre === g}
                           onChange={() => handleGenreChange(g)}
                           className="hidden"
                         />

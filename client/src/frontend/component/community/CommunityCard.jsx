@@ -1,33 +1,58 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import axios from 'axios';
 
-export function CommunityCard({ id, img, title, description, postCount, memberCount, rating, activeTab }) {
+export function CommunityCard({ id, img, title, description, postCount, memberCount, rating, activeTab, onRemoveCommunity }) {
+  const handleJoinClick = async () => {
+    try {
+      const token = localStorage.getItem('token');
+
+      const response = await axios.put(`http://localhost:3001/collablearn/addMember/${id}`, 
+      {}, 
+      {
+        headers: {
+          'Authorization': `${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      alert(response.data.message);
+      onRemoveCommunity(id); // Call the handler to remove the community from the suggested list
+      
+    } catch (error) {
+      console.error("Error adding member to community", error);
+      alert("Failed to join the community");
+    }
+  };
+
   return (
     <div className="community-item border p-4 rounded-lg shadow-lg bg-white text-center overflow-hidden">
       <div className="relative">
-        <img src={img} alt="cover" className="w-full h-24 object-cover" />
+        <img src={img || 'default-image-path.jpg'} alt="cover" className="w-full h-24 object-cover" />
       </div>
       <div className="pt-10">
         <h2 className="text-xl font-bold">{title}</h2>
         <p className="community-description text-gray-600 mt-2">{description}</p>
         <div className="profile-stats mt-4 flex justify-around">
           <div className="stats-item">
-            <span>{postCount}</span>
             <p>Posts</p>
+            <span>{postCount}</span>
           </div>
           <div className="stats-item">
-            <span>{memberCount}</span>
             <p>Followers</p>
-          </div>
-          <div className="stats-item">
-            <span>{rating}</span>
-            <p>Following</p>
+            <span>{memberCount}</span>
           </div>
         </div>
-          <button className={`view-button bg-gray-400 text-white rounded-lg px-4 py-2 mt-4 ${activeTab === 'suggested' ? 'bg-gray-400' : 'bg-indigo-500'}`}>
-            {activeTab === 'suggested' ? 'Ask to Join' : 'View'}
+        {activeTab === 'suggested' ? (
+          <button
+            onClick={handleJoinClick}
+            className="view-button bg-gray-400 text-white rounded-lg px-4 py-2 mt-4"
+          >
+            Ask to Join
           </button>
-
+        ) : (
+          <button className="view-button bg-indigo-500 text-white rounded-lg px-4 py-2 mt-4">
+            View
+          </button>
+        )}
       </div>
     </div>
   );

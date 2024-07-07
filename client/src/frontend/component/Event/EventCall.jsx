@@ -4,10 +4,12 @@ import EventCardComponent from './EventCard';
 import CreateEvent from './CreateEvent/CreateEvent';
 import MyEvent from './MyEvent/MyEvent';
 import axios from 'axios';
+import LiveEventCard from './LiveEventCard';
 
 function EventCall() {
-  const [view, setView] = useState('events');
-  const [events, setEvents] = useState([]);
+  const [view, setView] = useState('scheduledEvents');
+  const [scheduledEvents, setScheduledEvents] = useState([]);
+  const [ongoingEvents, setOngoingEvents] = useState([]);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -23,10 +25,9 @@ function EventCall() {
           }
         });
 
-        setEvents(response.data.events.filter(event => event.type === 'Scheduled'));
-        console.log('====================================');
-        console.log(response.data.events.filter(event => event.type === 'Scheduled'));
-        console.log('====================================');
+        setScheduledEvents(response.data.events.filter(event => event.type === 'Scheduled'));
+        setOngoingEvents(response.data.events.filter(event => event.type === 'Instant'));
+      
       } catch (error) {
         console.error('Error fetching events:', error);
       }
@@ -43,16 +44,37 @@ function EventCall() {
     setView('myEvents');
   };
 
+  const handleViewScheduledEventsClick = () => {
+    setView('scheduledEvents');
+  };
+
+  const handleViewOngoingEventsClick = () => {
+    setView('ongoingEvents');
+  };
+
   return (
     <div className="flex flex-col">
       <HeaderComponent
         onCreateEvent={handleCreateEventClick}
         onViewEvents={handleViewEventsClick}
       />
-      {view === 'events' && (
+      {view !== 'createEvent' && view !== 'myEvents' && (
+        <nav>
+          <text className='m-2 hover:text-indigo-500 cursor-pointer' onClick={handleViewScheduledEventsClick}>Scheduled Events</text>
+          <text className='m-2 hover:text-indigo-500 cursor-pointer' onClick={handleViewOngoingEventsClick}>Ongoing Events</text>
+        </nav>
+      )}
+      {view === 'scheduledEvents' && (
         <section className="flex flex-col">
-          {events.map((event, index) => (
+          {scheduledEvents.map((event, index) => (
             <EventCardComponent key={index} {...event} />
+          ))}
+        </section>
+      )}
+      {view === 'ongoingEvents' && (
+        <section className="flex flex-col">
+          {ongoingEvents.map((event, index) => (
+            <LiveEventCard key={index} {...event} />
           ))}
         </section>
       )}

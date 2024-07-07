@@ -11,6 +11,7 @@ function CreateEventCard() {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [endTime, setEndTime] = useState('');
+    const [genre, setGenre] = useState('');
 
     const [showTitle, setShowTitle] = useState(false);
     const [showEventDescription, setShowEventDescription] = useState(false);
@@ -19,11 +20,12 @@ function CreateEventCard() {
     const [showEndDate, setShowEndDate] = useState(false);
     const [showEndTime, setShowEndTime] = useState(false);
     const [showPoster, setShowPoster] = useState(false);
+    const [showGenre, setShowGenre] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!title || !eventDescription || !startDate || !endDate || !startTime || !endTime || !poster) {
+        if (!title || !eventDescription || !startDate || !endDate || !startTime || !endTime || !poster || !genre) {
             alert('All fields are required for scheduled events');
             return;
         }
@@ -36,6 +38,7 @@ function CreateEventCard() {
         formData.append('endDate', endDate);
         formData.append('startTime', startTime);
         formData.append('endTime', endTime);
+        formData.append('genre', genre);
         if (poster) {
             formData.append('image', poster);
         }
@@ -62,11 +65,11 @@ function CreateEventCard() {
     };
 
     return (
-        <div className="flex flex-col h-[60vh] w-[95%] bg-white shadow-md rounded-lg m-1 p-1 lg:flex-2 sm:flex-1 text-[1vw]">
+        <div className="flex flex-col h-[60vh] w-full bg-white shadow-md rounded-lg m-1 p-1 lg:flex-2 sm:flex-1 text-[1vw]">
             <h3 className="text-2xl text-[#7d7dc3] antialiased font-bold m-2">Create Scheduled Event</h3>
             <p className="text-l m-2">Go live by yourself or with others</p>
 
-            <form onSubmit={handleSubmit} className="flex flex-col items-center flex-1 overflow-y-auto p-4">
+            <form onSubmit={handleSubmit} className="flex flex-col items-center flex-1 overflow-y-auto ">
                 <div className="flex flex-wrap justify-center w-full">
                     <div className="m-2 flex items-center">
                         <FontAwesomeIcon icon={faHeading} className="text-[#7d7dc3] cursor-pointer" onClick={() => setShowTitle(!showTitle)} />
@@ -148,6 +151,26 @@ function CreateEventCard() {
                     )}
 
                     <div className="m-2 flex items-center">
+                        <FontAwesomeIcon icon={faClipboardList} className="text-[#7d7dc3] cursor-pointer" onClick={() => setShowGenre(!showGenre)} />
+                        <span className="ml-2">Genre</span>
+                    </div>
+                    {showGenre && (
+                        <select 
+                            value={genre}
+                            onChange={(e) => setGenre(e.target.value)}
+                            className="flex text-center flex-col m-2 h-[5vh] w-[80%] justify-center items-center border border-[#7d7dc3] rounded"
+                        >
+                            <option value="" disabled>Select a genre</option>
+                            <option value="Artificial Intelligence">Artificial Intelligence</option>
+                            <option value="Machine Learning">Machine Learning</option>
+                            <option value="Networking">Networking</option>
+                            <option value="Human Computer Intraction">Human Computer Intraction</option>
+                            <option value="Data Science">Data Science</option>
+                            <option value="Software Developing">Software Developing</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    )}
+                    <div className="m-2 flex items-center">
                         <FontAwesomeIcon icon={faImage} className="text-[#7d7dc3] cursor-pointer" onClick={() => setShowPoster(!showPoster)} />
                         <span className="ml-2">Poster</span>
                     </div>
@@ -161,7 +184,7 @@ function CreateEventCard() {
                     )}
                 </div>
 
-                <div className="mt-auto w-full flex justify-center">
+                <div className="mt-auto w-[100%] flex justify-center">
                     <button
                         type="submit"
                         className="flex justify-center text-center text-white bg-indigo-500 text-[1vw] p-2 rounded w-full hover:bg-indigo-600"

@@ -1,90 +1,121 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
+import axios from 'axios';
+import { setupJitsiMeeting } from '../../JitsiMeet/jitsiMeet';
 
 function GoLiveCard() {
   const jitsiContainerRef = useRef(null);
-  const [roomName ,setRoomName] = useState('')
-  const [EventTitle ,setEventTitle] = useState('')
-   
-  const handleClick = () => {
-    const displayName = 'sulman';
-    const email = '201400052@gift.edu.pk';
-    const password = 'hasmal12';
+  const [roomName, setRoomName] = useState('');
+  const [eventTitle, setEventTitle] = useState('');
+  const [genre, setGenre] = useState('');
+  const [poster, setPoster] = useState(null);
+
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data === 'meetingEnded') {
+        console.log('The meeting has been ended');
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, []);
+
+  const handleClick = async () => {
+    const user = JSON.parse(localStorage.getItem('userInfo'));
+    const token = localStorage.getItem('token');
+    const displayName = user.username;
+    const email = user.email;
     const domain = 'meet.jit.si'; // Replace with your Jitsi Meet domain
 
-    const configOverwrite = {
-      startWithAudioMuted: true,
-      startWithVideoMuted: false,
-    };
+    const eventData = new FormData();
+    eventData.append('eventName', eventTitle);
+    eventData.append('eventDescription', 'Instant event description');
+    eventData.append('type', 'Instant');
+    eventData.append('hostId', user._id);
+    eventData.append('genre', genre);
+    if (poster) {
+      eventData.append('poster', poster);
+    }
 
-    const options = {
-      roomName,
-      width: '100%',
-      height: '100%',
-      parentNode: jitsiContainerRef.current,
-      configOverwrite,
-      userInfo: {
-        displayName: displayName,
-      },
-    };
+    try {
+      const response = await axios.post('http://localhost:3001/collablearn/createEvent', eventData, {
+        headers: {
+          Authorization: `${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
-    const url = `https://${domain}/${roomName}`;
-    const windowFeatures = "menubar=no,location=no,resizable=yes,scrollbars=yes,status=no";
-    window.open(url, '_blank', windowFeatures);
-    
-    const newWindow = window.open("", '_blank', windowFeatures);
-    newWindow.document.write(`
-      <html>
-        <head>
-          <title>Jitsi Meeting</title>
-          <script src="https://${domain}/external_api.js"></script>
-        </head>
-        <body>
-          <div id="jitsi-container" style="height: 100vh; width: 100%;"></div>
-          <script>
-            window.onload = () => {
-              const api = new JitsiMeetExternalAPI("${domain}", ${JSON.stringify(options)});
-              api.addEventListener('videoConferenceJoined', () => {
-                api.executeCommand('displayName', '${displayName}');
-                api.executeCommand('email', '${email}');
-                api.executeCommand('password', '${password}');
-                // Set the user as moderator
-                api.executeCommand('password', '${password}');
-              });
+      if (response.status === 201) {
+        console.log(response.data.message);
 
-              api.addEventListener('participantRoleChanged', (event) => {
-                if (event.role === 'moderator') {
-                  // Special rights: moderator commands
-                  // Example command to kick participant
-                  api.executeCommand('kickParticipant', '<participantID>');
-                  // Example command to mute participant
-                  api.executeCommand('muteParticipant', '<participantID>');
-                  // Add more commands as needed
-                }
-              });
-            };
-          </script>
-        </body>
-      </html>
-    `);
+        const configOverwrite = {
+          startWithAudioMuted: true,
+          startWithVideoMuted: false,
+        };
+
+        setupJitsiMeeting({
+          domain,
+          roomName,
+          displayName,
+          email,
+          jitsiContainerRef,
+          configOverwrite,
+          userInfo: { displayName },
+        });
+      } else {
+        console.log('Failed to create event');
+      }
+    } catch (error) {
+      console.error('Error creating event:', error);
+    }
   };
 
   return (
     <div className="flex flex-col h-[60vh] w-[95%] bg-white shadow-md rounded-lg m-1 p-1 lg:flex-2 sm:flex-1 text-[1vw]">
       <div className="flex flex-col items-center flex-1">
-        {/* {icon} This will be the passed icon component */}
         <h3 className="text-2xl text-[#7d7dc3] antialiased font-bold m-2">Golive</h3>
         <p className="text-l m-2">Go live by yourself or with others</p>
-       
+        
         <input 
-        value={EventTitle}
-        onChange={(e) => setEventTitle(e.target.value)}
-        type="text" placeholder='Title of event' className='flex text-center flex-col m-2 h-[5vh] w-[80%] justify-center items-center border border-[#7d7dc3] rounded' />
+          value={eventTitle}
+          onChange={(e) => setEventTitle(e.target.value)}
+          type="text" 
+          placeholder="Title of event" 
+          className="flex text-center flex-col m-2 h-[5vh] w-[80%] justify-center items-center border border-[#7d7dc3] rounded" 
+        />
+        
+        <input 
+          value={roomName}
+          onChange={(e) => setRoomName(e.target.value)}
+          type="text" 
+          placeholder="Enter your room name" 
+          className="flex text-center flex-col m-2 h-[5vh] w-[80%] justify-center items-center border border-[#7d7dc3] rounded" 
+        />
+
+        <select 
+          value={genre}
+          onChange={(e) => setGenre(e.target.value)}
+          className="flex text-center flex-col m-2 h-[5vh] w-[80%] justify-center items-center border border-[#7d7dc3] rounded"
+        >
+          <option value="" disabled>Select a genre</option>
+          <option value="Artificial Intelligence">Artificial Intelligence</option>
+          <option value="Machine Learning">Machine Learning</option>
+          <option value="Networking">Networking</option>
+          <option value="Human Computer Interaction">Human Computer Interaction</option>
+          <option value="Data Science">Data Science</option>
+          <option value="Software Development">Software Development</option>
+          <option value="Other">Other</option>
+        </select>
 
         <input 
-        value={roomName}
-        onChange={(e) => setRoomName(e.target.value)}
-        type="text" placeholder='Enter your room name' className='flex text-center flex-col m-2 h-[5vh] w-[80%] justify-center items-center border border-[#7d7dc3] rounded' />
-       
+          onChange={(e) => setPoster(e.target.files[0])}
+          type="file" 
+          accept=".png, .jpg, .jpeg"  
+          className="flex text-center flex-col m-2 h-[5vh] w-[80%] justify-center items-center border border-[#7d7dc3] rounded" 
+        />
       </div>
       <button
         onClick={handleClick}

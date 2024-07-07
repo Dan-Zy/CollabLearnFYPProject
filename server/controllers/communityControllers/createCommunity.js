@@ -64,8 +64,7 @@ const createCommunity = async(req , res) => {
             privacy,
             communityGenre,
             members: updatedMembers
-        });
-
+        });   
         await newCommunity.save();
 
         res.status(201).json({
