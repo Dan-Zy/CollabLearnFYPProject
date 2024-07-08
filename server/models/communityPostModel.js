@@ -127,12 +127,6 @@ const communityPostSchema = mongoose.Schema({
         default: null
     },
 
-    visibility: {
-        type: String,
-        enum: ['Public', 'Private'],
-        default: "Public"   
-    },
-
     createdAt: {
         type: Date,
         default: Date.now

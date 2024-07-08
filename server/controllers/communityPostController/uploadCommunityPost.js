@@ -101,7 +101,6 @@ export const uploadCommunityPost = async (req, res) => {
             devotes: [],
             comments: [],
             shares: [],
-            visibility: "Public",
             createdAt: new Date(),
             updatedAt: new Date()
         });
