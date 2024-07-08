@@ -13,6 +13,15 @@ import deleteComment from "../controllers/postControllers/deleteComment.js";
 import getComments from "../controllers/postControllers/getComments.js";
 import getComPostComments from "../controllers/communityPostController/getComPostComments.js";
 import getCommentReply from "../controllers/postControllers/getCommentReply.js";
+import { upvoteComPost } from "../controllers/communityPostController/upvoteComPost.js";
+import { removeComPostUpvote } from "../controllers/communityPostController/removeComPostUpvote.js";
+import { upvoteComment } from "../controllers/postControllers/upvote.js";
+import { removeCommentUpvote } from "../controllers/postControllers/removeUpvote.js";
+import { devoteComPost } from "../controllers/communityPostController/devoteComPost.js";
+import { removeComPostDevote } from "../controllers/communityPostController/removeComPostDevote.js";
+import { devoteComment } from "../controllers/postControllers/devote.js";
+import { removeCommentDevote } from "../controllers/postControllers/removeDevote.js";
+import shareComPost from "../controllers/communityPostController/shareComPost.js";
 
 const router = express.Router();
 
@@ -55,6 +64,44 @@ router.get("/getComments/:postId", verifyToken, getComPostComments);
 
 // Get Comment's Reply
 router.get("/getCommentReplies/:commentId", verifyToken, getCommentReply);
+
+
+
+
+// Upvote Community Post
+router.post("/upvoteCommunityPost/:postId", verifyToken, upvoteComPost);
+
+// Devote Community Post
+router.put("/removeCommunityPostUpvote/:postId", verifyToken, removeComPostUpvote);
+
+
+// Upvote Comment
+router.post("/upvoteComment/:commentId", verifyToken, upvoteComment);
+
+// Remove Comment's Upvote
+router.put("/removeCommentUpvote/:commentId", verifyToken, removeCommentUpvote);
+
+
+
+
+
+// Devote Post
+router.post("/devotePost/:postId", verifyToken, devoteComPost);
+
+// Remove Post's Devote
+router.put("/removePostDevote/:postId", verifyToken, removeComPostDevote);
+
+
+// Devote Comment
+router.post("/devoteComment/:commentId", verifyToken, devoteComment);
+
+// Remove Comment's Devote
+router.put("/removeCommentDevote/:commentId", verifyToken, removeCommentDevote);
+
+
+
+// Share Post
+router.post("/shareCommunityPost/:postId", verifyToken, shareComPost);
 
 
 export default router;
