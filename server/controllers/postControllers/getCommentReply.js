@@ -24,6 +24,7 @@ const getCommentReply = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Comments reply fetched successfully",
+            length: comments.length,
             data: comments
         })
 

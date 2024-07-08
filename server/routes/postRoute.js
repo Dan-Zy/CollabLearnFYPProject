@@ -46,7 +46,7 @@ router.get("/getPosts", getPosts);
 router.post("/addComment/:postId", verifyToken, upload.single("image"), addComment);
 
 // Add reply to Comment
-router.post("/addCommentReply/:commentId", verifyToken, upload.single("image"), addCommentReply)
+router.post("/addCommentReply/:commentId", verifyToken, upload.single("image"), addCommentReply);
 
 // Edit Comment
 router.put("/editComment/:commentId", verifyToken, upload.single("image"), editComment);
