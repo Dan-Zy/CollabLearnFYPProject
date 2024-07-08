@@ -22,10 +22,10 @@ router.put("/updateCommunity/:communityId", verifyToken, uploadCommunityBanner.s
 // DELETE COMMUNITY
 router.delete("/deleteCommunity/:communityId", verifyToken, deleteCommunity);
 
-// GET COMMUNITIES
+// GET ALL COMMUNITIES
 router.get("/getCommunities", verifyToken, getCommunities);
 
-// GET COMMUNITY
+// GET A SPECIFIC COMMUNITY BY COMMUNITY ID
 router.get("/getCommunity/:communityId", verifyToken, getCommunity);
 
 
