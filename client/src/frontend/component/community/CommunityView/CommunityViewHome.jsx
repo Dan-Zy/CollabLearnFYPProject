@@ -4,7 +4,7 @@ import Header from './Header';
 import NavBar from './NavBar';
 //import { PostCall } from'../Post/Post';
 
-function CommunityViewHome() {
+function CommunityViewHome({CommunityId}) {
   return (
     <div className=" flex flex-col items-center">
     <CoverPhoto />

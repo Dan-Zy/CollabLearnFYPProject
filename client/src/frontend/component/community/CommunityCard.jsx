@@ -1,14 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 
-export function CommunityCard({ id, img, title, description, postCount, memberCount, rating, activeTab, onRemoveCommunity }) {
+export function CommunityCard({ id, img, title, description, postCount, memberCount, rating, activeTab, onRemoveCommunity, onChangeView }) {
   const handleJoinClick = async () => {
     try {
       const token = localStorage.getItem('token');
-
-      const response = await axios.put(`http://localhost:3001/collablearn/addMember/${id}`, 
-      {}, 
-      {
+      const response = await axios.put(`http://localhost:3001/collablearn/addMember/${id}`, {}, {
         headers: {
           'Authorization': `${token}`,
           'Content-Type': 'application/json'
@@ -16,17 +13,24 @@ export function CommunityCard({ id, img, title, description, postCount, memberCo
       });
       alert(response.data.message);
       onRemoveCommunity(id); // Call the handler to remove the community from the suggested list
-      
     } catch (error) {
       console.error("Error adding member to community", error);
       alert("Failed to join the community");
     }
   };
 
+  const handleViewClick = () => {
+    onChangeView('CommunityViewHome', id); // Call the handler to change the view state
+  };
+
   return (
     <div className="community-item border p-4 rounded-lg shadow-lg bg-white text-center overflow-hidden">
       <div className="relative">
-        <img src={img || 'default-image-path.jpg'} alt="cover" className="w-full h-24 object-cover" />
+        <img
+          src={img ? `http://localhost:3001/${img}` : 'https://via.placeholder.com/40'}
+          alt="Profile"
+          className="w-full h-[30vh] object-cover"
+        />
       </div>
       <div className="pt-10">
         <h2 className="text-xl font-bold">{title}</h2>
@@ -49,7 +53,7 @@ export function CommunityCard({ id, img, title, description, postCount, memberCo
             Ask to Join
           </button>
         ) : (
-          <button className="view-button bg-indigo-500 text-white rounded-lg px-4 py-2 mt-4">
+          <button onClick={handleViewClick} className="view-button bg-indigo-500 text-white rounded-lg px-4 py-2 mt-4">
             View
           </button>
         )}

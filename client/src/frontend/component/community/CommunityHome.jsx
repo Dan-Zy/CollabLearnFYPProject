@@ -4,6 +4,7 @@ import { Navbar } from './NavBar';
 import { SearchBar } from './SearchBar';
 import { GenreSelector } from './GenerSelector';
 import { CommunityCard } from './CommunityCard';
+import CommunityViewHome from './CommunityView/CommunityViewHome';
 import jwt_decode from 'jwt-decode';
 
 export function CommunityHome() {
@@ -12,6 +13,8 @@ export function CommunityHome() {
   const [selectedGenre, setSelectedGenre] = useState('');
   const [communities, setCommunities] = useState([]);
   const [userId, setUserId] = useState('');
+  const [view, setView] = useState('CommunityHome');
+  const [selectedCommunityId, setSelectedCommunityId] = useState(null);
 
   useEffect(() => {
     const fetchUserId = () => {
@@ -47,6 +50,11 @@ export function CommunityHome() {
     setCommunities((prevCommunities) => prevCommunities.filter((community) => community._id !== communityId));
   };
 
+  const handleChangeView = (newView, communityId) => {
+    setView(newView);
+    setSelectedCommunityId(communityId);
+  };
+
   const filteredCommunities = communities.filter((community) => {
     const isMember = community.members.includes(userId);
     return (
@@ -59,29 +67,36 @@ export function CommunityHome() {
 
   return (
     <div className="container mx-auto p-4">
-      <div className="flex flex-col items-center">
-        <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
-        <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-      </div>
-      <GenreSelector selectedGenre={selectedGenre} setSelectedGenre={setSelectedGenre} />
-      <div className="mt-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filteredCommunities.map((community) => (
-            <CommunityCard
-              key={community._id}
-              id={community._id}
-              img={community.communityBanner}
-              title={community.communityName}
-              description={community.communityDescription}
-              postCount={community.postCount || 'N/A'}
-              memberCount={community.members.length}
-              rating={community.rating || 'N/A'}
-              activeTab={activeTab}
-              onRemoveCommunity={handleRemoveCommunity} // Pass the handler to the CommunityCard
-            />
-          ))}
-        </div>
-      </div>
+      {view === 'CommunityHome' ? (
+        <>
+          <div className="flex flex-col items-center">
+            <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+            <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+          </div>
+          <GenreSelector selectedGenre={selectedGenre} setSelectedGenre={setSelectedGenre} />
+          <div className="mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filteredCommunities.map((community) => (
+                <CommunityCard
+                  key={community._id}
+                  id={community._id}
+                  img={community.communityBanner}
+                  title={community.communityName}
+                  description={community.communityDescription}
+                  postCount={community.postCount || 'N/A'}
+                  memberCount={community.members.length}
+                  rating={community.rating || 'N/A'}
+                  activeTab={activeTab}
+                  onRemoveCommunity={handleRemoveCommunity}
+                  onChangeView={handleChangeView} // Pass the handler to the CommunityCard
+                />
+              ))}
+            </div>
+          </div>
+        </>
+      ) : (
+        <CommunityViewHome communityId={selectedCommunityId} />
+      )}
     </div>
   );
 }
