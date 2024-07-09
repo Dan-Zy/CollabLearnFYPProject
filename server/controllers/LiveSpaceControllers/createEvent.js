@@ -129,6 +129,24 @@ const createEvent = async (req, res) => {
         const hostId = req.userId;
         const image = req.file ? req.file.path : "";
 
+        console.log("Received Data: ", eventName , eventDescription , type , eventGenre , startDate , endDate , startTime , endTime);
+        var dateStart = startDate.split("-");
+        var dayS = dateStart[2];
+        var monthS = dateStart[1];
+        var yearS = dateStart[0];
+        // console.log("Split date: ", dateStart);
+        // console.log("Day: ", day , " Month: ", month , " Year: ", year);
+
+        const startNewDate = dayS + "-" + monthS + "-" + yearS;
+        // console.log("Date Temp: ", dateTemp);
+
+        var dateEnd = endDate.split("-");
+        var dayE = dateEnd[2];
+        var monthE = dateEnd[1];
+        var yearE = dateEnd[0];
+
+        const endNewDate = dayE + "-" + monthE + "-" + yearE;
+
         console.log(`${eventName} , ${eventDescription} , ${type} , ${hostId} , ${startDate} , ${startTime}`);
 
         if (!eventName || !eventDescription || !type || !eventGenre) {
@@ -200,8 +218,8 @@ const createEvent = async (req, res) => {
             }
         }
 
-        const startDateTime = type === "Scheduled" ? DateTime.fromFormat(`${startDate} ${startTime}`, "dd-MM-yyyy HH:mm").toJSDate() : null;
-        const endDateTime = type === "Scheduled" ? DateTime.fromFormat(`${endDate} ${endTime}`, "dd-MM-yyyy HH:mm").toJSDate() : null;
+        const startDateTime = type === "Scheduled" ? DateTime.fromFormat(`${startNewDate} ${startTime}`, "dd-MM-yyyy HH:mm").toJSDate() : null;
+        const endDateTime = type === "Scheduled" ? DateTime.fromFormat(`${endNewDate} ${endTime}`, "dd-MM-yyyy HH:mm").toJSDate() : null;
 
         if (type === "Scheduled" && (isNaN(startDateTime) || isNaN(endDateTime))) {
             return res.status(400).json({
