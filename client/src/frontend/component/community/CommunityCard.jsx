@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import axios from 'axios';
 
 export function CommunityCard({ id, img, title, description, postCount, memberCount, rating, activeTab, onRemoveCommunity, onChangeView }) {
@@ -12,7 +12,7 @@ export function CommunityCard({ id, img, title, description, postCount, memberCo
         }
       });
       alert(response.data.message);
-      onRemoveCommunity(id); // Call the handler to remove the community from the suggested list
+      onRemoveCommunity(id);
     } catch (error) {
       console.error("Error adding member to community", error);
       alert("Failed to join the community");
@@ -20,7 +20,7 @@ export function CommunityCard({ id, img, title, description, postCount, memberCo
   };
 
   const handleViewClick = () => {
-    onChangeView('CommunityViewHome', id); // Call the handler to change the view state
+    onChangeView('CommunityViewHome', id);
   };
 
   return (

@@ -1,19 +1,45 @@
-import React from 'react';
-import CoverPhoto from'./CoverPhoto'
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import CoverPhoto from './CoverPhoto';
 import Header from './Header';
 import NavBar from './NavBar';
-//import { PostCall } from'../Post/Post';
+import Feed from './Feed';
+function CommunityViewHome({ communityId }) {
+  const [community, setCommunity] = useState(null);
+  const [view , setView] = useState('Feed')
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    
+    const fetchCommunity = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3001/collablearn/getCommunity/${communityId}`,
+          {
+            headers:{
+              'Authorization': `${token}`
+            }
+          });
+        setCommunity(response.data.community);
+      } catch (error) {
+        console.error('Error fetching community', error);
+      }
+    };
 
-function CommunityViewHome({CommunityId}) {
+    fetchCommunity();
+  }, [communityId]);
+
+  if (!community) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div className=" flex flex-col items-center">
-    <CoverPhoto />
-    <Header />
-    <NavBar name="/CommunityHome" />
-    <button className="CH-CP-btn text-indigo-600 border border-indigo-600 rounded-full px-4 py-2 mt-2">Create Post</button>
-  {/* <PostCall /> */}
-  </div>
-  
+    <div className="flex flex-col items-center">
+      <CoverPhoto imgSrc={community.communityBanner} />
+      <Header name={community.communityName} status={community.privacy} memberCount={community.members.length} />
+      <NavBar name="/CommunityHome" />
+      {view === 'Feed' &&(
+        <Feed communityId={communityId}/>
+      )}
+    </div>
   );
 }
 

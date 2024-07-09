@@ -1,12 +1,10 @@
-import img from '../../../../assets/post1.jpg'
 import React from 'react';
 
-function CoverPhoto() {
+function CoverPhoto({ imgSrc }) {
   return (
-    <div className="cover-photo w-[62vw] h-[40vh] flex justify-center items-center mt-1">
-  <img className="cover-photo-img rounded w-full h-full" src={img} alt="" />
-</div>
-
+    <div className="cover-photo w-[100%] h-[40vh] flex justify-center items-center mt-1">
+      <img className="cover-photo-img rounded w-[100%] h-[40vh]" src={imgSrc ? `http://localhost:3001/${imgSrc}` : 'https://via.placeholder.com/40'} alt="Community Cover" />
+    </div>
   );
 }
 

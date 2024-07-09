@@ -14,7 +14,7 @@ export function CommunityHome() {
   const [communities, setCommunities] = useState([]);
   const [userId, setUserId] = useState('');
   const [view, setView] = useState('CommunityHome');
-  const [selectedCommunityId, setSelectedCommunityId] = useState(null);
+  const [communityId, setCommunityId] = useState(null);
 
   useEffect(() => {
     const fetchUserId = () => {
@@ -52,8 +52,12 @@ export function CommunityHome() {
 
   const handleChangeView = (newView, communityId) => {
     setView(newView);
-    setSelectedCommunityId(communityId);
+    setCommunityId(communityId);
   };
+
+  useEffect(() => {
+    console.log('View changed to:', view, 'with Community ID:', communityId);
+  }, [view, communityId]);
 
   const filteredCommunities = communities.filter((community) => {
     const isMember = community.members.includes(userId);
@@ -88,14 +92,14 @@ export function CommunityHome() {
                   rating={community.rating || 'N/A'}
                   activeTab={activeTab}
                   onRemoveCommunity={handleRemoveCommunity}
-                  onChangeView={handleChangeView} // Pass the handler to the CommunityCard
+                  onChangeView={handleChangeView}
                 />
               ))}
             </div>
           </div>
         </>
       ) : (
-        <CommunityViewHome communityId={selectedCommunityId} />
+        <CommunityViewHome communityId={communityId} />
       )}
     </div>
   );
