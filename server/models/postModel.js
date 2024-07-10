@@ -121,6 +121,11 @@ const postSchema = mongoose.Schema({
         default: null
     },
 
+    sharedContent: {
+        type: String,
+        default: ""
+    },
+
     visibility: {
         type: String,
         enum: ['Public', 'Private'],

@@ -4,6 +4,7 @@ import { Post } from "../../models/postModel.js";
 const sharePost = async (req, res) => {
     try {
         const { postId } = req.params;
+        const { sharedContent } = req.body;
         const userId = req.userId; // Assuming req.userId is set by your authentication middleware
 
         // Validate the postId
@@ -23,6 +24,19 @@ const sharePost = async (req, res) => {
             });
         }
 
+        if(sharedContent !== ""){
+            const contentLength = sharedContent.split(/\s+/).length;
+
+            if (contentLength > 500) {
+                return res.status(406).json({
+                    success: false,
+                    message: "Shared Content length must not exceed 500 words"
+                });
+            }
+
+        }
+
+
         // Create a new post that references the original post
         const sharedPost = new Post({
             userId: userId, // User who is sharing the post
@@ -31,7 +45,8 @@ const sharePost = async (req, res) => {
             document: originalPost.document,
             video: originalPost.video,
             originalAuthor: originalPost.userId, // Original author of the post
-            sharedPost: originalPost._id // Reference to the original post
+            sharedPost: originalPost._id, // Reference to the original post
+            sharedContent: sharedContent
         });
 
         await sharedPost.save();
