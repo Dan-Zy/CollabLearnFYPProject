@@ -45,12 +45,30 @@ function CreateEventCard() {
       return;
     }
 
+    // Below is the Code to change Date format from (YYYY-MM-DD) to (DD-MM-YYYY) because in backend the date should be in (DD-MM-YYYY) format that's why I have changed it in the fronend to send the exact date to backend.
+    var dateStart = startDate.split("-");
+        var dayS = dateStart[2];
+        var monthS = dateStart[1];
+        var yearS = dateStart[0];
+        // console.log("Split date: ", dateStart);
+        // console.log("Day: ", day , " Month: ", month , " Year: ", year);
+
+        const startNewDate = dayS + "-" + monthS + "-" + yearS;
+        // console.log("Date Temp: ", dateTemp);
+
+        var dateEnd = endDate.split("-");
+        var dayE = dateEnd[2];
+        var monthE = dateEnd[1];
+        var yearE = dateEnd[0];
+
+        const endNewDate = dayE + "-" + monthE + "-" + yearE;
+
     const formData = new FormData();
     formData.append("eventName", title);
     formData.append("eventDescription", eventDescription);
     formData.append("type", "Scheduled");
-    formData.append("startDate", startDate);
-    formData.append("endDate", endDate);
+    formData.append("startDate", startNewDate);
+    formData.append("endDate", endNewDate);
     formData.append("startTime", startTime);
     formData.append("endTime", endTime);
     formData.append("eventGenre", genre);
