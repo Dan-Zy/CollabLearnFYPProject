@@ -118,10 +118,15 @@ import nodemailer from 'nodemailer';
 
     const registerUser = async (req, res) => {
         try {
-            console.log('Request Body:', req.body);
-            console.log('Uploaded Files:', req.files);
+            // console.log('Request Body:', req.body);
+            // console.log('Uploaded Files:', req.files);
     
             let { username, email, password, role, bio, isActive, studentDetails, facultyDetails, industrialDetails } = req.body;
+
+            console.log("Student Details: ", studentDetails);
+            // console.log("Student Details JSON: ", JSON.parse(studentDetails));
+            console.log("Faculty Details: ", facultyDetails);
+            console.log("Industrial Details: ", industrialDetails);
     
             // Check user must enter essential fields
             if (!username || !email || !password || !role) {
@@ -150,6 +155,18 @@ import nodemailer from 'nodemailer';
             // Generate email verification token
             const verificationToken = crypto.randomBytes(32).toString('hex');
             const verificationTokenExpires = Date.now() + 300000; // 5 minutes
+
+
+            // Check and parse if necessary
+            if (role === "Student" && typeof studentDetails === 'string') {
+                studentDetails = JSON.parse(studentDetails);
+            }
+            if (role === "Faculty" && typeof facultyDetails === 'string') {
+                facultyDetails = JSON.parse(facultyDetails);
+            }
+            if (role === "Industrial" && typeof industrialDetails === 'string') {
+                industrialDetails = JSON.parse(industrialDetails);
+            }
     
             const newUser = new User({
                 username,
@@ -160,9 +177,9 @@ import nodemailer from 'nodemailer';
                 coverPicture,
                 bio,
                 isActive,
-                studentDetails: role === "Student" ? JSON.parse(studentDetails) : undefined,
-                facultyDetails: role === "Faculty Member" ? JSON.parse(facultyDetails) : undefined,
-                industrialDetails: role === "Industrial Professional" ? JSON.parse(industrialDetails) : undefined,
+                studentDetails: role === "Student" ? studentDetails : undefined,
+                facultyDetails: role === "Faculty" ? facultyDetails : undefined,
+                industrialDetails: role === "Industrial" ? industrialDetails : undefined,
                 verificationToken,
                 verificationTokenExpires
             });

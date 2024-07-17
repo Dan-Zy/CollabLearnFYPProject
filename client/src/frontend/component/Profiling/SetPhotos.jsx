@@ -34,9 +34,9 @@ export default function SetPhotos() {
       formData.append("bio", userInfo.bio || "");
       if (role === "Student") {
         formData.append("studentDetails", JSON.stringify(form));
-      } else if (role === "Faculty Member") {
+      } else if (role === "Faculty") {
         formData.append("facultyDetails", JSON.stringify(form));
-      } else if (role === "Industrial Professional") {
+      } else if (role === "Industrial") {
         formData.append("industrialDetails", JSON.stringify(form));
       }
 

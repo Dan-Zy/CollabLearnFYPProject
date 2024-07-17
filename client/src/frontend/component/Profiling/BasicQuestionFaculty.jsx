@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import back from "../../../assets/backarrow_icon.png";
 import logo from "../../../assets/MainLogo_White.png";
 
@@ -12,7 +12,7 @@ export default function BasicQuestionFaculty() {
     academicPosition: "",
     coursesCurrentlyTeaching: [""],
     researchInterests: [""],
-    interestedSubjects: [""]
+    interestedSubjects: [""],
   });
 
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ export default function BasicQuestionFaculty() {
     const { name, value } = e.target;
     setForm({
       ...form,
-      [name]: value
+      [name]: value,
     });
   };
 
@@ -32,20 +32,22 @@ export default function BasicQuestionFaculty() {
     newArray[index] = e.target.value;
     setForm({
       ...form,
-      [fieldName]: newArray
+      [fieldName]: newArray,
     });
   };
 
   const addField = (fieldName) => {
     setForm({
       ...form,
-      [fieldName]: [...form[fieldName], ""]
+      [fieldName]: [...form[fieldName], ""],
     });
   };
 
   const handleSubmit = (e) => {
+    // console.log("Role: ", role);
+    // console.log("Form: ", form);
     e.preventDefault();
-    navigate('/SetProfileImage', { state: { userInfo, role, form } });
+    navigate("/SetProfileImage", { state: { userInfo, role, form } });
   };
 
   return (
@@ -56,14 +58,21 @@ export default function BasicQuestionFaculty() {
         </div>
         <div className="flex flex-1 flex-col justify-center items-center text-center text-white">
           <p className="text-xl">
-            Let me know about <span className="font-bold text-3xl">Yourself</span>___________________
+            Let me know about{" "}
+            <span className="font-bold text-3xl">Yourself</span>
+            ___________________
           </p>
         </div>
       </div>
 
       <div className="flex flex-1 flex-col justify-start items-center p-8 bg-white overflow-y-auto max-h-screen">
         <div className="mb-8 w-full max-w-md">
-          <img src={back} alt="Back" className="w-6 h-6 cursor-pointer" onClick={() => navigate(-1)} />
+          <img
+            src={back}
+            alt="Back"
+            className="w-6 h-6 cursor-pointer"
+            onClick={() => navigate(-1)}
+          />
         </div>
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-indigo-400">
@@ -128,13 +137,17 @@ export default function BasicQuestionFaculty() {
                 required
               />
             </div>
-            <p className="text-indigo-300 pt-5 pb-10">____________________________</p>
+            <p className="text-indigo-300 pt-5 pb-10">
+              ____________________________
+            </p>
             {form.coursesCurrentlyTeaching.map((course, index) => (
               <div className="mb-4 " key={index}>
                 <input
                   type="text"
                   value={course}
-                  onChange={(e) => handleArrayChange(e, index, "coursesCurrentlyTeaching")}
+                  onChange={(e) =>
+                    handleArrayChange(e, index, "coursesCurrentlyTeaching")
+                  }
                   placeholder="Course Currently Teaching"
                   className="w-full p-2 border border-gray-300 rounded"
                 />
@@ -147,13 +160,17 @@ export default function BasicQuestionFaculty() {
             >
               Add Course
             </button>
-            <p className="text-indigo-300 pt-5 pb-10">____________________________</p>
+            <p className="text-indigo-300 pt-5 pb-10">
+              ____________________________
+            </p>
             {form.researchInterests.map((interest, index) => (
               <div className="mb-4" key={index}>
                 <input
                   type="text"
                   value={interest}
-                  onChange={(e) => handleArrayChange(e, index, "researchInterests")}
+                  onChange={(e) =>
+                    handleArrayChange(e, index, "researchInterests")
+                  }
                   placeholder="Research Interest"
                   className="w-full p-2 border border-gray-300 rounded"
                 />
@@ -166,13 +183,17 @@ export default function BasicQuestionFaculty() {
             >
               Add Research Interest
             </button>
-            <p className="text-indigo-300 pt-5 pb-10">____________________________</p>
+            <p className="text-indigo-300 pt-5 pb-10">
+              ____________________________
+            </p>
             {form.interestedSubjects.map((subject, index) => (
               <div className="mb-4" key={index}>
                 <input
                   type="text"
                   value={subject}
-                  onChange={(e) => handleArrayChange(e, index, "interestedSubjects")}
+                  onChange={(e) =>
+                    handleArrayChange(e, index, "interestedSubjects")
+                  }
                   placeholder="Interested Subject"
                   className="w-full p-2 border border-gray-300 rounded"
                 />

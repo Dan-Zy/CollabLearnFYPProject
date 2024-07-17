@@ -121,7 +121,7 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         required: true,
-        enum: ['Student' , 'Faculty Member' , 'Industrial Professional']
+        enum: ['Student' , 'Faculty' , 'Industrial']
     },
 
     profilePicture: {
@@ -155,14 +155,14 @@ const userSchema = new mongoose.Schema({
     facultyDetails: {
         type: facultySchema,
         required: function(){
-            return this.role === "Faculty Member"
+            return this.role === "Faculty"
         }
     },
 
     industrialDetails: {
         type: industrialSchema,
         required: function(){
-            return this.role === "Industrial Professional"
+            return this.role === "Industrial"
         }
     },
 
