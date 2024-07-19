@@ -6,7 +6,6 @@ const upvotePost = async (req , res) => {
         
         const {postId} = req.params;
         const userId = req.userId;
-
         // Validate the postId
         if (!postId || !mongoose.Types.ObjectId.isValid(postId)) {
             return res.status(400).json({ 
