@@ -16,7 +16,7 @@ function Comment({ postId }) { // Added token as a prop
     setIsModalOpen(true);
     alert(postId);
     try {
-      const res = await axios.get(`http://localhost:3001/collablearn/getComment/${postId}`, {
+      const res = await axios.get(`http://localhost:3001/collablearn/user/getComments/${postId}`, {
         headers: {
           'Authorization': `${token}`
         }
@@ -49,6 +49,7 @@ function Comment({ postId }) { // Added token as a prop
       );
       setComments([...comments, res.data.comment]);
       setNewComment('');
+      alert([...comments, res.data.comment]);
     } catch (error) {
       console.error('Failed to post comment:', error);
     }

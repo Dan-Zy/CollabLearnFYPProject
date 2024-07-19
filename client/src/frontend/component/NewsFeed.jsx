@@ -66,7 +66,8 @@ export function PostCall() {
               devote: post.devotes.length,
               share: post.shares.length,
               comment: post.comments.length,
-              userUpvoted: post.upvotes.includes(userid.id), // Add this to check if the user has upvoted
+              userUpvoted: post.upvotes.includes(userid.id),
+              userDevoted: post.devotes.includes(userid.id), // Add this to check if the user has upvoted
             };
           })
         );
@@ -102,7 +103,7 @@ export function Post(props) {
   const [upvote, setUpvote] = useState(postdetail.upvote);
   const [checked, setChecked] = useState(postdetail.userUpvoted);
   const [devote, setDevote] = useState(postdetail.devote);
-  const [checkedDevote, setCheckedDevote] = useState(false);
+  const [checkedDevote, setCheckedDevote] = useState(postdetail.userDevoted);
 
   const handleUpvote = async (postId) => {
     const token = localStorage.getItem("token");
@@ -134,13 +135,33 @@ export function Post(props) {
     }
   };
 
-  const handleDevote = () => {
-    if (checkedDevote) {
-      setCheckedDevote(false);
-      setDevote(devote - 1);
-    } else {
-      setCheckedDevote(true);
-      setDevote(devote + 1);
+  const handleDevote =async (postId) => {
+    
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("No token found");
+      return;
+    }
+    try {
+      const url = checkedDevote
+        ? `http://localhost:3001/collablearn/user/removePostDevote/${postId}`
+        : `http://localhost:3001/collablearn/user/devotePost/${postId}`;
+      const method = checkedDevote ? "put" : "post";
+
+      const res = await axios[method](url, {}, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+
+      if (checkedDevote) {
+        setDevote(devote - 1);
+      } else {
+        setDevote(devote + 1);
+      }
+      setCheckedDevote(!checkedDevote);
+    } catch (error) {
+      console.log("Failed to update Devote status:", error);
     }
   };
 
@@ -204,7 +225,7 @@ export function Post(props) {
           <img
             src={DV}
             className="w-6 h-6 cursor-pointer"
-            onClick={handleDevote}
+            onClick={() => handleDevote(postdetail.postId)}
           />
           <span>{devote}</span>
         </div>
