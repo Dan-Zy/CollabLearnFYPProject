@@ -6,6 +6,7 @@ import { uploadProfilePicture } from "../controllers/userControllers/uploadPfp.j
 import getUser from "../controllers/userControllers/getUser.js";
 import uploadPfpCvP from "../config/registerMulter.js";
 import { verifyEmail } from "../controllers/userControllers/userController.js";
+import updateUser from "../controllers/userControllers/updateUser.js";
 
 const router = express.Router();
 
@@ -26,6 +27,10 @@ router.post("/login", loginUser);
 // Logout User
 router.get("/logout", logoutUser);
 
+// Update User
+router.put("/updateProfile/:userId", verifyToken, updateUser);
+
+// Get User
 router.get("/getUser/:userId", verifyToken, getUser);
 
 
