@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { Post } from "../../models/postModel.js";
+import User from "../../models/userModel.js";
 
 const sharePost = async (req, res) => {
     try {
@@ -24,7 +25,7 @@ const sharePost = async (req, res) => {
             });
         }
 
-        if(sharedContent !== ""){
+        if(sharedContent && sharedContent !== ""){
             const contentLength = sharedContent.split(/\s+/).length;
 
             if (contentLength > 500) {
@@ -51,13 +52,19 @@ const sharePost = async (req, res) => {
 
         await sharedPost.save();
 
+        // Populate the originalAuthor field to get the username
+        await sharedPost.populate('originalAuthor', 'username');
+
+        // console.log();
+
         // Update the shares array in the original post
         await Post.findByIdAndUpdate(postId, { $addToSet: { shares: userId } });
 
         res.status(200).json({
             success: true,
             message: "Post has been shared",
-            post: sharedPost
+            post: sharedPost,
+            originalAuthorUsername: sharedPost.originalAuthor.username // Return the username
         });
     } catch (error) {
         console.log("Error occurred while sharing the post: ", error);
