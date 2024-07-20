@@ -1,13 +1,14 @@
 import fs from 'fs';
 import mongoose from 'mongoose';
 import { Comment, Post } from '../../models/postModel.js';
+import { log } from 'console';
 
 export const addComment = async (req, res) => {
     try {
         const { postId } = req.params;
         const { content } = req.body;
         const image = req.file ? req.file.path : "";
-
+        
         // Validate the postId
         if (!postId || !mongoose.Types.ObjectId.isValid(postId)) {
             return res.status(400).json({ message: 'Invalid PostID' });

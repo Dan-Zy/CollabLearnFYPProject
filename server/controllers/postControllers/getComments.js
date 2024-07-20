@@ -17,7 +17,7 @@ const getComments = async (req, res) => {
             path: 'comments.commentId',
             populate: {
                 path: 'userId',
-                select: 'username'  // assuming you want to include username in response
+                select: 'username profilePicture'  // assuming you want to include username in response
             }
         });
 
