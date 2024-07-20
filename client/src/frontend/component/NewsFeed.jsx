@@ -6,10 +6,10 @@ import img2 from "../../assets/options.png";
 import UV from "../../assets/upvote_icon.png";
 import DV from "../../assets/devote_icon.png";
 import share from "../../assets/share_icon.png";
-import docImg from "../../assets/pdf_icon.png"; 
+import docImg from "../../assets/pdf_icon.png";
 import Comment from "./Comment/comment";
 import axios from "axios";
-import jwt_decode from "jwt-decode"; // Import jwt-decode
+import jwt_decode from "jwt-decode";
 
 export function PostCall() {
   const [PostData, setPostData] = useState([]);
@@ -20,8 +20,8 @@ export function PostCall() {
     const fetchPosts = async () => {
       try {
         const token = localStorage.getItem("token");
-        const userid = jwt_decode(token); 
-        
+        const userid = jwt_decode(token);
+
         if (!token) {
           throw new Error("No token found");
         }
@@ -32,7 +32,7 @@ export function PostCall() {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              'Authorization': `${token}`, // Include token in the headers
+              'Authorization': `${token}`,
             },
           }
         );
@@ -42,6 +42,7 @@ export function PostCall() {
         }
 
         const data = await response.json();
+
         setPostData(
           data.posts.map((post) => {
             const documentUrl = post.document
@@ -67,14 +68,17 @@ export function PostCall() {
               share: post.shares.length,
               comment: post.comments.length,
               userUpvoted: post.upvotes.includes(userid.id),
-              userDevoted: post.devotes.includes(userid.id), // Add this to check if the user has upvoted
+              userDevoted: post.devotes.includes(userid.id),
+              orignalAuther: post.originalAuthor,
+              shared: (!post.sharedPost),
+              isOwner: post.userId === userid.id,
             };
           })
         );
       } catch (error) {
         console.error("Error fetching posts:", error);
         setError("Error fetching posts");
-        navigate("/"); // Redirect to login page if unauthorized
+        navigate("/");
       }
     };
 
@@ -89,7 +93,7 @@ export function PostCall() {
   };
 
   return (
-    <div className="flex flex-col items-center w-full">
+    <div className="flex flex-col items-center justify-center w-full ">
       {error && <div className="text-red-500">{error}</div>}
       {PostData.map((postdetail, index) => (
         <Post key={index} postdetail={postdetail} />
@@ -104,6 +108,7 @@ export function Post(props) {
   const [checked, setChecked] = useState(postdetail.userUpvoted);
   const [devote, setDevote] = useState(postdetail.devote);
   const [checkedDevote, setCheckedDevote] = useState(postdetail.userDevoted);
+  const [showOptions, setShowOptions] = useState(false);
 
   const handleUpvote = async (postId) => {
     const token = localStorage.getItem("token");
@@ -135,8 +140,7 @@ export function Post(props) {
     }
   };
 
-  const handleDevote =async (postId) => {
-    
+  const handleDevote = async (postId) => {
     const token = localStorage.getItem("token");
     if (!token) {
       alert("No token found");
@@ -165,6 +169,45 @@ export function Post(props) {
     }
   };
 
+  const handleShare =async (postId) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("No token found");
+      return;
+    }
+    const sharedContent = '';
+
+    if (window.confirm("Do you want to share this post?")) {
+      try {
+        const res = await axios.post(
+          `http://localhost:3001/collablearn/user/sharePost/${postId}`,
+          { sharedContent },
+          {
+            headers: {
+              Authorization: `${token}`,
+            },
+          }
+        );
+        
+        if (res.data.success) {
+          alert("Post has been shared successfully!");
+        } else {
+          alert(res.data.message);
+        }
+      } catch (error) {
+        console.error("Error sharing the post:", error);
+      }
+    
+    }
+  };
+
+  const truncateText = (text, maxLength) => {
+    if (text.length > maxLength) {
+      return text.slice(0, maxLength) + "...";
+    }
+    return text;
+  };
+
   return (
     <div className="flex flex-col w-full sm:w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 bg-white shadow-lg rounded-lg p-4 my-4">
       <div className="flex items-center border-b border-gray-300 pb-2 mb-4">
@@ -173,10 +216,42 @@ export function Post(props) {
           className="w-12 h-12 rounded-full border border-indigo-500"
         />
         <div className="ml-4">
-          <div className="font-bold text-lg">{postdetail.name}</div>
-          <div className="text-gray-500 text-sm">{postdetail.time}</div>
+          <div className="font-bold justify-start text-left items-start text-s">
+            {postdetail.orignalAuther ? (
+              <>
+                {truncateText(postdetail.name, 15)} <span className="pr-1 text-[8px] opacity-50"> {"-> shared from"} </span>
+               
+                <span className="text-[9px]">{truncateText(postdetail.orignalAuther, 10)}</span>
+              </>
+            ) : (
+              postdetail.name
+            )}
+          </div>
+          <div className="text-gray-500 text-sm text-left">{postdetail.time}</div>
         </div>
-        <img src={img2} className="ml-auto w-6 h-6" />
+        <div className="ml-auto relative">
+          <img
+            src={img2}
+            className="w-6 h-6 cursor-pointer"
+            onClick={() => setShowOptions(!showOptions)}
+          />
+          {showOptions && (
+            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg">
+              <button
+                className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-200"
+                disabled={!postdetail.isOwner}
+              >
+                Edit Post
+              </button>
+              <button
+                className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-200"
+                disabled={!postdetail.isOwner}
+              >
+                Delete Post
+              </button>
+            </div>
+          )}
+        </div>
       </div>
       <div className="mb-4">
         <div className="text-lg">{postdetail.text}</div>
@@ -234,7 +309,11 @@ export function Post(props) {
           <span>{postdetail.comment}</span>
         </div>
         <div className="flex items-center space-x-2">
-          <img src={share} className="w-6 h-6" />
+          <img
+            src={share}
+            className="w-6 h-6 cursor-pointer"
+            onClick={() => handleShare(postdetail.postId)}
+          />
           <span>{postdetail.share}</span>
         </div>
       </div>
