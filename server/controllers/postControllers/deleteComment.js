@@ -1,4 +1,4 @@
-import { Comment } from "../../models/postModel.js";
+import { Comment , Post } from "../../models/postModel.js";
 
 const deleteComment = async (req, res) => {
     try {
@@ -20,6 +20,15 @@ const deleteComment = async (req, res) => {
                 success: false,
                 message: "You are not authorized to delete this comment"
             });
+        }
+
+        // Find the post that contains the comment
+        const post = await Post.findOne({ "comments.commentId": commentId });
+
+        if (post) {
+            // Remove the commentId from the comments array
+            post.comments = post.comments.filter(comment => comment.commentId.toString() !== commentId);
+            await post.save();
         }
 
         await comment.deleteOne({_id: commentId});
