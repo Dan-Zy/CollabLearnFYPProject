@@ -30,6 +30,14 @@ const deletePost = async (req, res) => {
             await Comment.deleteOne({_id: commentIds[index]});
         }
 
+        if(post.sharedPost !== null){
+            
+            const originalPost = await Post.findById(post.sharedPost);
+            originalPost.shares = originalPost.shares.filter(share => share.toString() !== userId);
+            await originalPost.save();
+
+        }
+
         
 
         await Post.deleteOne({_id: postId});
