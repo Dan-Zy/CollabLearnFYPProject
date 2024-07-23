@@ -50,14 +50,9 @@ const sharePost = async (req, res) => {
             sharedContent: sharedContent
         });
 
+
         await sharedPost.save();
-
-        // Populate the originalAuthor field to get the username
         await sharedPost.populate('originalAuthor', 'username');
-
-        // console.log();
-
-        // Update the shares array in the original post
         await Post.findByIdAndUpdate(postId, { $addToSet: { shares: userId } });
 
         res.status(200).json({

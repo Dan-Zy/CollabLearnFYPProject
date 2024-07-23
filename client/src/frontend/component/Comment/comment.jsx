@@ -6,6 +6,8 @@ import send from "../../../assets/send_icon.png";
 import UV from "../../../assets/upvote_icon.png";
 import DV from "../../../assets/devote_icon.png";
 import jwt_decode from "jwt-decode";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Comment({ postId }) {
   const [comments, setComments] = useState([]);
@@ -13,14 +15,19 @@ function Comment({ postId }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showOptions, setShowOptions] = useState(null); // State to track which comment's options are visible
+  const [showOptions, setShowOptions] = useState(null); 
 
   const token = localStorage.getItem('token');
-  const decodedToken = jwt_decode(token);
+  let decodedToken;
+  try {
+    decodedToken = jwt_decode(token);
+  } catch (error) {
+    console.error("Failed to decode token:", error);
+  }
 
   const fetchComments = useCallback(async () => {
     setIsLoading(true);
-    setComments([]); 
+    setComments([]);
     try {
       const res = await axios.get(`http://localhost:3001/collablearn/user/getComments/${postId}`, {
         headers: {
@@ -57,7 +64,7 @@ function Comment({ postId }) {
     if (!content.trim()) return;
 
     setIsSubmitting(true);
-    try {
+    const submitComment = async () => {
       await axios.post(
         `http://localhost:3001/collablearn/user/addComment/${postId}`,
         { content },
@@ -69,22 +76,26 @@ function Comment({ postId }) {
       );
       setContent('');
       fetchComments();
-    } catch (error) {
-      console.error('Failed to post comment:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    };
+
+    toast.promise(submitComment(), {
+      pending: 'Posting comment...',
+      success: 'Comment posted successfully!',
+      error: 'Failed to post comment',
+    });
+
+    setIsSubmitting(false);
   };
 
   const handleUpvoteComment = async (comment) => {
     if (!token) {
-      alert("No token found");
+      toast.error("No token found");
       return;
     }
 
     const isUpvoted = comment.upvotes.includes(decodedToken.id);
 
-    try {
+    const updateUpvote = async () => {
       const url = isUpvoted
         ? `http://localhost:3001/collablearn/user/removeCommentUpvote/${comment.commentId}`
         : `http://localhost:3001/collablearn/user/upvoteComment/${comment.commentId}`;
@@ -97,20 +108,24 @@ function Comment({ postId }) {
       });
 
       fetchComments();
-    } catch (error) {
-      console.log("Failed to update upvote status:", error);
-    }
+    };
+
+    toast.promise(updateUpvote(), {
+      pending: 'Updating upvote...',
+      success: 'Upvote updated successfully!',
+      error: 'Failed to update upvote status',
+    });
   };
 
   const handleDevoteComment = async (comment) => {
     if (!token) {
-      alert("No token found");
+      toast.error("No token found");
       return;
     }
 
     const isDevoted = comment.devotes.includes(decodedToken.id);
 
-    try {
+    const updateDevote = async () => {
       const url = isDevoted
         ? `http://localhost:3001/collablearn/user/removeCommentDevote/${comment.commentId}`
         : `http://localhost:3001/collablearn/user/devoteComment/${comment.commentId}`;
@@ -123,22 +138,30 @@ function Comment({ postId }) {
       });
 
       fetchComments();
-    } catch (error) {
-      console.log("Failed to update devote status:", error);
-    }
+    };
+
+    toast.promise(updateDevote(), {
+      pending: 'Updating devote...',
+      success: 'Devote updated successfully!',
+      error: 'Failed to update devote status',
+    });
   };
 
   const handleDeleteComment = async (commentId) => {
-    try {
+    const deleteComment = async () => {
       await axios.delete(`http://localhost:3001/collablearn/user/deleteComment/${commentId}`, {
         headers: {
           'Authorization': `${token}`
         }
       });
       setComments((prevComments) => prevComments.filter(comment => comment.commentId !== commentId));
-    } catch (error) {
-      console.error('Failed to delete comment:', error);
-    }
+    };
+
+    toast.promise(deleteComment(), {
+      pending: 'Deleting comment...',
+      success: 'Comment deleted successfully!',
+      error: 'Failed to delete comment',
+    });
   };
 
   const toggleOptions = (commentId) => {
@@ -252,6 +275,7 @@ function Comment({ postId }) {
           </div>
         </div>
       )}
+      <ToastContainer />
     </>
   );
 }
