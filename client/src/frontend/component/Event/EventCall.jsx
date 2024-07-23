@@ -5,11 +5,13 @@ import CreateEvent from './CreateEvent/CreateEvent';
 import MyEvent from './MyEvent/MyEvent';
 import axios from 'axios';
 import LiveEventCard from './LiveEventCard';
-
+import GenreSelector from './GenerSelector';
 function EventCall() {
   const [view, setView] = useState('scheduledEvents');
   const [scheduledEvents, setScheduledEvents] = useState([]);
   const [ongoingEvents, setOngoingEvents] = useState([]);
+  const [selectedGenre, setSelectedGenre] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -27,7 +29,6 @@ function EventCall() {
 
         setScheduledEvents(response.data.events.filter(event => event.type === 'Scheduled'));
         setOngoingEvents(response.data.events.filter(event => event.type === 'Instant'));
-      
       } catch (error) {
         console.error('Error fetching events:', error);
       }
@@ -52,6 +53,20 @@ function EventCall() {
     setView('ongoingEvents');
   };
 
+  const filteredScheduledEvents = scheduledEvents.filter(event => {
+    return (
+      (selectedGenre === '' || event.genre === selectedGenre) &&
+      (searchQuery === '' || event.eventName.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+  });
+
+  const filteredOngoingEvents = ongoingEvents.filter(event => {
+    return (
+      (selectedGenre === '' || event.genre === selectedGenre) &&
+      (searchQuery === '' || event.eventName.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+  });
+
   return (
     <div className="flex flex-col">
       <HeaderComponent
@@ -59,21 +74,33 @@ function EventCall() {
         onViewEvents={handleViewEventsClick}
       />
       {view !== 'createEvent' && view !== 'myEvents' && (
-        <nav>
-          <text className='m-2 hover:text-indigo-500 cursor-pointer' onClick={handleViewScheduledEventsClick}>Scheduled Events</text>
-          <text className='m-2 hover:text-indigo-500 cursor-pointer' onClick={handleViewOngoingEventsClick}>Ongoing Events</text>
-        </nav>
+        <>
+          <nav>
+            <text className='m-2 hover:text-indigo-500 cursor-pointer' onClick={handleViewScheduledEventsClick}>Scheduled Events</text>
+            <text className='m-2 hover:text-indigo-500 cursor-pointer' onClick={handleViewOngoingEventsClick}>Ongoing Events</text>
+          </nav>
+          <div className="flex justify-between w-full py-2">
+            <input
+              className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-center shadow"
+              type="text"
+              placeholder="Search event"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <GenreSelector selectedGenre={selectedGenre} setSelectedGenre={setSelectedGenre} />
+        </>
       )}
       {view === 'scheduledEvents' && (
         <section className="flex flex-col">
-          {scheduledEvents.map((event, index) => (
+          {filteredScheduledEvents.map((event, index) => (
             <EventCardComponent key={index} {...event} />
           ))}
         </section>
       )}
       {view === 'ongoingEvents' && (
         <section className="flex flex-col">
-          {ongoingEvents.map((event, index) => (
+          {filteredOngoingEvents.map((event, index) => (
             <LiveEventCard key={index} {...event} />
           ))}
         </section>

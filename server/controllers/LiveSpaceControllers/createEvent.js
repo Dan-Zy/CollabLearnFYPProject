@@ -125,18 +125,18 @@ import fs from "fs";
 
 const createEvent = async (req, res) => {
     try {
-        const { eventName, eventDescription, type, eventGenre, startDate, endDate, startTime, endTime } = req.body;
+        const { eventName, eventDescription, type, eventGenre, eventLink, startDate, endDate, startTime, endTime } = req.body;
         const hostId = req.userId;
         const image = req.file ? req.file.path : "";
 
-        console.log("Received Data: ", eventName , eventDescription , type , eventGenre , startDate , endDate , startTime , endTime);
+        console.log("Received Data: ", eventName , eventDescription , type , eventGenre , eventLink, startDate , endDate , startTime , endTime);
 
         console.log(`${eventName} , ${eventDescription} , ${type} , ${hostId} , ${startDate} , ${startTime}`);
 
-        if (!eventName || !eventDescription || !type || !eventGenre) {
+        if (!eventName || !eventDescription || !type || !eventGenre || !eventLink) {
             return res.status(400).json({
                 success: false,
-                message: "Event name, description, type, and genre are required"
+                message: "Event name, description, type, genre and eventlink are required"
             });
         }
 
@@ -218,6 +218,8 @@ const createEvent = async (req, res) => {
             eventDescription,
             imageBanner: image,
             type,
+            eventGenre,
+            eventLink,
             startDateTime: startDateTime || undefined,
             endDateTime: endDateTime || undefined,
             eventStatus: type === 'Instant' ? 'Ongoing' : 'Upcoming', // Set initial status based on type

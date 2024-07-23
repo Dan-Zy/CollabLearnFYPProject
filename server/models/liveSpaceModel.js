@@ -56,6 +56,7 @@ const liveSpaceSchema = mongoose.Schema({
 
     eventLink: {
         type: String,
+        required: true,
         default: ""
     },
 

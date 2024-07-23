@@ -8,6 +8,8 @@ import {
   faHeading,
   faClipboardList,
 } from "@fortawesome/free-solid-svg-icons";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function CreateEventCard() {
   const [title, setTitle] = useState("");
@@ -41,27 +43,36 @@ function CreateEventCard() {
       !poster ||
       !genre
     ) {
-      alert("All fields are required for scheduled events");
+      toast.error("All fields are required for scheduled events");
       return;
     }
 
-    // Below is the Code to change Date format from (YYYY-MM-DD) to (DD-MM-YYYY) because in backend the date should be in (DD-MM-YYYY) format that's why I have changed it in the fronend to send the exact date to backend.
-    var dateStart = startDate.split("-");
-        var dayS = dateStart[2];
-        var monthS = dateStart[1];
-        var yearS = dateStart[0];
-        // console.log("Split date: ", dateStart);
-        // console.log("Day: ", day , " Month: ", month , " Year: ", year);
+    const startDateTime = new Date(`${startDate}T${startTime}`);
+    const endDateTime = new Date(`${endDate}T${endTime}`);
+    const now = new Date();
 
-        const startNewDate = dayS + "-" + monthS + "-" + yearS;
-        // console.log("Date Temp: ", dateTemp);
+    if (startDateTime < now) {
+      toast.error("Start date and time cannot be in the past");
+      return;
+    }
 
-        var dateEnd = endDate.split("-");
-        var dayE = dateEnd[2];
-        var monthE = dateEnd[1];
-        var yearE = dateEnd[0];
+    if (endDateTime < startDateTime) {
+      toast.error("End date and time must be greater than or equal to the start date and time");
+      return;
+    }
 
-        const endNewDate = dayE + "-" + monthE + "-" + yearE;
+    // Generate a random room name for Jitsi meeting link
+    const roomName = `event-${Date.now()}`;
+    const jitsiLink = `https://meet.jit.si/${roomName}`;
+
+    // Change date format from YYYY-MM-DD to DD-MM-YYYY
+    const formatDate = (date) => {
+      const [year, month, day] = date.split("-");
+      return `${day}-${month}-${year}`;
+    };
+
+    const startNewDate = formatDate(startDate);
+    const endNewDate = formatDate(endDate);
 
     const formData = new FormData();
     formData.append("eventName", title);
@@ -72,32 +83,43 @@ function CreateEventCard() {
     formData.append("startTime", startTime);
     formData.append("endTime", endTime);
     formData.append("eventGenre", genre);
+    formData.append("eventLink", jitsiLink); // Add the Jitsi meeting link
     if (poster) {
       formData.append("image", poster);
     }
 
     try {
-      const token = getToken(); // Get the token from storage or context
-      const response = await axios.post(
-        "http://localhost:3001/collablearn/createEvent",
-        formData,
+      const token = localStorage.getItem('token');
+      await toast.promise(
+        axios.post(
+          "http://localhost:3001/collablearn/createEvent",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `${token}`, // Include the token in the Authorization header
+            },
+          }
+        ),
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `${token}`, // Include the token in the Authorization header
-          },
+          pending: "Creating event...",
+          success: "Event created successfully!",
+          error: "Error creating event. Please try again.",
         }
       );
 
-      if (response.data.success) {
-        alert(response.data.message);
-        // Clear form fields or redirect as needed
-      } else {
-        alert(response.data.message);
-      }
+
+      setTitle("");
+      setEventDescription("");
+      setStartDate("");
+      setEndDate("");
+      setStartTime("");
+      setEndTime("");
+      setGenre("");
+      setPoster(null);
     } catch (error) {
       console.error("Error creating event:", error);
-      alert("Error creating event. Please try again.");
+      toast.error("Error creating event. Please try again.");
     }
   };
 
@@ -230,55 +252,49 @@ function CreateEventCard() {
               onChange={(e) => setGenre(e.target.value)}
               className="flex text-center flex-col m-2 h-[5vh] w-[80%] justify-center items-center border border-[#7d7dc3] rounded"
             >
-              <option value="" disabled>
-                Select a genre
-              </option>
-              <option value="Artificial Intelligence">
-                Artificial Intelligence
-              </option>
-              <option value="Machine Learning">Machine Learning</option>
-              <option value="Networking">Networking</option>
-              <option value="Human Computer Intraction">
-                Human Computer Intraction
-              </option>
-              <option value="Data Science">Data Science</option>
-              <option value="Software Developing">Software Developing</option>
-              <option value="Other">Other</option>
+          <option value="" disabled>
+            Select a genre
+          </option>
+          <option value="Artificial Intelligence">
+            Artificial Intelligence
+          </option>
+          <option value="Machine Learning">Machine Learning</option>
+          <option value="Networking">Networking</option>
+          <option value="Human Computer Interaction">
+            Human Computer Interaction
+          </option>
+          <option value="Data Science">Data Science</option>
+          <option value="Software Development">Software Development</option>
+          <option value="Other">Other</option>
             </select>
           )}
+
           <div className="m-2 flex items-center">
             <FontAwesomeIcon
               icon={faImage}
               className="text-[#7d7dc3] cursor-pointer"
               onClick={() => setShowPoster(!showPoster)}
             />
-            <span className="ml-2">Poster</span>
+            <span className="ml-2">Upload Poster</span>
           </div>
           {showPoster && (
             <input
-              onChange={(e) => setPoster(e.target.files[0])}
               type="file"
-              accept=".png, .jpg, .jpeg"
+              onChange={(e) => setPoster(e.target.files[0])}
               className="flex text-center flex-col m-2 h-[5vh] w-[80%] justify-center items-center border border-[#7d7dc3] rounded"
             />
           )}
         </div>
-
-        <div className="mt-auto w-[100%] flex justify-center">
-          <button
-            type="submit"
-            className="flex justify-center text-center text-white bg-indigo-500 text-[1vw] p-2 rounded w-full hover:bg-indigo-600"
-          >
-            Create Event
-          </button>
-        </div>
+        <button
+          type="submit"
+          className="flex text-center flex-col m-2 h-[5vh] w-[30%] justify-center items-center border bg-[#7d7dc3] text-white rounded"
+        >
+          Create Event
+        </button>
       </form>
+      <ToastContainer />
     </div>
   );
 }
-
-const getToken = () => {
-  return localStorage.getItem("token"); // Adjust this according to how you store the token
-};
 
 export default CreateEventCard;
