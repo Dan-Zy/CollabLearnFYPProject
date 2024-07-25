@@ -8,6 +8,8 @@ function GoLiveCard() {
   const [eventTitle, setEventTitle] = useState("");
   const [genre, setGenre] = useState("");
   const [poster, setPoster] = useState(null);
+  const [eventDescription, setEventDescription] = useState(""); // New state for description
+  const [eventLink, setEventLink] = useState(""); // New state for event link
 
   useEffect(() => {
     const handleMessage = (event) => {
@@ -29,13 +31,14 @@ function GoLiveCard() {
     const displayName = user.username;
     const email = user.email;
     const domain = "meet.jit.si"; // Replace with your Jitsi Meet domain
-
+    setEventLink(`https://meet.jit.si/${roomName}`);
     const eventData = new FormData();
     eventData.append("eventName", eventTitle);
-    eventData.append("eventDescription", "Instant event description");
+    eventData.append("eventDescription", eventDescription); // Append description
     eventData.append("type", "Instant");
     eventData.append("hostId", user._id);
     eventData.append("eventGenre", genre);
+    eventData.append("eventLink", eventLink); // Append event link
     // if (poster) {
     //   eventData.append("image", poster);
     // }
@@ -122,12 +125,16 @@ function GoLiveCard() {
           <option value="Other">Other</option>
         </select>
 
-        {/* <input
-          onChange={(e) => setPoster(e.target.files[0])}
-          type="file"
-          accept=".png, .jpg, .jpeg"
+        <input
+          value={eventDescription}
+          onChange={(e) => setEventDescription(e.target.value)}
+          type="text"
+          placeholder="Event Description"
           className="flex text-center flex-col m-2 h-[5vh] w-[80%] justify-center items-center border border-[#7d7dc3] rounded"
-        /> */}
+        />
+
+
+
       </div>
       <button
         onClick={handleClick}

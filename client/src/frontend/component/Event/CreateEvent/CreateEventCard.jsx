@@ -97,7 +97,7 @@ function CreateEventCard() {
           {
             headers: {
               "Content-Type": "multipart/form-data",
-              Authorization: `${token}`, // Include the token in the Authorization header
+              Authorization: `${token}`,
             },
           }
         ),
