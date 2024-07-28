@@ -14,6 +14,7 @@ import LiveSpace from '../models/liveSpaceModel.js'; // Adjust the path accordin
 // Function to update event statuses
 const updateEventStatuses = async () => {
     const now = new Date();
+    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
 
     // Update events to "Ongoing" if the start time has passed but the end time has not
     await LiveSpace.updateMany(
@@ -33,11 +34,11 @@ const updateEventStatuses = async () => {
         { eventStatus: 'Upcoming' }
     );
 
-    // Update Instant events to "Completed" if the end time has passed
-    // await LiveSpace.updateMany(
-    //     { type: 'Instant', endDateTime: { $lte: now } },
-    //     { eventStatus: 'Completed' }
-    // );
+    // Update Instant events to "Completed" if one hour has passed since creation
+    await LiveSpace.updateMany(
+        { type: 'Instant', createdAt: { $lte: oneHourAgo } },
+        { eventStatus: 'Completed' }
+    );
 
     console.log('Live Space Event statuses updated');
 };
