@@ -12,11 +12,16 @@ import helmet from "helmet";
 import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
+
+import { Server } from 'socket.io';
+
 import userRoutes from "./routes/userRoute.js";
 import postRoutes from "./routes/postRoute.js";
 import liveSpaceRoutes from "./routes/liveSpaceRoute.js";
 import communityRoutes from "./routes/communityRoute.js";
-import communityPostRoutes from "./routes/communityPostRoute.js"
+import communityPostRoutes from "./routes/communityPostRoute.js";
+import chatRoutes from "./routes/chatRoutes.js";
+import messageRoutes from "./routes/messageRoutes.js";
 
 
 /* CONFIGURATIONS */
@@ -64,6 +69,9 @@ const storage = multer.diskStorage({
   };
   app.use(cors(corsOptions));
 
+  // app.use(notFound);
+  // app.use(errorHandler);
+
 
   // ROUTES
   app.use("/collablearn/user", userRoutes);
@@ -76,14 +84,54 @@ const storage = multer.diskStorage({
 
   app.use("/collablearn", communityPostRoutes);
 
+  app.use("/collablearn", chatRoutes);
+
+  app.use("/collablearn", messageRoutes);
+
 
 
   /* MONGOOSE SETUP */
 const PORT = process.env.PORT || 6001;
 
 mongoose.connect(process.env.MONGO_URL)
-.then(() => {
-    app.listen(PORT, () => console.log(`Server is running on Port: ${PORT}`));
+  .then(() => {
+    const server = app.listen(PORT, () => {
+      console.log(`Server is running on Port: ${PORT}`);
+    });
+
+    const io = new Server(server, {
+      pingTimeout: 60000,
+      cors: {
+        origin: "http://localhost:3000",
+      },
+    });
+
+    io.on("connection", (socket) => {
+      console.log("connected to socket.io");
+      socket.on("setup", (userData) => {
+        socket.join(userData._id);
+        socket.emit("connected");
+      });
+      socket.on("join chat", (room) => {
+        socket.join(room);
+        console.log("User Joined Room: " + room);
+      });
+
+      socket.on("typing", (room) => socket.in(room).emit("typing"));
+      socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));
+
+      socket.on("new message", (newMessageReceived) => {
+        var chat = newMessageReceived.chat;
+
+        if (!chat.users) return console.log("chat.users not defined");
+
+        chat.users.forEach((user) => {
+          if (user._id === newMessageReceived.sender._id) return;
+
+          socket.in(user._id).emit("message received", newMessageReceived);
+        });
+      });
+    });
 
     /* ADD DATA ONE TIME */
     // User.insertMany(users);
