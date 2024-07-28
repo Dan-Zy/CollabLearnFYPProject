@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import cron from 'node-cron';
 import LiveSpace from '../models/liveSpaceModel.js'; // Adjust the path accordingly
+import communityLiveSpaceModel from '../models/communityLiveSpaceModel.js';
 
 // Connect to your MongoDB database
 // mongoose.connect(process.env.MONGO_URL)
@@ -39,6 +40,11 @@ const updateEventStatuses = async () => {
         { type: 'Instant', createdAt: { $lte: oneHourAgo } },
         { eventStatus: 'Completed' }
     );
+
+    await communityLiveSpaceModel.updateMany(
+        { type: 'Instant', createdAt: { $lte: oneHourAgo } },
+        { eventStatus: 'Completed' }
+    )
 
     console.log('Live Space Event statuses updated');
 };
