@@ -10,14 +10,14 @@ const getUser = async (req, res) => {
         console.log("Req User ID: ", typeof(reqUserId));
         console.log("Param User ID: ", typeof(userId));
 
-        if(reqUserId !== userId){
-            return res.status(400).json({
-                success: false,
-                message: "You are not authorized to fetch this user's data"
-            });
-        }
+        // if(reqUserId !== userId){
+        //     return res.status(400).json({
+        //         success: false,
+        //         message: "You are not authorized to fetch this user's data"
+        //     });
+        // }
 
-        const user = await User.findById(reqUserId);
+        const user = await User.findById(userId);
 
         if(!user){
             return res.status(400).json({

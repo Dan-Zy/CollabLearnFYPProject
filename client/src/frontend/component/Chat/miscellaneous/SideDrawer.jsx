@@ -4,26 +4,16 @@ import jwt_decode from "jwt-decode";
 import {
   Button,
   Tooltip,
-  Text,
   Menu,
   MenuButton,
   Avatar,
   MenuList,
   MenuItem,
   MenuDivider,
-  useDisclosure,
-  Input,
   useToast,
+  Input,
   Spinner,
 } from "@chakra-ui/react";
-import {
-  Drawer,
-  DrawerBody,
-  DrawerHeader,
-  DrawerOverlay,
-  DrawerContent,
-} from "@chakra-ui/react";
-import UserListItem from "../UserAvatar/UserListItem";
 import { SearchIcon, BellIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import { ChatState } from "../Context/ChatProvider";
 import ProfileModel from "./ProfileModel";
@@ -32,14 +22,14 @@ import axios from "axios";
 import ChatLoading from "./ChatLoading";
 import { getSender } from "../config/ChatLogics";
 import NotificationBadge, { Effect } from "react-notification-badge";
+import UserListItem from "../UserAvatar/UserListItem";
 import { useLocation } from "react-router-dom";
 
 const SideDrawer = () => {
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [loadingChat, setLoadingChat] = useState();
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [loadingChat, setLoadingChat] = useState(false);
   const location = useLocation();
   const id = location.state?.id;
 
@@ -88,11 +78,12 @@ const SideDrawer = () => {
         },
       };
       const { data } = await axios.get(
-        `http://localhost:3001/collablearn/user/getUser/${id}`,
+        `http://localhost:3001/collablearn/user/getUser/${search}`,
         config
       );
       setLoading(false);
-      setSearchResult(data);
+      setSearchResult(Array.isArray(data) ? data : [data]);
+      
     } catch (error) {
       console.log(error);
       toast({
@@ -108,56 +99,67 @@ const SideDrawer = () => {
 
   const accessChat = async (userId) => {
     try {
+      console.log('====================================');
+      console.log(userId);
+      console.log('====================================');
       setLoadingChat(true);
+      const token  = localStorage.getItem('token');
       const config = {
         headers: {
           "Content-type": "application/json",
-          Authorization: `Bearer ${user.token}`,
+          Authorization: `${token}`,
         },
       };
       const { data } = await axios.post(
-        "http://localhost:5000/api/chat",
+        "http://localhost:3001/collablearn/access-chat",
         { userId },
         config
       );
       if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats]);
       setSelectedChat(data);
       setLoadingChat(false);
-      onClose();
     } catch (error) {
       toast({
         title: "Error Occured!",
-        description: "Failed to Load the Search Results",
+        description: "Failed to Load the Chat",
         status: "error",
         duration: 5000,
         isClosable: true,
         position: "bottom-left",
       });
+      setLoadingChat(false);
     }
   };
 
   return (
-    <>
+    <Box
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      bg="white"
+      w="100%"
+      p="5px 10px"
+      borderWidth="5px"
+    >
       <Box
         display="flex"
         justifyContent="space-between"
         alignItems="center"
-        bg="white"
         w="100%"
-        p="5px 10px 5px 10px"
-        borderWidth="5px"
       >
         <Tooltip label="Search User to chat" hasArrow placement="bottom-end">
-          <Button variant="ghost" onClick={onOpen}>
-            <SearchIcon />
-            <Text d={{ base: "none", md: "flex" }} px="4">
-              Search User
-            </Text>
-          </Button>
+          <Box display="flex" alignItems="center">
+            <Input
+              placeholder="Search by name or email"
+              mr={2}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <Button variant="ghost" onClick={handleSearch}>
+              <SearchIcon />
+            </Button>
+          </Box>
         </Tooltip>
-        <Text fontSize="2xl" fontFamily="Work sans">
-          Talk-A-Tive
-        </Text>
         <div>
           <Menu>
             <MenuButton p={1}>
@@ -179,61 +181,28 @@ const SideDrawer = () => {
                 >
                   {notif.chat.isGroupChat
                     ? `New Message in ${notif.chat.chatName}`
-                    : `New Message in ${getSender(user, notif.chat.users)}`}
+                    : `New Message from ${getSender(user, notif.chat.users)}`}
                 </MenuItem>
               ))}
             </MenuList>
           </Menu>
-          <Menu>
-            <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-              <Avatar
-                size="sm"
-                cursor="pointer"
-                name={user.name}
-                src={user.pic}
-              />
-            </MenuButton>
-            <MenuList>
-              <ProfileModel user={user}>
-                <MenuItem>My Profile</MenuItem>
-              </ProfileModel>
-              <MenuDivider />
-              <MenuItem onClick={logoutHandler}>Logout</MenuItem>
-            </MenuList>
-          </Menu>
         </div>
       </Box>
-
-      <Drawer placement="left" onClose={onClose} isOpen={isOpen}>
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerHeader borderBottomWidth="1px">Search Users</DrawerHeader>
-          <DrawerBody>
-            <Box display="flex" pb={2}>
-              <Input
-                placeholder="Search by name or email"
-                mr={2}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              <Button onClick={handleSearch}>Go</Button>
-            </Box>
-            {loading ? (
-              <ChatLoading />
-            ) : (
-              searchResult?.map((user) => (
-                <UserListItem
-                  key={user._id}
-                  user={user}
-                  handleFunction={() => accessChat(user._id)}
-                />
-              ))
-            )}
-            {loadingChat && <Spinner ml="auto" display="flex" />}
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
-    </>
+      <Box mt={2} w="100%">
+        {loading ? (
+          <ChatLoading />
+        ) : (
+          searchResult.map((user) => (
+            <UserListItem
+              key={user._id}
+              user={user}
+              handleFunction={() => accessChat(user.user._id)}
+            />
+          ))
+        )}
+        {loadingChat && <Spinner ml="auto" display="flex" />}
+      </Box>
+    </Box>
   );
 };
 

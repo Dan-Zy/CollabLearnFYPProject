@@ -1,41 +1,21 @@
 import React from "react";
-import { ChatState } from "../Context/ChatProvider";
-import { Avatar, Box, Text } from "@chakra-ui/react";
+import { Box, Avatar, Text } from "@chakra-ui/react";
 
 const UserListItem = ({ user, handleFunction }) => {
   return (
-    <Box
-      onClick={handleFunction}
-      cursor="pointer"
-      bg="#E8E8E8"
-      _hover={{
-        background: "#38B2AC",
-        color: "white",
-      }}
-      w="100%"
-      display="flex"
-      alignItems="center"
-      color="black"
-      px={3}
-      py={2}
-      mb={2}
-      borderRadius="lg"
-    >
-      <Avatar
-        mr={2}
-        size="sm"
-        cursor="pointer"
-        name={user.name}
-        src={user.pic}
-      />
-      <Box>
-        <Text>{user.name}</Text>
-        <Text fontSize="xs">
-          <b>Email :</b>
-          {user.email}
-        </Text>
-      </Box>
-    </Box>
+    <div className="flex justify-center border-b-2 p-1 border-indigo-100 items-center cursor-pointer "  onClick={handleFunction} >
+        <img
+          src={user.user.profilePicture ? `http://localhost:3001/${user.user.profilePicture}` : 'https://via.placeholder.com/40'}
+          alt="Profile"
+          className="flex rounded-full w-12 h-12 mr-3  border border-indigo-500 p-2"
+        />
+
+        <div>
+          <h4 className=" flex font-semibold">{user.user.username || "User"}</h4>
+          <p className="flex text-sm text-gray-500">{user.user.role || "Role"}</p>
+        </div>
+      </div>
+
   );
 };
 

@@ -13,7 +13,7 @@ export function LogOut() {
   useEffect(() => {
     if (isModalOpen) {
       document.body.classList.add("modal-open");
-      console.log(userInfo);
+      
     } else {
       document.body.classList.remove("modal-open");
     }

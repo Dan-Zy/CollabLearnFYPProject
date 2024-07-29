@@ -92,9 +92,7 @@ import React, { useState } from "react";
 import "../App.css"; // Make sure to import your Tailwind CSS file
 import LogOut from "./component/LogOut";
 // import HomePage from "./screens/HomePage";
-import ChatPage from "../frontend/component/Chat/screens/ChatPage";
-import ChatProvider from "../frontend/component/Chat/Context/ChatProvider";
-
+import { ChatBox } from "./component/chattest/ChatBox";
 const LeftSidebar = () => {
   const [activeTab, setActiveTab] = useState("chat");
 
@@ -142,7 +140,7 @@ const LeftSidebar = () => {
 
       {/* User List Section */}
       <div className="p-4 flex-1 overflow-y-auto">
-        <ChatProvider>{activeTab === "chat" && <ChatPage />}</ChatProvider>
+        {activeTab === "chat" && <ChatBox />}
         {activeTab === "events" && <div>Events content here...</div>}
       </div>
 
