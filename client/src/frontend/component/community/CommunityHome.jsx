@@ -6,6 +6,8 @@ import { GenreSelector } from './GenerSelector';
 import { CommunityCard } from './CommunityCard';
 import CommunityViewHome from './CommunityView/CommunityViewHome';
 import jwt_decode from 'jwt-decode';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export function CommunityHome() {
   const [activeTab, setActiveTab] = useState('joined');
@@ -15,6 +17,7 @@ export function CommunityHome() {
   const [userId, setUserId] = useState('');
   const [view, setView] = useState('CommunityHome');
   const [communityId, setCommunityId] = useState(null);
+  const [flash, setFlash] = useState(false);
 
   useEffect(() => {
     const fetchUserId = () => {
@@ -43,7 +46,11 @@ export function CommunityHome() {
       }
     };
 
-    fetchCommunities();
+    toast.promise(fetchCommunities(), {
+      pending: 'Loading communities...',
+      success: 'Communities loaded successfully!',
+      error: 'Error loading communities'
+    });
   }, []);
 
   const handleRemoveCommunity = (communityId) => {
@@ -55,9 +62,25 @@ export function CommunityHome() {
     setCommunityId(communityId);
   };
 
-  useEffect(() => {
-    console.log('View changed to:', view, 'with Community ID:', communityId);
-  }, [view, communityId]);
+  const triggerFlashEffect = (callback) => {
+    setFlash(true);
+    setTimeout(() => {
+      callback();
+      setFlash(false);
+    }, 500);
+  };
+
+  const handleSearchChange = (e) => {
+    triggerFlashEffect(() => setSearchQuery(e.target.value));
+  };
+
+  const handleGenreChange = (genre) => {
+    triggerFlashEffect(() => setSelectedGenre(genre));
+  };
+
+  const handleTabChange = (tab) => {
+    triggerFlashEffect(() => setActiveTab(tab));
+  };
 
   const filteredCommunities = communities.filter((community) => {
     const isMember = community.members.includes(userId);
@@ -70,32 +93,37 @@ export function CommunityHome() {
   });
 
   return (
-    <div className="container mx-auto p-4">
+    <div className={`container mx-auto p-4 ${flash ? 'animate-flash' : ''}`}>
+      <ToastContainer />
       {view === 'CommunityHome' ? (
         <>
           <div className="flex flex-col items-center">
-            <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
-            <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+            <Navbar activeTab={activeTab} setActiveTab={handleTabChange} />
+            <SearchBar searchQuery={searchQuery} setSearchQuery={handleSearchChange} />
           </div>
-          <GenreSelector selectedGenre={selectedGenre} setSelectedGenre={setSelectedGenre} />
+          <GenreSelector selectedGenre={selectedGenre} setSelectedGenre={handleGenreChange} />
           <div className="mt-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredCommunities.map((community) => (
-                <CommunityCard
-                  key={community._id}
-                  id={community._id}
-                  img={community.communityBanner}
-                  title={community.communityName}
-                  description={community.communityDescription}
-                  postCount={community.postCount || 'N/A'}
-                  memberCount={community.members.length}
-                  rating={community.rating || 'N/A'}
-                  activeTab={activeTab}
-                  onRemoveCommunity={handleRemoveCommunity}
-                  onChangeView={handleChangeView}
-                />
-              ))}
-            </div>
+            {filteredCommunities.length === 0 ? (
+              <div className="text-center text-gray-500">No communities yet</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {filteredCommunities.map((community) => (
+                  <CommunityCard
+                    key={community._id}
+                    id={community._id}
+                    img={community.communityBanner}
+                    title={community.communityName}
+                    description={community.communityDescription}
+                    postCount={community.postCount || 'N/A'}
+                    memberCount={community.members.length}
+                    rating={community.rating || 'N/A'}
+                    activeTab={activeTab}
+                    onRemoveCommunity={handleRemoveCommunity}
+                    onChangeView={handleChangeView}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </>
       ) : (

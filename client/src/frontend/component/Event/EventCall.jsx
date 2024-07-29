@@ -9,6 +9,7 @@ import GenreSelector from './GenerSelector';
 
 function EventCall() {
   const [view, setView] = useState('scheduledEvents');
+  const [flash, setFlash] = useState(false);
   const [scheduledEvents, setScheduledEvents] = useState([]);
   const [ongoingEvents, setOngoingEvents] = useState([]);
   const [selectedGenre, setSelectedGenre] = useState('');
@@ -38,20 +39,36 @@ function EventCall() {
     fetchEvents();
   }, []);
 
+  const triggerFlashEffect = (callback) => {
+    setFlash(true);
+    setTimeout(() => {
+      callback();
+      setFlash(false);
+    }, 500); // Match the duration of the flash animation
+  };
+
   const handleCreateEventClick = () => {
-    setView('createEvent');
+    triggerFlashEffect(() => setView('createEvent'));
   };
 
   const handleViewEventsClick = () => {
-    setView('myEvents');
+    triggerFlashEffect(() => setView('myEvents'));
   };
 
   const handleViewScheduledEventsClick = () => {
-    setView('scheduledEvents');
+    triggerFlashEffect(() => setView('scheduledEvents'));
   };
 
   const handleViewOngoingEventsClick = () => {
-    setView('ongoingEvents');
+    triggerFlashEffect(() => setView('ongoingEvents'));
+  };
+
+  const handleSearchChange = (e) => {
+    triggerFlashEffect(() => setSearchQuery(e.target.value));
+  };
+
+  const handleGenreChange = (genre) => {
+    triggerFlashEffect(() => setSelectedGenre(genre));
   };
 
   const filteredScheduledEvents = scheduledEvents.filter(event => {
@@ -69,7 +86,7 @@ function EventCall() {
   });
 
   return (
-    <div className="flex flex-col">
+    <div className={`flex flex-col ${flash ? 'animate-flash' : ''}`}>
       <HeaderComponent
         onCreateEvent={handleCreateEventClick}
         onViewEvents={handleViewEventsClick}
@@ -96,10 +113,10 @@ function EventCall() {
               type="text"
               placeholder="Search event"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
             />
           </div>
-          <GenreSelector selectedGenre={selectedGenre} setSelectedGenre={setSelectedGenre} />
+          <GenreSelector selectedGenre={selectedGenre} setSelectedGenre={handleGenreChange} />
         </>
       )}
       {view === 'scheduledEvents' && (

@@ -5,7 +5,17 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      keyframes: {
+        flash: {
+          '0%, 100%': { opacity: 1 },
+          '50%': { opacity: 0 },
+        },
+      },
+      animation: {
+        flash: 'flash 0.5s ease-in-out',
+      },
+    },
   },
   plugins: [
     function ({ addUtilities }) {
