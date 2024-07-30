@@ -103,17 +103,6 @@ const LeftSidebar = () => {
         <LogOut />
       </div>
 
-      {/* Activity Section */}
-      <div className="p-4 border-b">
-        <h4 className="text-gray-600 font-semibold mb-2">Activity</h4>
-        <div className="bg-gray-100 p-3 rounded-lg">
-          <h5 className="font-semibold">Talha Asad</h5>
-          <p className="text-sm text-gray-600">
-            Your postable Talha Asad got the highest upvotes in the post
-          </p>
-        </div>
-      </div>
-
       {/* Tabs Section */}
       <div className="flex justify-between p-4 border-b">
         <button
@@ -130,7 +119,7 @@ const LeftSidebar = () => {
           onClick={() => setActiveTab("events")}
           className={`w-1/2 text-center py-2 ${
             activeTab === "events"
-              ? "bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800"
+              ? "bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-500"
               : "hover:bg-indigo-50 text-gray-600"
           }`}
         >
@@ -139,7 +128,7 @@ const LeftSidebar = () => {
       </div>
 
       {/* User List Section */}
-      <div className="p-4 flex-1 overflow-y-auto">
+      <div className="p-0 flex-1 ">
         {activeTab === "chat" && <ChatBox />}
         {activeTab === "events" && <div>Events content here...</div>}
       </div>
