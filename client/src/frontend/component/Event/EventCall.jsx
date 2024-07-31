@@ -6,7 +6,7 @@ import MyEvent from './MyEvent/MyEvent';
 import axios from 'axios';
 import LiveEventCard from './LiveEventCard';
 import GenreSelector from './GenerSelector';
-
+import { SearchBar } from './SearchBar';
 function EventCall() {
   const [view, setView] = useState('scheduledEvents');
   const [flash, setFlash] = useState(false);
@@ -57,15 +57,14 @@ function EventCall() {
 
   const handleViewScheduledEventsClick = () => {
     triggerFlashEffect(() => setView('scheduledEvents'));
+    setSelectedGenre('');
   };
 
   const handleViewOngoingEventsClick = () => {
     triggerFlashEffect(() => setView('ongoingEvents'));
+    setSelectedGenre('');
   };
 
-  const handleSearchChange = (e) => {
-    triggerFlashEffect(() => setSearchQuery(e.target.value));
-  };
 
   const handleGenreChange = (genre) => {
     triggerFlashEffect(() => setSelectedGenre(genre));
@@ -108,13 +107,7 @@ function EventCall() {
             </span>
           </nav>
           <div className="flex justify-between w-full py-2">
-            <input
-              className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-center shadow"
-              type="text"
-              placeholder="Search event"
-              value={searchQuery}
-              onChange={handleSearchChange}
-            />
+          <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
           </div>
           <GenreSelector selectedGenre={selectedGenre} setSelectedGenre={handleGenreChange} />
         </>

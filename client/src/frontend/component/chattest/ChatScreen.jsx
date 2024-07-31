@@ -1,9 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { io } from 'socket.io-client';
-import img from '../../../assets/person_icon.png';
 
-const socket = io('http://localhost:3000'); // Adjust the URL as needed
+const socket = io('http://localhost:3001'); // Adjust the URL as needed
 
 function ChatScreen({ chatId, username, chatUser, onBack }) { // Ensure the prop name matches
   const [messages, setMessages] = useState([]);
@@ -18,10 +17,10 @@ function ChatScreen({ chatId, username, chatUser, onBack }) { // Ensure the prop
 
     // Handle incoming messages
     socket.on('message received', (message) => {
-      setMessages(messages => [...messages, message]);
+      setMessages((messages) => [...messages, message]);
     });
 
-    // Fetch messages from backend
+    // Fetch initial messages from backend
     const fetchMessages = async () => {
       try {
         const token = localStorage.getItem('token');
@@ -44,8 +43,39 @@ function ChatScreen({ chatId, username, chatUser, onBack }) { // Ensure the prop
 
     fetchMessages();
 
+    // Poll for new messages every second
+    const interval = setInterval(async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const config = {
+          headers: {
+            Authorization: `${token}`,
+          },
+          // Adding a unique query parameter to prevent caching
+          params: {
+            t: new Date().getTime(),
+          },
+        };
+        const res = await axios.get(`http://localhost:3001/collablearn/get-messages/${chatId}`, config);
+        const newMessages = res.data || [];
+        setMessages((prevMessages) => {
+          // Only add new messages
+          const uniqueMessages = newMessages.filter(
+            (newMessage) => !prevMessages.some((msg) => msg._id === newMessage._id)
+          );
+          return [...prevMessages, ...uniqueMessages];
+        });
+        if (newMessages.length > 0) {
+          scrollToBottom();
+        }
+      } catch (error) {
+        console.error('Error fetching messages', error);
+      }
+    }, 1000);
+
     // Clean up on component unmount
     return () => {
+      clearInterval(interval);
       socket.off('message received');
       socket.emit('leaveChat', chatId); // Optional: leave chat room on unmount
     };
@@ -82,7 +112,7 @@ function ChatScreen({ chatId, username, chatUser, onBack }) { // Ensure the prop
         },
       };
       const response = await axios.post('http://localhost:3001/collablearn/send-message', newMessage, config);
-      setMessages(messages => [...messages, response.data]);
+//      setMessages((messages) => [...messages, response.data]);
       setMessageInput('');
       scrollToBottom();
     } catch (error) {

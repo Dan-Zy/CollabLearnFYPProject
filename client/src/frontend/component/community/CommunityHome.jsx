@@ -70,9 +70,6 @@ export function CommunityHome() {
     }, 500);
   };
 
-  const handleSearchChange = (e) => {
-    triggerFlashEffect(() => setSearchQuery(e.target.value));
-  };
 
   const handleGenreChange = (genre) => {
     triggerFlashEffect(() => setSelectedGenre(genre));
@@ -80,6 +77,7 @@ export function CommunityHome() {
 
   const handleTabChange = (tab) => {
     triggerFlashEffect(() => setActiveTab(tab));
+    setSelectedGenre('');
   };
 
   const filteredCommunities = communities.filter((community) => {
@@ -99,7 +97,7 @@ export function CommunityHome() {
         <>
           <div className="flex flex-col items-center">
             <Navbar activeTab={activeTab} setActiveTab={handleTabChange} />
-            <SearchBar searchQuery={searchQuery} setSearchQuery={handleSearchChange} />
+         <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
           </div>
           <GenreSelector selectedGenre={selectedGenre} setSelectedGenre={handleGenreChange} />
           <div className="mt-4">

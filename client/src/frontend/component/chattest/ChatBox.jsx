@@ -134,6 +134,7 @@ export function ChatBox() {
     setSearchTerm(''); // Reset search term
   };
 
+
   useEffect(() => {
     console.log('Selected chat updated:', selectedChat); // Debug statement
   }, [selectedChat]);

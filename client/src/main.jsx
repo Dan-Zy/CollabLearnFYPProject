@@ -14,6 +14,7 @@ import Welcome from "./frontend/component/Profiling/Welcome";
 import UserInfo from "./frontend/component/UserInfo";
 import { VerificationPage } from "./frontend/component/VerificationPage";
 import CommunityViewHome from "./frontend/component/community/CommunityView/CommunityViewHome";
+import DesicionForum from "./frontend/component/community/CommunityView/DesicionForum/DesicionForum";
 const router = createBrowserRouter([
   {
     path: "/Home",
@@ -64,6 +65,10 @@ const router = createBrowserRouter([
   {
     path: "/CommunityViewHome",
     element: <CommunityViewHome />,
+  },
+  {
+    path: "/DesicionForum",
+    element: <DesicionForum />,
   },
 ]);
 
