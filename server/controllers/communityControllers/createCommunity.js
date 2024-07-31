@@ -1,4 +1,5 @@
 import Community from "../../models/communityModel.js";
+import Chat from "../../models/chatModel.js";
 import fs from "fs";
 
 const createCommunity = async(req , res) => {
@@ -67,10 +68,30 @@ const createCommunity = async(req , res) => {
         });   
         await newCommunity.save();
 
+
+        
+        var users = [];
+        
+        
+        users.push(userId);
+        const groupChat = await Chat.create({
+            chatName: newCommunity._id,
+            users: users,
+            isGroupChat: true,
+            groupAdmin: userId,
+        });
+        
+        const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
+            .populate("users", "-password")
+            .populate("groupAdmin", "-password");
+    
+
+
         res.status(201).json({
             success: true,
             message: "Community has been created successfully",
-            community: newCommunity
+            community: newCommunity,
+            discussionForum: fullGroupChat
         });
 
     } catch (error) {
