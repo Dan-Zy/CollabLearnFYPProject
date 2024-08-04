@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "./component/Header";
 import Sidebar from "./component/SideBar";
 import LeftSidebar from "./LeftSideBar";
@@ -9,7 +9,11 @@ import { CommunityHome } from "./component/community/CommunityHome";
 import "../App.css";
 
 export function MainPage() {
-  const [activeItem, setActiveItem] = useState('Home'); // State to track the active item
+  const [activeItem, setActiveItem] = useState(localStorage.getItem('activeItem') || 'Home'); 
+
+  useEffect(() => {
+    localStorage.setItem('activeItem', activeItem);
+  }, [activeItem]);
 
   return (
     <div className="flex flex-wrap h-screen" style={{ width: "100vw" }}>
@@ -25,7 +29,7 @@ export function MainPage() {
         {activeItem === 'My Collabs' && <CollaboratorList />}
         {activeItem === 'Events' && <EventCall />}
         {activeItem === 'Community' && <CommunityHome />}
-        {/* Render other components based on the active item */}
+
       </div>
       <div className="flex w-1/5 justify-center h-full ">
         <LeftSidebar />

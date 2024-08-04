@@ -10,9 +10,9 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export function CommunityHome() {
-  const [activeTab, setActiveTab] = useState('joined');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedGenre, setSelectedGenre] = useState('');
+  const [activeTab, setActiveTab] = useState(localStorage.getItem('activeTab') || 'joined');
+  const [searchQuery, setSearchQuery] = useState(localStorage.getItem('searchQuery') || '');
+  const [selectedGenre, setSelectedGenre] = useState(localStorage.getItem('selectedGenre') || '');
   const [communities, setCommunities] = useState([]);
   const [userId, setUserId] = useState('');
   const [view, setView] = useState('CommunityHome');
@@ -53,6 +53,18 @@ export function CommunityHome() {
     });
   }, []);
 
+  useEffect(() => {
+    localStorage.setItem('activeTab', activeTab);
+  }, [activeTab]);
+
+  useEffect(() => {
+    localStorage.setItem('searchQuery', searchQuery);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    localStorage.setItem('selectedGenre', selectedGenre);
+  }, [selectedGenre]);
+
   const handleRemoveCommunity = (communityId) => {
     setCommunities((prevCommunities) => prevCommunities.filter((community) => community._id !== communityId));
   };
@@ -69,7 +81,6 @@ export function CommunityHome() {
       setFlash(false);
     }, 500);
   };
-
 
   const handleGenreChange = (genre) => {
     triggerFlashEffect(() => setSelectedGenre(genre));
@@ -97,7 +108,7 @@ export function CommunityHome() {
         <>
           <div className="flex flex-col items-center">
             <Navbar activeTab={activeTab} setActiveTab={handleTabChange} />
-         <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+            <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
           </div>
           <GenreSelector selectedGenre={selectedGenre} setSelectedGenre={handleGenreChange} />
           <div className="mt-4">
