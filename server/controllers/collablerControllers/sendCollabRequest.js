@@ -40,7 +40,14 @@ const sendCollabRequest = async (req , res) => {
             return res.status(400).json({
                 success: false,
                 message: "You have already send collab request to this user"
-            })
+            });
+        }
+
+        if(reqUser.collablers.includes(objectUserId) && user.collablers.includes(objectReqUserId)){
+            return res.status(400).json({
+                success: false,
+                message: "You both are already collablers"
+            });
         }
 
         reqUser.sendedRequests.push(objectUserId);
