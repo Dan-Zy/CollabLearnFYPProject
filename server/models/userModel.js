@@ -145,6 +145,21 @@ const userSchema = new mongoose.Schema({
         default: true
     },
 
+    sendedRequests: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }],
+
+    receivedRequests: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }],
+
+    collablers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }],
+
     studentDetails: {
         type: studentSchema,
         required: function(){
