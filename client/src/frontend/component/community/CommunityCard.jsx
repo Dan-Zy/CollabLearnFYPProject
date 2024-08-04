@@ -1,7 +1,36 @@
-import React from 'react';
+
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-export function CommunityCard({ id, img, title, description, postCount, memberCount, rating, activeTab, onRemoveCommunity, onChangeView }) {
+export function CommunityCard({ id, img, title, description, memberCount, rating, activeTab, onRemoveCommunity, onChangeView }) {
+  const [postCount, setPostCount] = useState('N/A');
+
+  useEffect(() => {
+    const fetchPostCount = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(
+          `http://localhost:3001/collablearn/getCommunityPosts/${id}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              'Authorization': `${token}`,
+            },
+          }
+        );
+
+        const data = await res.json();
+        setPostCount(data.length || 'N/A');
+      } catch (error) {
+        console.error("Error fetching post count", error);
+        setPostCount('N/A');
+      }
+    };
+
+    fetchPostCount();
+  }, [id]);
+
   const handleJoinClick = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -11,6 +40,7 @@ export function CommunityCard({ id, img, title, description, postCount, memberCo
           'Content-Type': 'application/json'
         }
       });
+
       alert(response.data.message);
       onRemoveCommunity(id);
     } catch (error) {

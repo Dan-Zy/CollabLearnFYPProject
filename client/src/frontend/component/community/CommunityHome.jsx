@@ -112,7 +112,7 @@ export function CommunityHome() {
                     img={community.communityBanner}
                     title={community.communityName}
                     description={community.communityDescription}
-                    postCount={community.postCount || 'N/A'}
+                    // postCount={community.postCount || 'N/A'}
                     memberCount={community.members.length}
                     rating={community.rating || 'N/A'}
                     activeTab={activeTab}
