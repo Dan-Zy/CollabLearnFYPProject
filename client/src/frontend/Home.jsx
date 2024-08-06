@@ -2,23 +2,30 @@ import React, { useState, useEffect } from "react";
 import Header from "./component/Header";
 import Sidebar from "./component/SideBar";
 import LeftSidebar from "./LeftSideBar";
-import CollaboratorList from "./component/Collabler/CollaboratorList";
+import MainPageCollab from "./component/Collabler/MainPage";
 import { PostCall } from "./component/NewsFeed";
 import EventCall from "./component/Event/EventCall";
 import Profile from "./component/UserProfile/Profile";
 import { CommunityHome } from "./component/community/CommunityHome";
+import SearchResults from "./component/Searching/SearchResults";
 import "../App.css";
 
 export function MainPage() {
   const [activeItem, setActiveItem] = useState(localStorage.getItem('activeItem') || 'Home'); 
-  const [userId ,setUserId]=useState(JSON.parse(localStorage.getItem('userInfo')));
+  const [userId, setUserId] = useState(JSON.parse(localStorage.getItem('userInfo')));
+  const [searchQuery, setSearchQuery] = useState(''); // Add state for search query
+
   useEffect(() => {
     localStorage.setItem('activeItem', activeItem);
-  
   }, [activeItem]);
 
   const handleSetActiveItem = (item) => {
     setActiveItem(item);
+  };
+
+  const handleSearchInputChange = (query) => {
+    setSearchQuery(query);
+    setActiveItem('Search'); // Set active item to search when user types in search bar
   };
 
   return (
@@ -30,12 +37,13 @@ export function MainPage() {
         className="flex-auto bg-gray-100 h-full overflow-y-auto custom-scrollbar"
         style={{ width: "60%" }}
       >
-        <Header />
+        <Header onSearchInputChange={handleSearchInputChange} />
         {activeItem === 'Home' && <PostCall />}
-        {activeItem === 'My Collabs' && <CollaboratorList />}
+        {activeItem === 'My Collabs' && <MainPageCollab />}
         {activeItem === 'Events' && <EventCall />}
         {activeItem === 'Community' && <CommunityHome />}
-        {activeItem === 'Profile' && <Profile userId = {userId._id} />}
+        {activeItem === 'Profile' && <Profile userId={userId._id} />}
+        {activeItem === 'Search' && <SearchResults query={searchQuery} />} {/* Render search results */}
       </div>
       <div className="flex w-1/5 justify-center h-full ">
         <LeftSidebar handleSetActiveItem={handleSetActiveItem} />

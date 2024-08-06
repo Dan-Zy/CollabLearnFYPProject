@@ -12,7 +12,7 @@ import jwt_decode from "jwt-decode";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export function PostCall({ userId }) {
+export function PostCall({ query }) {
   const [PostData, setPostData] = useState([]);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ export function PostCall({ userId }) {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
+              Authorization: `${token}`,
             },
           }
         );
@@ -47,7 +47,10 @@ export function PostCall({ userId }) {
           throw new Error("No posts found");
         }
 
-        const filteredPosts = data.posts.filter((post) => post.userId?._id === userId);
+        const filteredPosts = data.posts.filter(
+          (post) =>
+            post.content.toLowerCase().includes(query.toLowerCase())
+        );
 
         setPostData(
           filteredPosts.map((post) => {
@@ -83,7 +86,7 @@ export function PostCall({ userId }) {
     };
 
     fetchPosts();
-  }, [navigate, userId]);
+  }, [navigate, query]);
 
   const extractDocumentName = (filePath) => {
     const fileName = filePath.split("\\").pop();
@@ -406,3 +409,4 @@ export function Post(props) {
     </div>
   );
 }
+

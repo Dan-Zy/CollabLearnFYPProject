@@ -4,10 +4,13 @@ import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 import { PostCall } from "./userPost";
+
 export default function Profile({ userId }) {
   const [userInfo, setUserInfo] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [postStats, setPostStats] = useState({ totalPosts: 0, totalUpvotes: 0, totalDevotes: 0 });
   const location = useLocation();
-  
+
   useEffect(() => {
     console.log("Profile component mounted with id:", userId);
 
@@ -37,8 +40,38 @@ export default function Profile({ userId }) {
       }
     };
 
+    const getPosts = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      try {
+        const response = await axios.get(
+          "http://localhost:3001/collablearn/user/getPosts",
+          {
+            headers: {
+              Authorization: `${token}`,
+            },
+          }
+        );
+
+        const allPosts = response.data.posts || [];
+        const userPosts = allPosts.filter((post) => post.userId?._id === userId);
+        const totalUpvotes = userPosts.reduce((acc, post) => acc + (post.upvotes.length || 0), 0);
+        const totalDevotes = userPosts.reduce((acc, post) => acc + (post.devotes.length || 0), 0);
+
+        setPosts(userPosts);
+        setPostStats({ totalPosts: userPosts.length, totalUpvotes, totalDevotes });
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      }
+    };
+
     if (userId) {
       getUser();
+      getPosts();
     } else {
       console.error("No id provided");
     }
@@ -105,11 +138,11 @@ export default function Profile({ userId }) {
   };
 
   return (
-    <div className="max-w-5xl max-h-[54vh] mx-auto mt-8 p-4 bg-white shadow-lg rounded-lg">
+    <div className="max-w-5xl max-h-[54vh] mx-auto mt-4 p-4 bg-white shadow-lg rounded-lg">
       {/* Profile Header */}
       <div className="relative">
         <img
-          src={userInfo.coverPhoto ? `http://localhost:3001/${userInfo.coverPhoto}` : 'https://via.placeholder.com/600x200'}
+          src={userInfo.coverPicture ? `http://localhost:3001/${userInfo.coverPicture}` : 'https://via.placeholder.com/600x200'}
           alt="Cover"
           className="w-full h-48 object-cover"
         />
@@ -125,49 +158,36 @@ export default function Profile({ userId }) {
           <p className="text-gray-600 font-extralight text-xs text-left">{userInfo.email}</p>
         </div>
       </div>
-      
-      <div className="flex  justify-around mt-5 text-center">
+
+      <div className="flex justify-around mt-5 text-center">
         <div>
-          <h2 className="text-lg font-bold">Post</h2>
-          <p>1.2k</p>
+          <h2 className="text-lg font-bold">Posts</h2>
+          <p>{postStats.totalPosts}</p>
         </div>
         <div>
-          <h2 className="text-lg font-bold">Follower</h2>
-          <p>1.2k</p>
+          <h2 className="text-lg font-bold">Collablers</h2>
+          <p>{userInfo.collablers.length}</p>
         </div>
         <div>
-          <h2 className="text-lg font-bold">Following</h2>
-          <p>200</p>
+          <h2 className="text-lg font-bold">Upvotes</h2>
+          <p>{postStats.totalUpvotes}</p>
         </div>
         <div>
-          <h2 className="text-lg font-bold">Upvote</h2>
-          <p>200k</p>
-        </div>
-        <div>
-          <h2 className="text-lg font-bold">Devote</h2>
-          <p>10k</p>
+          <h2 className="text-lg font-bold">Devotes</h2>
+          <p>{postStats.totalDevotes}</p>
         </div>
       </div>
 
-      <div className="flex flex-col w-full max-h-[10vh] md:flex-row mt-8 space-y-4 md:space-y-0 md:space-x-4">
-        
-        <div className="  text-indigo-500">
-          <div
-            className=" flex-1 text-left md:w-full bg-gradient-to-tr from-indigo-200 to-indigo-100 p-2 rounded-xl shadow-"
-          >
-            <h2 className=" text-lg font-bold mb-4">About Me</h2>
+      <div className="flex flex-col w-full md:flex-row mt-8 space-y-4 md:space-y-0 md:space-x-4">
+        <div className="mt-4 text-indigo-500">
+          <div className="flex-1 text-left md:w-full bg-gradient-to-tr from-indigo-200 to-indigo-100 p-2 rounded-xl shadow-">
+            <h2 className="text-lg font-bold mb-4">About Me</h2>
             {renderRoleSpecificInfo()}
           </div>
-
-          
         </div>
-        {/* Posts Section */}
-        <div
-          className="flex-1 h-full md:w-1/2 bg-white p-4 rounded-lg shadow"
-        >
-          <PostCall userId = {userId}/>
+        <div className="flex flex-1">
+          <PostCall userId={userId} />
         </div>
-        {/* Image/Video Section */}
       </div>
     </div>
   );
