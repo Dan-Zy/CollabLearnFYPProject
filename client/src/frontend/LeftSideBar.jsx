@@ -1,18 +1,16 @@
-
-// eslint-disable-next-line no-unused-vars
 import React, { useState } from "react";
 import "../App.css"; // Make sure to import your Tailwind CSS file
 import LogOut from "./component/LogOut";
-// import HomePage from "./screens/HomePage";
 import { ChatBox } from "./component/chattest/ChatBox";
-const LeftSidebar = () => {
+
+const LeftSidebar = ({ handleSetActiveItem }) => { // Accept the function as a prop
   const [activeTab, setActiveTab] = useState("chat");
 
   return (
     <aside className="bg-white shadow-md border-r h-screen transition-all">
       {/* Profile Section */}
       <div>
-        <LogOut />
+        <LogOut handleSetActiveItem={handleSetActiveItem} />
       </div>
 
       {/* Tabs Section */}

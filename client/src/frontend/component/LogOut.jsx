@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import cross from "../../assets/cross_icon1.png";
 import axios from "axios";
 
-export function LogOut() {
+export function LogOut({ handleSetActiveItem }) { // Accept the function as a prop
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
@@ -63,16 +63,15 @@ export function LogOut() {
             className="bg-white p-4 w-full max-w-xs md:max-w-sm lg:max-w-md border rounded-lg shadow-lg relative"
             onClick={(e) => e.stopPropagation()}
           >
-            <a href="/UserProfile">
-              <div className="flex items-center p-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200" >
-                <img
-                  src={image ? `http://localhost:3001/${image}` : 'https://via.placeholder.com/40'}
-                  alt="Profile"
-                  className="w-8 h-8 rounded-full border-2 border-indigo-600"
-                />
-                <p className="ml-2">My Profile</p>
-              </div>
-            </a>
+            <div className="flex items-center p-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200" 
+                 onClick={() => handleSetActiveItem('Profile')}>
+              <img
+                src={image ? `http://localhost:3001/${image}` : 'https://via.placeholder.com/40'}
+                alt="Profile"
+                className="w-8 h-8 rounded-full border-2 border-indigo-600"
+              />
+              <p className="ml-2">My Profile</p>
+            </div>
             <div className="flex items-center p-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200">
               <p>Settings & Privacy</p>
             </div>
