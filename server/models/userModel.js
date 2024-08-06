@@ -118,6 +118,33 @@ const userSchema = new mongoose.Schema({
         required: true,
     },
 
+    gender: {
+        type: String,
+        required: true,
+        enum: ["Male", "Female", "Other"]
+    },
+
+    dateOfBirth: {
+        type: Date,
+        required: true,
+        set: (date) => {
+        // Normalize the date to midnight
+        const normalizedDate = new Date(date);
+        normalizedDate.setUTCHours(0, 0, 0, 0);
+        return normalizedDate;
+        } 
+    },
+
+    country: {
+        type: String,
+        required: true,
+    },
+
+    city: {
+        type: String,
+        required: true
+    },
+
     role: {
         type: String,
         required: true,

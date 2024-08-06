@@ -121,7 +121,7 @@ import nodemailer from 'nodemailer';
             // console.log('Request Body:', req.body);
             // console.log('Uploaded Files:', req.files);
     
-            let { username, email, password, role, bio, isActive, studentDetails, facultyDetails, industrialDetails } = req.body;
+            let { username, email, password, gender, dateOfBirth, country, city, role, bio, isActive, studentDetails, facultyDetails, industrialDetails } = req.body;
 
             console.log("Student Details: ", studentDetails);
             // console.log("Student Details JSON: ", JSON.parse(studentDetails));
@@ -129,7 +129,7 @@ import nodemailer from 'nodemailer';
             console.log("Industrial Details: ", industrialDetails);
     
             // Check user must enter essential fields
-            if (!username || !email || !password || !role) {
+            if (!username || !email || !password || !role || !gender || !dateOfBirth || !country || !city) {
                 console.log('Missing required fields');
                 return res.status(400).send({ message: "All fields are Required" });
             }
@@ -172,6 +172,10 @@ import nodemailer from 'nodemailer';
                 username,
                 email,
                 password: hashedPassword,
+                gender,
+                dateOfBirth,
+                country,
+                city,
                 role,
                 profilePicture,
                 coverPicture,
