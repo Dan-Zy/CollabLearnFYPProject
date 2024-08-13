@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { PostCall } from './Posts.jsx';
 import { CommunityHome } from './Community.jsx';
+import EventCall from './Events.jsx';
 
 const SearchResults = ({ query }) => {
   const [activeTab, setActiveTab] = useState('Posts');
@@ -30,7 +31,7 @@ const SearchResults = ({ query }) => {
         {activeTab === 'Posts' && <div><PostCall query={query} /></div>}
         {activeTab === 'People' && <div>People results</div>}
         {activeTab === 'Community' && <div><CommunityHome query={query} /></div>}
-        {activeTab === 'Events' && <div>Events results</div>}
+        {activeTab === 'Events' && <div><EventCall query={query} /></div>}
       </div>
     </div>
   );
