@@ -120,13 +120,13 @@ const userSchema = new mongoose.Schema({
 
     gender: {
         type: String,
-        required: true,
+        // required: true,
         enum: ["Male", "Female", "Other"]
     },
 
     dateOfBirth: {
         type: Date,
-        required: true,
+        // required: true,
         set: (date) => {
         // Normalize the date to midnight
         const normalizedDate = new Date(date);
@@ -137,12 +137,12 @@ const userSchema = new mongoose.Schema({
 
     country: {
         type: String,
-        required: true,
+        // required: true,
     },
 
     city: {
         type: String,
-        required: true
+        // required: true
     },
 
     role: {
@@ -183,6 +183,11 @@ const userSchema = new mongoose.Schema({
     }],
 
     collablers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }],
+
+    recommendedUsers: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     }],

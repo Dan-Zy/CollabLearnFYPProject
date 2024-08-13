@@ -118,18 +118,22 @@ import nodemailer from 'nodemailer';
 
     const registerUser = async (req, res) => {
         try {
-            // console.log('Request Body:', req.body);
-            // console.log('Uploaded Files:', req.files);
+            let { username, email, password, gender = "Male", dateOfBirth = "", country = "", city = "", role, bio, isActive, studentDetails, facultyDetails, industrialDetails } = req.body;
     
-            let { username, email, password, gender, dateOfBirth, country, city, role, bio, isActive, studentDetails, facultyDetails, industrialDetails } = req.body;
-
-            console.log("Student Details: ", studentDetails);
-            // console.log("Student Details JSON: ", JSON.parse(studentDetails));
-            console.log("Faculty Details: ", facultyDetails);
-            console.log("Industrial Details: ", industrialDetails);
+            // Validate dateOfBirth format
+            if (dateOfBirth) {
+                const parsedDate = new Date(dateOfBirth);
+                if (isNaN(parsedDate.getTime())) {
+                    console.log('Invalid Date of Birth');
+                    return res.status(400).send({ message: "Invalid Date of Birth" });
+                }
+                dateOfBirth = parsedDate;
+            } else {
+                dateOfBirth = null; // or set it to a default date if required
+            }
     
             // Check user must enter essential fields
-            if (!username || !email || !password || !role || !gender || !dateOfBirth || !country || !city) {
+            if (!username || !email || !password || !role) {
                 console.log('Missing required fields');
                 return res.status(400).send({ message: "All fields are Required" });
             }
@@ -155,8 +159,7 @@ import nodemailer from 'nodemailer';
             // Generate email verification token
             const verificationToken = crypto.randomBytes(32).toString('hex');
             const verificationTokenExpires = Date.now() + 300000; // 5 minutes
-
-
+    
             // Check and parse if necessary
             if (role === "Student" && typeof studentDetails === 'string') {
                 studentDetails = JSON.parse(studentDetails);
@@ -190,13 +193,11 @@ import nodemailer from 'nodemailer';
     
             console.log('New User Data:', newUser);
     
-            // Save the User in the database using save function of User Schema 
             const savedUser = await newUser.save();
             console.log('Saved User:', savedUser);
     
             const token = await jwt.sign({ id: savedUser._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
     
-            // Send verification email
             const transporter = nodemailer.createTransport({
                 service: 'gmail',
                 secure: true,
@@ -238,6 +239,7 @@ import nodemailer from 'nodemailer';
             });
         }
     };
+    
     
     
     

@@ -30,20 +30,52 @@ function CreateEventCard() {
   const [showPoster, setShowPoster] = useState(false);
   const [showGenre, setShowGenre] = useState(false);
 
+  const [errors, setErrors] = useState({});
+
+  const validateFields = () => {
+    const newErrors = {};
+    if (!title) {
+      newErrors.title = "Title is required";
+      setShowTitle(true);
+    }
+    if (!eventDescription) {
+      newErrors.eventDescription = "Description is required";
+      setShowEventDescription(true);
+    }
+    if (!startDate) {
+      newErrors.startDate = "Start date is required";
+      setShowStartDate(true);
+    }
+    if (!startTime) {
+      newErrors.startTime = "Start time is required";
+      setShowStartTime(true);
+    }
+    if (!endDate) {
+      newErrors.endDate = "End date is required";
+      setShowEndDate(true);
+    }
+    if (!endTime) {
+      newErrors.endTime = "End time is required";
+      setShowEndTime(true);
+    }
+    if (!poster) {
+      newErrors.poster = "Poster is required";
+      setShowPoster(true);
+    }
+    if (!genre) {
+      newErrors.genre = "Genre is required";
+      setShowGenre(true);
+    }
+    return newErrors;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (
-      !title ||
-      !eventDescription ||
-      !startDate ||
-      !endDate ||
-      !startTime ||
-      !endTime ||
-      !poster ||
-      !genre
-    ) {
-      toast.error("All fields are required for scheduled events");
+    const newErrors = validateFields();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error("Please fill all the required fields");
       return;
     }
 
@@ -61,11 +93,9 @@ function CreateEventCard() {
       return;
     }
 
-    // Generate a random room name for Jitsi meeting link
     const roomName = `event-${Date.now()}`;
     const jitsiLink = `https://meet.jit.si/${roomName}`;
 
-    // Change date format from YYYY-MM-DD to DD-MM-YYYY
     const formatDate = (date) => {
       const [year, month, day] = date.split("-");
       return `${day}-${month}-${year}`;
@@ -83,24 +113,20 @@ function CreateEventCard() {
     formData.append("startTime", startTime);
     formData.append("endTime", endTime);
     formData.append("eventGenre", genre);
-    formData.append("eventLink", jitsiLink); // Add the Jitsi meeting link
+    formData.append("eventLink", jitsiLink);
     if (poster) {
       formData.append("image", poster);
     }
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       await toast.promise(
-        axios.post(
-          "http://localhost:3001/collablearn/createEvent",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: `${token}`,
-            },
-          }
-        ),
+        axios.post("http://localhost:3001/collablearn/createEvent", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `${token}`,
+          },
+        }),
         {
           pending: "Creating event...",
           success: "Event created successfully!",
@@ -108,7 +134,7 @@ function CreateEventCard() {
         }
       );
 
-
+      // Reset all fields after event creation
       setTitle("");
       setEventDescription("");
       setStartDate("");
@@ -117,6 +143,15 @@ function CreateEventCard() {
       setEndTime("");
       setGenre("");
       setPoster(null);
+      setErrors({});
+      setShowTitle(false);
+      setShowEventDescription(false);
+      setShowStartDate(false);
+      setShowStartTime(false);
+      setShowEndDate(false);
+      setShowEndTime(false);
+      setShowPoster(false);
+      setShowGenre(false);
     } catch (error) {
       console.error("Error creating event:", error);
       toast.error("Error creating event. Please try again.");
@@ -124,135 +159,197 @@ function CreateEventCard() {
   };
 
   return (
-    <div className="flex flex-col h-[60vh] w-full bg-white shadow-md rounded-lg m-1 p-1 lg:flex-2 sm:flex-1 text-[1vw]">
+    <section className="flex flex-col h-[60vh] w-full bg-white shadow-md rounded-lg m-1 p-1 lg:flex-2 sm:flex-1 text-[1vw]">
       <h3 className="text-2xl text-[#7d7dc3] antialiased font-bold m-2">
         Create Scheduled Event
       </h3>
       <p className="text-l m-2">Go live by yourself or with others</p>
 
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col items-center flex-1 overflow-y-auto "
-      >
-        <div className="flex flex-wrap justify-center w-full">
-          <div className="m-2 flex items-center">
+      <form onSubmit={handleSubmit} className="flex flex-col items-center flex-1 overflow-y-auto">
+        <fieldset className="flex flex-wrap justify-center w-full">
+          <legend className="sr-only">Event Details</legend>
+          <div className="m-2 flex items-center" onClick={() => setShowTitle(!showTitle)}>
             <FontAwesomeIcon
               icon={faHeading}
               className="text-[#7d7dc3] cursor-pointer"
-              onClick={() => setShowTitle(!showTitle)}
             />
-            <span className="ml-2">Title</span>
+            <span className="ml-2 cursor-pointer">Title</span>
           </div>
           {showTitle && (
-            <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              type="text"
-              placeholder="Title of event"
-              className="flex text-center flex-col m-2 h-[5vh] w-[80%] justify-center items-center border border-[#7d7dc3] rounded"
-            />
+            <div className="w-full flex justify-center">
+              <label htmlFor="title" className="sr-only">Title</label>
+              <input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                type="text"
+                placeholder="Title of event"
+                className="text-center m-2 h-[5vh] w-[80%] border border-[#7d7dc3] rounded"
+              />
+              {errors.title && (
+                <p className="text-red-500 text-sm">{errors.title}</p>
+              )}
+            </div>
           )}
 
-          <div className="m-2 flex items-center">
+          <div className="m-2 flex items-center" onClick={() => setShowEventDescription(!showEventDescription)}>
             <FontAwesomeIcon
               icon={faClipboardList}
               className="text-[#7d7dc3] cursor-pointer"
-              onClick={() => setShowEventDescription(!showEventDescription)}
             />
-            <span className="ml-2">Description</span>
+            <span className="ml-2 cursor-pointer">Description</span>
           </div>
           {showEventDescription && (
-            <textarea
-              value={eventDescription}
-              onChange={(e) => setEventDescription(e.target.value)}
-              placeholder="Event Description"
-              className="flex text-center flex-col m-2 h-[10vh] w-[80%] justify-center items-center border border-[#7d7dc3] rounded"
-            />
+            <div className="w-full flex justify-center">
+              <label htmlFor="eventDescription" className="sr-only">Description</label>
+              <textarea
+                id="eventDescription"
+                value={eventDescription}
+                onChange={(e) => setEventDescription(e.target.value)}
+                placeholder="Event Description"
+                className="text-center m-2 h-[10vh] w-[80%] border border-[#7d7dc3] rounded"
+              />
+              {errors.eventDescription && (
+                <p className="text-red-500 text-sm">{errors.eventDescription}</p>
+              )}
+            </div>
           )}
 
-          <div className="m-2 flex items-center">
+          <div className="m-2 flex items-center" onClick={() => setShowStartDate(!showStartDate)}>
             <FontAwesomeIcon
               icon={faCalendar}
               className="text-[#7d7dc3] cursor-pointer"
-              onClick={() => setShowStartDate(!showStartDate)}
             />
-            <span className="ml-2">Start Date</span>
+            <span className="ml-2 cursor-pointer">Start Date</span>
           </div>
           {showStartDate && (
-            <input
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              type="date"
-              className="flex text-center flex-col m-2 h-[5vh] w-[80%] justify-center items-center border border-[#7d7dc3] rounded"
-            />
+            <div className="w-full flex justify-center">
+              <label htmlFor="startDate" className="sr-only">Start Date</label>
+              <input
+                id="startDate"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                type="date"
+                placeholder="Start Date"
+                className="text-center m-2 h-[5vh] w-[80%] border border-[#7d7dc3] rounded"
+              />
+              {errors.startDate && (
+                <p className="text-red-500 text-sm">{errors.startDate}</p>
+              )}
+            </div>
           )}
 
-          <div className="m-2 flex items-center">
+          <div className="m-2 flex items-center" onClick={() => setShowStartTime(!showStartTime)}>
             <FontAwesomeIcon
               icon={faClock}
               className="text-[#7d7dc3] cursor-pointer"
-              onClick={() => setShowStartTime(!showStartTime)}
             />
-            <span className="ml-2">Start Time</span>
+            <span className="ml-2 cursor-pointer">Start Time</span>
           </div>
           {showStartTime && (
-            <input
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              type="time"
-              className="flex text-center flex-col m-2 h-[5vh] w-[80%] justify-center items-center border border-[#7d7dc3] rounded"
-            />
+            <div className="w-full flex justify-center">
+              <label htmlFor="startTime" className="sr-only">Start Time</label>
+              <input
+                id="startTime"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                type="time"
+                placeholder="Start Time"
+                className="text-center m-2 h-[5vh] w-[80%] border border-[#7d7dc3] rounded"
+              />
+              {errors.startTime && (
+                <p className="text-red-500 text-sm">{errors.startTime}</p>
+              )}
+            </div>
           )}
 
-          <div className="m-2 flex items-center">
+          <div className="m-2 flex items-center" onClick={() => setShowEndDate(!showEndDate)}>
             <FontAwesomeIcon
               icon={faCalendar}
               className="text-[#7d7dc3] cursor-pointer"
-              onClick={() => setShowEndDate(!showEndDate)}
             />
-            <span className="ml-2">End Date</span>
+            <span className="ml-2 cursor-pointer">End Date</span>
           </div>
           {showEndDate && (
-            <input
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              type="date"
-              className="flex text-center flex-col m-2 h-[5vh] w-[80%] justify-center items-center border border-[#7d7dc3] rounded"
-            />
+            <div className="w-full flex justify-center">
+              <label htmlFor="endDate" className="sr-only">End Date</label>
+              <input
+                id="endDate"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                type="date"
+                placeholder="End Date"
+                className="text-center m-2 h-[5vh] w-[80%] border border-[#7d7dc3] rounded"
+              />
+              {errors.endDate && (
+                <p className="text-red-500 text-sm">{errors.endDate}</p>
+              )}
+            </div>
           )}
 
-          <div className="m-2 flex items-center">
+          <div className="m-2 flex items-center" onClick={() => setShowEndTime(!showEndTime)}>
             <FontAwesomeIcon
               icon={faClock}
               className="text-[#7d7dc3] cursor-pointer"
-              onClick={() => setShowEndTime(!showEndTime)}
             />
-            <span className="ml-2">End Time</span>
+            <span className="ml-2 cursor-pointer">End Time</span>
           </div>
           {showEndTime && (
-            <input
-              value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
-              type="time"
-              className="flex text-center flex-col m-2 h-[5vh] w-[80%] justify-center items-center border border-[#7d7dc3] rounded"
-            />
+            <div className="w-full flex justify-center">
+              <label htmlFor="endTime" className="sr-only">End Time</label>
+              <input
+                id="endTime"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                type="time"
+                placeholder="End Time"
+                className="text-center m-2 h-[5vh] w-[80%] border border-[#7d7dc3] rounded"
+              />
+              {errors.endTime && (
+                <p className="text-red-500 text-sm">{errors.endTime}</p>
+              )}
+            </div>
           )}
 
-          <div className="m-2 flex items-center">
+          <div className="m-2 flex items-center" onClick={() => setShowPoster(!showPoster)}>
+            <FontAwesomeIcon
+              icon={faImage}
+              className="text-[#7d7dc3] cursor-pointer"
+            />
+            <span className="ml-2 cursor-pointer">Poster</span>
+          </div>
+          {showPoster && (
+            <div className="w-full flex justify-center">
+              <label htmlFor="poster" className="sr-only">Poster</label>
+              <input
+                id="poster"
+                onChange={(e) => setPoster(e.target.files[0])}
+                type="file"
+                className="text-center m-2 h-[5vh] w-[80%] border border-[#7d7dc3] rounded"
+              />
+              {errors.poster && (
+                <p className="text-red-500 text-sm">{errors.poster}</p>
+              )}
+            </div>
+          )}
+
+          <div className="m-2 flex items-center" onClick={() => setShowGenre(!showGenre)}>
             <FontAwesomeIcon
               icon={faClipboardList}
               className="text-[#7d7dc3] cursor-pointer"
-              onClick={() => setShowGenre(!showGenre)}
             />
-            <span className="ml-2">Genre</span>
+            <span className="ml-2 cursor-pointer">Genre</span>
           </div>
           {showGenre && (
-            <select
-              value={genre}
-              onChange={(e) => setGenre(e.target.value)}
-              className="flex text-center flex-col m-2 h-[5vh] w-[80%] justify-center items-center border border-[#7d7dc3] rounded"
-            >
-          <option value="" disabled>
+            <div className="w-full flex justify-center">
+              <label htmlFor="genre" className="sr-only">Genre</label>
+              <select
+                id="genre"
+                value={genre}
+                onChange={(e) => setGenre(e.target.value)}
+                className="text-center m-2 h-[5vh] w-[80%] border border-[#7d7dc3] rounded"
+              >
+                <option value="" disabled>
             Select a genre
           </option>
           <option value="Artificial Intelligence">
@@ -266,34 +363,26 @@ function CreateEventCard() {
           <option value="Data Science">Data Science</option>
           <option value="Software Development">Software Development</option>
           <option value="Other">Other</option>
-            </select>
+              </select>
+              {errors.genre && (
+                <p className="text-red-500 text-sm">{errors.genre}</p>
+              )}
+            </div>
           )}
 
-          <div className="m-2 flex items-center">
-            <FontAwesomeIcon
-              icon={faImage}
-              className="text-[#7d7dc3] cursor-pointer"
-              onClick={() => setShowPoster(!showPoster)}
-            />
-            <span className="ml-2">Upload Poster</span>
-          </div>
-          {showPoster && (
-            <input
-              type="file"
-              onChange={(e) => setPoster(e.target.files[0])}
-              className="flex text-center flex-col m-2 h-[5vh] w-[80%] justify-center items-center border border-[#7d7dc3] rounded"
-            />
-          )}
+        </fieldset>
+        <div className="w-full flex justify-center mt-4">
+          <button
+            type="submit"
+            className="bg-[#7d7dc3] text-white font-bold py-2 px-4 rounded hover:bg-[#6c6ca7]"
+          >
+            Create Event
+          </button>
         </div>
-        <button
-          type="submit"
-          className="flex text-center flex-col m-2 h-[5vh] w-[30%] justify-center items-center border bg-[#7d7dc3] text-white rounded"
-        >
-          Create Event
-        </button>
       </form>
+
       <ToastContainer />
-    </div>
+    </section>
   );
 }
 

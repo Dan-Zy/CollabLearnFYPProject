@@ -7,7 +7,7 @@ const LeftSidebar = ({ handleSetActiveItem }) => { // Accept the function as a p
   const [activeTab, setActiveTab] = useState("chat");
 
   return (
-    <aside className="bg-white shadow-md border-r h-screen transition-all">
+    <aside className="bg-white w-full shadow-md border-r h-screen transition-all">
       {/* Profile Section */}
       <div>
         <LogOut handleSetActiveItem={handleSetActiveItem} />
