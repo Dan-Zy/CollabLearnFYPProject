@@ -178,8 +178,14 @@ const userSchema = new mongoose.Schema({
     }],
 
     receivedRequests: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        },
+        seen: {
+            type: Boolean,
+            default: false,
+        }
     }],
 
     collablers: [{
