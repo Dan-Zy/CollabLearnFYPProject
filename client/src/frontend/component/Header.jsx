@@ -1,6 +1,5 @@
 import React from 'react';
-import { Bell } from 'lucide-react';
-
+import NotificationSystem from './notification/NotificationSystem';
 const Header = ({ onSearchInputChange }) => {
   const handleInputChange = (e) => {
     onSearchInputChange(e.target.value);
@@ -13,12 +12,10 @@ const Header = ({ onSearchInputChange }) => {
           type="text"
           placeholder="Search"
           className="flex-1 px-4 py-2 bg-transparent rounded-full focus:outline-none"
-          onChange={handleInputChange} // Add onChange handler
+          onChange={handleInputChange} 
         />
       </div>
-      <button className="ml-4 p-2 rounded-full hover:bg-gray-200 focus:outline-none">
-        <Bell className="text-gray-600" />
-      </button>
+      <NotificationSystem/>     
     </header>
   );
 };

@@ -8,6 +8,7 @@ import EventCall from "./component/Event/EventCall";
 import Profile from "./component/UserProfile/Profile";
 import { CommunityHome } from "./component/community/CommunityHome";
 import SearchResults from "./component/Searching/SearchResults";
+import Screen from "./component/AI _Asistant/Screen";
 import "../App.css";
 
 export function MainPage() {
@@ -42,6 +43,7 @@ export function MainPage() {
         {activeItem === 'My Collabs' && <MainPageCollab />}
         {activeItem === 'Events' && <EventCall />}
         {activeItem === 'Community' && <CommunityHome />}
+        {activeItem === 'Help' && <Screen />}
         {activeItem === 'Profile' && <Profile userId={userId._id} />}
         {activeItem === 'Search' && <SearchResults query={searchQuery} />} {/* Render search results */}
       </div>
