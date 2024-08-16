@@ -50,22 +50,6 @@ const acceptCollabRequest = async (req, res) => {
         receivedUser.collablers.push(objectUserId);
         sendedUser.collablers.push(objectReqUserId);
 
-        // Populate the sender from the receiver collabler field
-        const populatedSendedUser = await receivedUser.populate({
-            path: 'collablers',
-            select: 'username role profilePicture'
-        });
-
-        // Populate the receiver from the sender collabler field
-        const populatedReceivedUser = await sendedUser.populate({
-            path: 'collablers',
-            select: 'username role profilePicture'
-        });
-        
-
-        console.log("Receiver Collabler-1: ", receivedUser.collablers);
-        console.log("Sender Collabler-1: ", sendedUser.collablers);
-
         // Remove the request from both users' arrays
         receivedUser.receivedRequests.splice(requestIndex, 1);
         sendedUser.sendedRequests.pull(objectReqUserId);
@@ -74,16 +58,23 @@ const acceptCollabRequest = async (req, res) => {
         await receivedUser.save();
         await sendedUser.save();
 
-
-        console.log("Receiver Collabler-2: ", populatedReceivedUser.collablers);
-        console.log("Sender Collabler-2: ", populatedSendedUser.collablers);
-        
+        // Populate the collablers field with user information
+        const updatedReceivedUser = await User.findById(reqUserId)
+            .populate({
+                path: 'collablers',
+                select: 'username role profilePicture'
+            });
+        const updatedSendedUser = await User.findById(userId)
+            .populate({
+                path: 'collablers',
+                select: 'username role profilePicture'
+            });
 
         return res.status(200).json({
             success: true,
             message: "Collab Request has been accepted successfully",
-            receivedUser: populatedReceivedUser.collablers,
-            sendedUser: populatedSendedUser.collablers
+            receivedUser: updatedReceivedUser.collablers,
+            sendedUser: updatedSendedUser.collablers
         });
 
     } catch (error) {
