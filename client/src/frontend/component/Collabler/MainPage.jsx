@@ -87,11 +87,24 @@ function MainPageCollab() {
 
   const renderContent = () => {
     if (selectedUserId) {
-      
-      return <OtherUserProfile userId={selectedUserId} />;
-
+      let userType;
+      switch (activeTab) {
+        case 'MyCollaborator':
+          userType = 'collaborator';
+          break;
+        case 'Requested':
+          userType = 'received';
+          break;
+        case 'Suggested':
+          userType = 'suggested';
+          break;
+        default:
+          userType = null;
+      }
+  
+      return <OtherUserProfile userId={selectedUserId} type={userType} />;  // Pass the type prop
     }
-
+  
     switch (activeTab) {
       case 'MyCollaborator':
         return <CollaboratorList users={collablers} onUserClick={handleUserCardClick} />;
@@ -103,6 +116,8 @@ function MainPageCollab() {
         return null;
     }
   };
+  
+  
 
   const handleTabClick = (tabName) => {
     setActiveTab(tabName);

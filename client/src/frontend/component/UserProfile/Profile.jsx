@@ -1,29 +1,24 @@
-/* eslint-disable react/prop-types */
-import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
-import jwt_decode from "jwt-decode";
-import { PostCall } from "./userPost";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { PostCall } from './userPost';
 
 export default function Profile({ userId }) {
   const [userInfo, setUserInfo] = useState(null);
   const [posts, setPosts] = useState([]);
   const [postStats, setPostStats] = useState({ totalPosts: 0, totalUpvotes: 0, totalDevotes: 0 });
-  const location = useLocation();
+  const [collablers, setCollablers] = useState([]);
+  const [showCollablersList, setShowCollablersList] = useState(false);
 
   useEffect(() => {
-    console.log("Profile component mounted with id:", userId);
-
-    const getUser = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        console.error("No token found");
-        return;
-      }
-
-      const decodedToken = jwt_decode(token);
-      console.log("Fetching user info for id:", userId);
+    const fetchUserData = async () => {
       try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("No token found");
+          return;
+        }
+
+        // Fetch user information
         const userInfoResponse = await axios.get(
           `http://localhost:3001/collablearn/user/getUser/${userId}`,
           {
@@ -33,22 +28,21 @@ export default function Profile({ userId }) {
           }
         );
 
-        const userInfo = userInfoResponse.data;
-        setUserInfo(userInfo.user);
-      } catch (error) {
-        console.error("Error fetching user info:", error);
-      }
-    };
+        setUserInfo(userInfoResponse.data.user);
 
-    const getPosts = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        console.error("No token found");
-        return;
-      }
+        // Fetch collablers
+        const collablersResponse = await axios.get(
+          `http://localhost:3001/collablearn/getAllCollablers`,
+          {
+            headers: {
+              Authorization: `${token}`,
+            },
+          }
+        );
 
-      try {
-        const response = await axios.get(
+        setCollablers(collablersResponse.data.collablers);
+        // Fetch the posts and calculate stats
+        const postsResponse = await axios.get(
           "http://localhost:3001/collablearn/user/getPosts",
           {
             headers: {
@@ -57,34 +51,50 @@ export default function Profile({ userId }) {
           }
         );
 
-        const allPosts = response.data.posts || [];
+        const allPosts = postsResponse.data.posts || [];
         const userPosts = allPosts.filter((post) => post.userId?._id === userId);
         const totalUpvotes = userPosts.reduce((acc, post) => acc + (post.upvotes.length || 0), 0);
         const totalDevotes = userPosts.reduce((acc, post) => acc + (post.devotes.length || 0), 0);
 
         setPosts(userPosts);
         setPostStats({ totalPosts: userPosts.length, totalUpvotes, totalDevotes });
+
       } catch (error) {
-        console.error("Error fetching posts:", error);
+        console.error("Error fetching user info or posts:", error);
       }
     };
 
-    if (userId) {
-      getUser();
-      getPosts();
-    } else {
-      console.error("No id provided");
-    }
+    fetchUserData();
   }, [userId]);
 
-  if (!userInfo) {
-    return <div>Loading...</div>;
-  }
+  const handleRemoveCollabler = async (collablerId) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      await axios.delete(
+        `http://localhost:3001/collablearn/user/removeCollaborator/${collablerId}`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      // Update the collablers list after removal
+      setCollablers((prev) => prev.filter((collabler) => collabler._id !== collablerId));
+    } catch (error) {
+      console.error("Error removing collabler:", error);
+    }
+  };
 
   const renderRoleSpecificInfo = () => {
     if (userInfo.role === 'Student') {
       return (
-        <ul className="w-full justify-center items-center  text-gray-700">
+        <ul className="w-full justify-center items-center text-gray-700">
           <li className="flex flex-row text-s">
             <span className="flex-1 font-semibold text-s">Current Academic: </span>
             {userInfo.studentDetails.currentAcademicStatus}
@@ -137,6 +147,10 @@ export default function Profile({ userId }) {
     }
   };
 
+  if (!userInfo) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="max-w-5xl max-h-[54vh] mx-auto mt-4 p-4 bg-white shadow-lg rounded-lg">
       {/* Profile Header */}
@@ -153,7 +167,7 @@ export default function Profile({ userId }) {
             className="w-24 h-24 rounded-full border-4 border-white"
           />
         </div>
-        <div className="absolute bottom-0 left-32 p-0 ">
+        <div className="absolute bottom-0 left-32 p-0">
           <h1 className="text-xl font-bold text-left">{userInfo.username}</h1>
           <p className="text-gray-600 font-extralight text-xs text-left">{userInfo.email}</p>
         </div>
@@ -164,9 +178,35 @@ export default function Profile({ userId }) {
           <h2 className="text-lg font-bold">Posts</h2>
           <p>{postStats.totalPosts}</p>
         </div>
-        <div>
+        <div 
+          className="relative"
+          onMouseEnter={() => setShowCollablersList(true)}
+          onMouseLeave={() => setShowCollablersList(false)}
+        >
           <h2 className="text-lg font-bold">Collablers</h2>
-          <p>{userInfo.collablers.length}</p>
+          <p>{collablers.length}</p>
+          {showCollablersList && (
+            <div className="absolute top-full w-[20vw] h-[30vh] overflow-y-auto shadow-xl left-0 mt-2 bg-white border rounded p-4 z-10">
+              {collablers.length === 0 ? (
+                <p>No collablers yet</p>
+              ) : (
+                collablers.map(collabler => (
+                  <div key={collabler._id} className="flex w-full items-center justify-between flex-1 shadow-lg p-2 mb-2">
+                    <div className="flex items-center">
+                      <img src={`http://localhost:3001/${collabler.img}`} alt={collabler.name} className="w-8 h-8 rounded-full mr-2" />
+                      <span>{collabler.name}</span>
+                    </div>
+                    <button 
+                      className="text-indigo-500 rounded-full hover:text-red-700"
+                      onClick={() => handleRemoveCollabler(collabler._id)}
+                    >
+                      &#x2716; 
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </div>
         <div>
           <h2 className="text-lg font-bold">Upvotes</h2>

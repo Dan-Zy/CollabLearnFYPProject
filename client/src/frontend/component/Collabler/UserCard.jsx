@@ -83,23 +83,26 @@ function UserCard({ user, type, onUserClick }) {
     }
   };
 
-  return (
-    <div
-      className="flex flex-col items-center bg-white rounded-lg p-4 mr-4 mb-4 shadow-lg w-full md:w-1/3 lg:w-1/4"
-      onClick={() => onUserClick(user._id)} // Handle card click
-    >
-      <img 
-        src={`http://localhost:3001/${user.profilePicture}`} 
-        alt={`${user.username}`} 
-        className="w-16 h-16 rounded-full mb-2 cursor-pointer" 
-      />
-      <div className="flex-grow text-center">
-        <h3 className="font-bold">{user.username}</h3>
-        <p>{user.role}</p>
+    
+    return (
+      <div
+        className="flex flex-col items-center bg-white rounded-lg p-4 mr-4 mb-4 shadow-lg w-full md:w-1/3 lg:w-1/4"
+        onClick={() => onUserClick(user._id, type)}  // Pass userId and type
+      >
+        <img 
+          src={`http://localhost:3001/${user.profilePicture}`} 
+          alt={`${user.username}`} 
+          className="w-16 h-16 rounded-full mb-2 cursor-pointer" 
+        />
+        <div className="flex-grow text-center">
+          <h3 className="font-bold">{user.username}</h3>
+          <p>{user.role}</p>
+        </div>
+        {renderButton()}
       </div>
-      {renderButton()}
-    </div>
-  );
-}
+    );
+  }
+  
+
 
 export default UserCard;
