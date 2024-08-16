@@ -3,11 +3,11 @@ import UserCard from './UserCard';
 import jwtDecode from 'jwt-decode';
 import axios from 'axios';
 
-function CollaboratorList() {
+function CollaboratorList({ onUserClick }) {  // Added onUserClick prop for consistency
   const [collaborators, setCollaborators] = useState([]);
 
   useEffect(() => {
-    const getUser = async () => {
+    const fetchCollaborators = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
         console.error("No token found");
@@ -17,7 +17,7 @@ function CollaboratorList() {
       const decodedToken = jwtDecode(token);
       
       try {
-        const userInfoResponse = await axios.get(
+        const response = await axios.get(
           `http://localhost:3001/collablearn/user/getUser/${decodedToken.id}`,
           {
             headers: {
@@ -26,29 +26,26 @@ function CollaboratorList() {
           }
         );
        
-        const userInfo = userInfoResponse.data;
-        console.log('====================================');
-        console.log(userInfo.user.collablers.username);
-        console.log('====================================');
+        const userInfo = response.data;
         setCollaborators(userInfo.user.collablers);
       } catch (error) {
-        console.error("Error fetching user info:", error);
+        console.error("Error fetching collaborators:", error);
       }
     };
 
-    getUser();
+    fetchCollaborators();
   }, []);
 
   return (
     <div className="m-4">
-      
-        <h2 className="text-indigo-600">My Collaborators</h2>
-       <div className="flex flex-wrap justify-start">
-        {collaborators.map((collab, index) => (
+      <h2 className="text-indigo-600">My Collaborators</h2>
+      <div className="flex flex-wrap justify-start">
+        {collaborators.map((collab) => (
           <UserCard 
-            key={index} 
+            key={collab._id} 
             user={collab} 
-            type="collaborator" 
+            type="collaborator"  // Pass the type as "collaborator"
+            onUserClick={onUserClick}  // Pass the onUserClick prop
           />
         ))}
       </div>

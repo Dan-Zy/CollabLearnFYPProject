@@ -1,7 +1,7 @@
 import React from 'react';
 import UserCard from './UserCard';
 
-function ReceivedRequestsList({ users }) {
+function ReceivedRequestsList({ users, onUserClick }) {
   return (
     <div className="m-4">
       <h2 className="text-indigo-600 mb-4">Requests</h2>
@@ -10,7 +10,8 @@ function ReceivedRequestsList({ users }) {
           <UserCard 
             key={user._id} 
             user={user} 
-            type="received" 
+            type="received"  // Pass the type as "received"
+            onUserClick={onUserClick}  // Pass the onUserClick prop
           />
         ))}
       </div>
