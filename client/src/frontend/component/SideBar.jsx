@@ -34,7 +34,7 @@ export default function Sidebar({ children, activeItem, setActiveItem }) {
             <SidebarItem icon={<Calendar />} text="Events" active={activeItem === 'Events'} onClick={() => setActiveItem('Events')} />
             <SidebarItem icon={<Users />} text="My Collabs" active={activeItem === 'My Collabs'} onClick={() => setActiveItem('My Collabs')} />
             <div className="border-t my-2" />
-            <SidebarItem icon={<HelpCircle />} text="Help" active={activeItem === 'Help'} onClick={() => setActiveItem('Help')} />
+            <SidebarItem icon={<HelpCircle />} text="AI Assistant" active={activeItem === 'Help'} onClick={() => setActiveItem('Help')} />
             <SidebarItem icon={<MessageSquare />} text="Feedback" active={activeItem === 'Feedback'} onClick={() => setActiveItem('Feedback')} />
             {children}
           </ul>
