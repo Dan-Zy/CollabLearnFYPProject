@@ -4,6 +4,7 @@ import sendCollabRequest from "../controllers/collablerControllers/sendCollabReq
 import acceptCollabRequest from "../controllers/collablerControllers/acceptCollabRequest.js";
 import cancelCollabRequest from "../controllers/collablerControllers/cancelCollabRequest.js";
 import removeCollabRequest from "../controllers/collablerControllers/removeCollabRequest.js";
+import getAllCollablers from "../controllers/collablerControllers/getAllCollablers.js";
 
 const router = express.Router();
 
@@ -14,5 +15,7 @@ router.put("/acceptCollabRequest/:userId", verifyToken, acceptCollabRequest);
 router.put("/cancelCollabRequest/:userId", verifyToken, cancelCollabRequest);
 
 router.put("/removeCollabRequest/:userId", verifyToken, removeCollabRequest);
+
+router.get("/getAllCollablers", verifyToken, getAllCollablers);
 
 export default router;

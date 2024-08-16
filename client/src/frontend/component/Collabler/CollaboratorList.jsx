@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import CollaboratorItem from './CollaboratorItem';
-import jwtDecode from 'jwt-decode';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import CollaboratorItem from "./CollaboratorItem";
+import jwtDecode from "jwt-decode";
+import axios from "axios";
 function CollaboratorList() {
   const [collaborators, setCollaborators] = useState([]);
   const [selectedCollaborator, setSelectedCollaborator] = useState(null);
@@ -15,21 +15,34 @@ function CollaboratorList() {
       }
 
       const decodedToken = jwtDecode(token);
-      
+
       try {
-        console.log('1')
-        const userInfoResponse = await axios.get(
-          `http://localhost:3001/collablearn/user/getUser/${decodedToken.id}`,
+        console.log("1");
+        // const userInfoResponse = await axios.get(
+        //   `http://localhost:3001/collablearn/user/getUser/${decodedToken.id}`,
+        //   {
+        //     headers: {
+        //       Authorization: `${token}`,
+        //     },
+        //   }
+        // );
+
+        const userCollablers = await axios.get(
+          `http://localhost:3001/collablearn/getAllCollablers`,
           {
             headers: {
               Authorization: `${token}`,
             },
           }
         );
-       
-        const userInfo = userInfoResponse.data;
-       
-       setCollaborators(userInfo.user.collablers);
+
+        // const userInfo = userInfoResponse.data;
+
+        // console.log("User Info: ", userInfo.user._id);
+
+        console.log("Collabler: ", userCollablers.data.collablers);
+
+        setCollaborators(userCollablers.data.collablers);
       } catch (error) {
         console.error("Error fetching user info:", error);
       }
@@ -43,7 +56,7 @@ function CollaboratorList() {
   };
 
   if (selectedCollaborator) {
-    alert('Page not developed');
+    alert("Page not developed");
     // return <ProComp {...selectedCollaborator} />;
   }
 
@@ -51,10 +64,16 @@ function CollaboratorList() {
     <div className="m-4">
       <div className="flex w-1/2 justify-between items-center mb-4">
         <h2 className="text-indigo-600">My Collaborator</h2>
-        <a href="/see-all" className="text-black">See all</a>
+        <a href="/see-all" className="text-black">
+          See all
+        </a>
       </div>
       {collaborators.map((collab, index) => (
-        <CollaboratorItem key={index} {...collab} onClick={() => handleCollaboratorClick(collab)} />
+        <CollaboratorItem
+          key={index}
+          {...collab}
+          onClick={() => handleCollaboratorClick(collab)}
+        />
       ))}
     </div>
   );
