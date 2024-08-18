@@ -62,10 +62,13 @@
 
 
 import { Post } from "../../models/postModel.js";
+import Notification from "../../models/notificationModel.js";
+import User from "../../models/userModel.js";
 import fs from "fs";
 
 export const uploadPost = async (req, res) => {
     try {
+        const userId = req.userId;
         const { content } = req.body;
         const image = req.files.image ? req.files.image[0].path : "";
         const document = req.files.document ? req.files.document[0].path : "";
@@ -169,11 +172,23 @@ export const uploadPost = async (req, res) => {
 
         await newPost.save();
 
+        const user = await User.findById(userId);
+
+        const newNotification = new Notification({
+            userId: userId,
+            receivers: user.collablers,
+            message: `${user.username} has uploaded a post`,
+        });
+
+        await newNotification.save();
+
         res.status(201).json({
             success: true,
             message: "Post uploaded successfully",
-            post: newPost
+            post: newPost,
+            notification: newNotification
         });
+        
     } catch (error) {
         console.error("Error uploading post:", error);
         res.status(500).json({

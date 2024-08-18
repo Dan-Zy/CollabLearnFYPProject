@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import {Post, Comment} from "../../models/postModel.js";
+import Notification from "../../models/notificationModel.js";
+import User from "../../models/userModel.js";
 
 const devotePost = async (req , res) => {
     try {
@@ -33,11 +35,22 @@ const devotePost = async (req , res) => {
             })
         }
 
+        const user = await User.findById(userId);
+
+        const newNotification = new Notification({
+            userId: userId,
+            receivers: [post.userId],
+            message: `${user.username} has devoted your post`,
+        });
+
+        await newNotification.save();
+
 
         res.status(200).json({
             success: true,
             message: "devote has been added to the post",
-            post: post
+            post: post,
+            notification: newNotification
         })
 
     } catch (error) {
@@ -83,11 +96,22 @@ const devoteComment = async (req , res) => {
             })
         }
 
+        const user = await User.findById(userId);
+
+        const newNotification = new Notification({
+            userId: userId,
+            receivers: [comment.userId],
+            message: `${user.username} has devoted your comment`,
+        });
+
+        await newNotification.save();
+
 
         res.status(200).json({
             success: true,
             message: "devote has been added to the comment",
-            comment: comment
+            comment: comment,
+            notification: newNotification
         })
 
     } catch (error) {
