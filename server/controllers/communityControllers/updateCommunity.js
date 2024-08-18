@@ -5,7 +5,7 @@ const updateCommunity = async (req, res) => {
 
     try {
         const { communityId } = req.params;
-        const {communityName, communityDescription, privacy, communityGenre, members} = req.body;
+        const {communityName, communityDescription, privacy} = req.body;
         const userId = req.userId;
         const image = req.file ? req.file.path : "";
 
@@ -59,10 +59,6 @@ const updateCommunity = async (req, res) => {
                 });
             }
             updateFields.privacy = privacy;
-        }
-
-        if (communityGenre) {
-            updateFields.communityGenre = communityGenre;
         }
 
         // Check if image is provided, validate its format and size
