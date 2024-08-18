@@ -1,9 +1,7 @@
 import React from 'react';
 
-function Header({ name, status, memberCount }) {
-  console.log('====================================');
-  console.log(status,memberCount);
-  console.log('====================================');
+function Header({ name, status, memberCount, isAdmin, onLeaveCommunity, onDeleteCommunity }) {
+
   return (
     <div className="header-component flex w-full mx-auto bg-gray-100 text-gray-800 font-sans p-4 rounded-lg shadow-md">
       <div className="group-info flex-1 flex-col justify-start">
@@ -14,8 +12,21 @@ function Header({ name, status, memberCount }) {
         </div>
       </div>
       <div className="header-buttons flex space-x-2">
-        <button className="share-button bg-indigo-500 text-white px-2 h-9 rounded-xl hover:bg-indigo-600">Share</button>
-        <button className="members-button bg-indigo-500 text-white px-2 h-9 rounded-xl hover:bg-indigo-600 ">Members ›</button>
+        {isAdmin ? (
+          <button 
+            onClick={onDeleteCommunity}
+            className="delete-button bg-red-500 text-white px-2 h-9 rounded-xl hover:bg-red-600"
+          >
+            Delete Community
+          </button>
+        ) : (
+          <button 
+            onClick={onLeaveCommunity}
+            className="leave-button bg-indigo-500 text-white px-2 h-9 rounded-xl hover:bg-red-600"
+          >
+            Leave Community
+          </button>
+        )}
       </div>
     </div>
   );

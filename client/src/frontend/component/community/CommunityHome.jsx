@@ -67,11 +67,16 @@ export function CommunityHome() {
 
   const handleRemoveCommunity = (communityId) => {
     setCommunities((prevCommunities) => prevCommunities.filter((community) => community._id !== communityId));
+    setActiveTab('joined');
   };
 
   const handleChangeView = (newView, communityId) => {
     setView(newView);
     setCommunityId(communityId);
+  };
+
+  const handleBack = () => {
+    setView('CommunityHome');
   };
 
   const triggerFlashEffect = (callback) => {
@@ -89,6 +94,40 @@ export function CommunityHome() {
   const handleTabChange = (tab) => {
     triggerFlashEffect(() => setActiveTab(tab));
     setSelectedGenre('');
+  };
+
+  const handleLeaveCommunity = async (communityId) => {
+    const token = localStorage.getItem('token');
+    try {
+      await axios.put(`http://localhost:3001/collablearn/leaveCommunity/${communityId}`, {}, {
+        headers: {
+          'Authorization': `${token}`
+        }
+      });
+      handleRemoveCommunity(communityId);
+      setView('CommunityHome');
+      toast.success("You have successfully left the community.");
+    } catch (error) {
+      console.error('Error leaving community', error);
+      toast.error("Failed to leave the community.");
+    }
+  };
+
+  const handleDeleteCommunity = async (communityId) => {
+    const token = localStorage.getItem('token');
+    try {
+      await axios.delete(`http://localhost:3001/collablearn/deleteCommunity/${communityId}`, {
+        headers: {
+          'Authorization': `${token}`
+        }
+      });
+      handleRemoveCommunity(communityId);
+      setView('CommunityHome');
+      toast.success("Community has been deleted.");
+    } catch (error) {
+      console.error('Error deleting community', error);
+      toast.error("Failed to delete the community.");
+    }
   };
 
   const filteredCommunities = communities.filter((community) => {
@@ -123,7 +162,6 @@ export function CommunityHome() {
                     img={community.communityBanner}
                     title={community.communityName}
                     description={community.communityDescription}
-                    // postCount={community.postCount || 'N/A'}
                     memberCount={community.members.length}
                     rating={community.rating || 'N/A'}
                     activeTab={activeTab}
@@ -136,7 +174,12 @@ export function CommunityHome() {
           </div>
         </>
       ) : (
-        <CommunityViewHome communityId={communityId} />
+        <CommunityViewHome 
+          communityId={communityId}
+          onLeaveCommunity={handleLeaveCommunity}
+          onDeleteCommunity={handleDeleteCommunity}
+          onBack={handleBack}  // Passing the onBack function to CommunityViewHome
+        />
       )}
     </div>
   );
