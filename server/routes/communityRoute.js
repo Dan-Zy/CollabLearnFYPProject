@@ -8,6 +8,7 @@ import updateCommunity from "../controllers/communityControllers/updateCommunity
 import deleteCommunity from "../controllers/communityControllers/deleteCommunity.js";
 import addMemberToCommunity from "../controllers/communityControllers/addMemberToCommunity.js";
 import getCommunityMembers from "../controllers/communityControllers/getCommunityMembers.js";
+import leaveCommunity from "../controllers/communityControllers/leaveCommunity.js";
 
 const router = express.Router();
 
@@ -31,6 +32,9 @@ router.get("/getCommunity/:communityId", verifyToken, getCommunity);
 
 // GET COMMUNITY MEMBERS
 router.get("/getCommunityMembers/:communityId", verifyToken, getCommunityMembers);
+
+// LEAVE COMMUNITY
+router.put("/leaveCommunity/:communityId", verifyToken, leaveCommunity);
 
 
 export default router;
