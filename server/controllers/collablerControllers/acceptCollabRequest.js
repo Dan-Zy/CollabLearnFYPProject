@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import User from "../../models/userModel.js";
+import Notification from "../../models/notificationModel.js";
 
 const acceptCollabRequest = async (req, res) => {
     try {
@@ -69,12 +70,21 @@ const acceptCollabRequest = async (req, res) => {
                 path: 'collablers',
                 select: 'username role profilePicture'
             });
+        
+        const newNotification = new Notification({
+            userId: reqUserId,
+            receivers: [userId],
+            message: `${receivedUser.username} has accepted your collab request`,
+        });
+    
+        await newNotification.save();
 
         return res.status(200).json({
             success: true,
             message: "Collab Request has been accepted successfully",
             receivedUser: updatedReceivedUser.collablers,
-            sendedUser: updatedSendedUser.collablers
+            sendedUser: updatedSendedUser.collablers,
+            notification: newNotification
         });
 
     } catch (error) {

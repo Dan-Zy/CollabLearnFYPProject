@@ -1,5 +1,7 @@
 import Community from "../../models/communityModel.js";
 import Chat from "../../models/chatModel.js";
+import User from "../../models/userModel.js";
+import Notification from "../../models/notificationModel.js";
 
 const removeMemberFromCommunity = async (req, res) => {
     try {
@@ -38,10 +40,22 @@ const removeMemberFromCommunity = async (req, res) => {
         await community.save();
         await discussionForum.save();
 
+        const user = await User.findById(userId);
+
+        const newNotification = new Notification({
+            userId: userId,
+            receivers: [memberId],
+            message: `${user.username} has removed you from ${community.communityName} community`,
+        });
+    
+        await newNotification.save();
+
         return res.status(200).json({
             success: true,
-            message: "Member has been removed from the community and discussion forum successfully"
+            message: "Member has been removed from the community and discussion forum successfully",
+            notification: newNotification
         });
+
     } catch (error) {
         console.log("Internal server error: ", error);
         return res.status(500).json({

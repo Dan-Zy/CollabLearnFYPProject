@@ -1,5 +1,7 @@
 import Community from "../../models/communityModel.js";
 import Chat from "../../models/chatModel.js";
+import User from "../../models/userModel.js";
+import Notification from "../../models/notificationModel.js";
 
 const addMemberToCommunity = async (req, res) => {
   try {
@@ -33,11 +35,22 @@ const addMemberToCommunity = async (req, res) => {
     await community.save();
     await discussionForum.save();
 
+    const user = await User.findById(userId);
+
+    const newNotification = new Notification({
+        userId: userId,
+        receivers: [community.adminId],
+        message: `${user.username} has joined your community`,
+    });
+    
+    await newNotification.save();
+
     res.status(201).json({ 
       success: true, 
       message: "User added to the community", 
       community: community,
-      discussionForum: discussionForum
+      discussionForum: discussionForum,
+      notification: newNotification
     });
     
   } catch (error) {

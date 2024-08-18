@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import User from "../../models/userModel.js";
+import Notification from './../../models/notificationModel.js';
 
 const sendCollabRequest = async (req, res) => {
     try {
@@ -79,11 +80,20 @@ const sendCollabRequest = async (req, res) => {
             select: 'username role profilePicture'
         });
 
+        const newNotification = new Notification({
+            userId: reqUserId,
+            receivers: [userId],
+            message: `${requestSendUser.username} has sent you a collab request`,
+        });
+
+        await newNotification.save();
+
         return res.status(201).json({
             success: true,
             message: "Collab Request has been sent successfully",
             RequestSendToUser: populatedReqUser.sendedRequests,
-            RequestSendedByUser: populatedUser.receivedRequests
+            RequestSendedByUser: populatedUser.receivedRequests,
+            notification: newNotification
         });
 
     } catch (error) {
