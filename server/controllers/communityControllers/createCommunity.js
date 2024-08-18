@@ -1,6 +1,8 @@
 import Community from "../../models/communityModel.js";
 import Chat from "../../models/chatModel.js";
 import fs from "fs";
+import User from "../../models/userModel.js";
+import Notification from './../../models/notificationModel.js';
 
 const createCommunity = async(req , res) => {
 
@@ -86,12 +88,23 @@ const createCommunity = async(req , res) => {
             .populate("groupAdmin", "-password");
     
 
+        const user = await User.findById(userId);
+
+        const newNotification = new Notification({
+            userId: userId,
+            receivers: user.collablers,
+            message: `Your Collabler ${user.username} has created a community. Join to be part of it!`,
+        });
+    
+        await newNotification.save();
+
 
         res.status(201).json({
             success: true,
             message: "Community has been created successfully",
             community: newCommunity,
-            discussionForum: fullGroupChat
+            discussionForum: fullGroupChat,
+            notification: newNotification
         });
 
     } catch (error) {
