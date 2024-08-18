@@ -3,9 +3,10 @@ import axios from 'axios';
 import CoverPhoto from './CoverPhoto';
 import Header from './Header';
 import NavBar from './NavBar';
+import About from './About';
 import DesicionForum from './DesicionForum/DesicionForum';
 import Feed from './Feed';
-
+import CommunityEvents from './Event/event';
 function CommunityViewHome({ communityId }) {
   const [community, setCommunity] = useState(null);
   const [view, setView] = useState('Feed');
@@ -49,7 +50,9 @@ function CommunityViewHome({ communityId }) {
       />
       {view === 'Feed' && <Feed communityId={communityId} />}
       {view === 'CommunityDF' && <DesicionForum communityId={communityId} />}
-      {/* Add other view conditions as needed */}
+      {view === 'About' && <About communityId={communityId} />}
+      {view === 'CommunityEvent' && <CommunityEvents communityId={communityId} />}
+     
     </div>
   );
 }

@@ -6,7 +6,7 @@ import UV from "../../../../../assets/upvote_icon.png";
 import DV from "../../../../../assets/devote_icon.png";
 import share from "../../../../../assets/share_icon.png";
 import docImg from "../../../../../assets/pdf_icon.png";
-//import Comment from "./Comment/comment";
+import Comment from "../../../Comment/comment";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
 import { ToastContainer, toast } from 'react-toastify';
@@ -367,34 +367,36 @@ export function Post({ postdetail, onDelete }) {
             </div>
           )}
         </div>
-        <div className="flex items-center justify-between border-t border-gray-300 pt-2">
-          <div className="flex items-center">
-            <button
-              onClick={() => handleUpvote(postdetail.postId)}
-              className={`flex items-center focus:outline-none ${checked ? "text-indigo-500" : "text-gray-500"
-                }`}
-            >
-              <img src={UV} className="w-5 h-5 mr-2" />
-              <span>{upvote}</span>
-            </button>
-            <button
-              onClick={() => handleDevote(postdetail.postId)}
-              className={`flex items-center ml-4 focus:outline-none ${checkedDevote ? "text-red-500" : "text-gray-500"
-                }`}
-            >
-              <img src={DV} className="w-5 h-5 mr-2" />
-              <span>{devote}</span>
-            </button>
-          </div>
-          <button
-            onClick={() => handleShare(postdetail.postId)}
-            className="flex items-center focus:outline-none text-gray-500"
-          >
-            <img src={share} className="w-5 h-5 mr-2" />
-            <span>{postdetail.share}</span>
-          </button>
+        <div className="flex items-center justify-around border-t border-gray-300 pt-2">
+        <div className="flex items-center space-x-2">
+          <img
+            src={UV}
+            className="w-6 h-6 cursor-pointer"
+            onClick={() => handleUpvote(postdetail.postId)}
+          />
+          <span>{upvote}</span>
         </div>
-        {/* <Comment postId={postdetail.postId} comments={postdetail.comment} /> */}
+        <div className="flex items-center space-x-2">
+          <img
+            src={DV}
+            className="w-6 h-6 cursor-pointer"
+            onClick={() => handleDevote(postdetail.postId)}
+          />
+          <span>{devote}</span>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Comment postId={postdetail.postId} />
+          <span>{postdetail.comment}</span>
+        </div>
+        <div className="flex items-center space-x-2">
+          <img
+            src={share}
+            className="w-6 h-6 cursor-pointer"
+            onClick={() => handleShare(postdetail.postId)}
+          />
+          <span>{postdetail.share}</span>
+        </div>
+      </div>
         <ToastContainer />
       </div>
     );
