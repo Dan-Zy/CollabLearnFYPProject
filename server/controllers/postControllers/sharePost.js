@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { Post } from "../../models/postModel.js";
 import User from "../../models/userModel.js";
+import Notification from "../../models/notificationModel.js";
 
 const sharePost = async (req, res) => {
     try {
@@ -55,11 +56,22 @@ const sharePost = async (req, res) => {
         await sharedPost.populate('originalAuthor', 'username');
         await Post.findByIdAndUpdate(postId, { $addToSet: { shares: userId } });
 
+        const user = await User.findById(userId);
+
+        const newNotification = new Notification({
+            userId: userId,
+            receivers: [originalPost.userId],
+            message: `${user.username} has shared your post`,
+        });
+
+        await newNotification.save();
+
         res.status(200).json({
             success: true,
             message: "Post has been shared",
             post: sharedPost,
-            originalAuthorUsername: sharedPost.originalAuthor.username // Return the username
+            originalAuthorUsername: sharedPost.originalAuthor.username, // Return the username
+            notification: newNotification
         });
     } catch (error) {
         console.log("Error occurred while sharing the post: ", error);

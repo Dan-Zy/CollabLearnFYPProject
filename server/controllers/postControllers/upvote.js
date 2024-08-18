@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import {Post, Comment} from "../../models/postModel.js";
+import Notification from "../../models/notificationModel.js";
+import User from "../../models/userModel.js";
 
 const upvotePost = async (req , res) => {
     try {
@@ -39,10 +41,21 @@ const upvotePost = async (req , res) => {
         post.upvotes.push(userId);
         await post.save();
 
+        const user = await User.findById(userId);
+
+        const newNotification = new Notification({
+            userId: userId,
+            receivers: [post.userId],
+            message: `${user.username} has upvoted your post`,
+        });
+
+        await newNotification.save();
+
         res.status(200).json({
             success: true,
             message: 'Upvote has been added to the post',
-            post: post
+            post: post,
+            notification: newNotification
         });
 
 
@@ -108,10 +121,21 @@ const upvoteComment = async (req , res) => {
         comment.upvotes.push(userId);
         await comment.save();
 
+        const user = await User.findById(userId);
+
+        const newNotification = new Notification({
+            userId: userId,
+            receivers: [comment.userId],
+            message: `${user.username} has upvoted your comment`,
+        });
+
+        await newNotification.save();
+
         res.status(201).json({
             success: true,
-            message: "Upvote has been added to the comment"
-        })
+            message: "Upvote has been added to the comment",
+            notification: newNotification
+        });
 
         
 

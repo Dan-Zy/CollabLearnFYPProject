@@ -1,12 +1,15 @@
 import fs from "fs";
 import mongoose from "mongoose";
 import { Comment } from "../../models/postModel.js";
+import Notification from "../../models/notificationModel.js";
+import User from "../../models/userModel.js";
 
 
 const addCommentReply = async (req, res) => {
 
     try {
-        
+
+        const userId = req.userId;
         const { commentId } = req.params;
         const { content } = req.body;
         const image = req.file ? req.file.path : "";
@@ -73,11 +76,24 @@ const addCommentReply = async (req, res) => {
 
         await newComment.save();
 
+        const parentComment = await Comment.findById(newComment.parentCommentId);
+
+        const user = await User.findById(userId);
+
+        const newNotification = new Notification({
+            userId: userId,
+            receivers: [parentComment.userId],
+            message: `${user.username} has added reply to your comment`,
+        });
+
+        await newNotification.save();
+
         res.status(201).json({
             success: true,
             message: "Comment reply added successfully",
-            comment: newComment
-        })
+            comment: newComment,
+            notification: newNotification
+        });
 
 
     } catch (error) {
