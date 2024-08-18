@@ -7,13 +7,14 @@ import axios from 'axios';
 import LiveEventCard from './LiveEventCard';
 import GenreSelector from './GenerSelector';
 import { SearchBar } from './SearchBar';
+
 function EventCall() {
-  const [view, setView] = useState('scheduledEvents');
+  const [view, setView] = useState(() => localStorage.getItem('eventCallView') || 'scheduledEvents');
   const [flash, setFlash] = useState(false);
   const [scheduledEvents, setScheduledEvents] = useState([]);
   const [ongoingEvents, setOngoingEvents] = useState([]);
-  const [selectedGenre, setSelectedGenre] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedGenre, setSelectedGenre] = useState(() => localStorage.getItem('eventCallGenre') || '');
+  const [searchQuery, setSearchQuery] = useState(() => localStorage.getItem('eventCallSearchQuery') || '');
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -29,7 +30,7 @@ function EventCall() {
           }
         });
 
-        setScheduledEvents(response.data.events.filter(event => event.eventStatus === 'Upcoming' ));
+        setScheduledEvents(response.data.events.filter(event => event.eventStatus === 'Upcoming'));
         setOngoingEvents(response.data.events.filter(event => event.eventStatus === 'Ongoing'));
       } catch (error) {
         console.error('Error fetching events:', error);
@@ -39,32 +40,53 @@ function EventCall() {
     fetchEvents();
   }, []);
 
+  useEffect(() => {
+    localStorage.setItem('eventCallView', view);
+    localStorage.setItem('eventCallGenre', selectedGenre);
+    localStorage.setItem('eventCallSearchQuery', searchQuery);
+  }, [view, selectedGenre, searchQuery]);
+
   const triggerFlashEffect = (callback) => {
     setFlash(true);
     setTimeout(() => {
       callback();
       setFlash(false);
-    }, 500); // Match the duration of the flash animation
+    }, 500);
   };
 
   const handleCreateEventClick = () => {
+    localStorage.setItem('previousView', view);
     triggerFlashEffect(() => setView('createEvent'));
   };
 
   const handleViewEventsClick = () => {
+    localStorage.setItem('previousView', view);
     triggerFlashEffect(() => setView('myEvents'));
   };
 
+  const handleGoBack = () => {
+    const previousView = localStorage.getItem('previousView');
+    if (previousView) {
+      triggerFlashEffect(() => setView(previousView));
+      localStorage.removeItem('previousView'); // Clear previous view to prevent unintended navigation
+    }
+  };
+
   const handleViewScheduledEventsClick = () => {
-    triggerFlashEffect(() => setView('scheduledEvents'));
-    setSelectedGenre('');
+    localStorage.setItem('previousView', view);
+    triggerFlashEffect(() => {
+      setView('scheduledEvents');
+      setSelectedGenre('');
+    });
   };
 
   const handleViewOngoingEventsClick = () => {
-    triggerFlashEffect(() => setView('ongoingEvents'));
-    setSelectedGenre('');
+    localStorage.setItem('previousView', view);
+    triggerFlashEffect(() => {
+      setView('ongoingEvents');
+      setSelectedGenre('');
+    });
   };
-
 
   const handleGenreChange = (genre) => {
     triggerFlashEffect(() => setSelectedGenre(genre));
@@ -94,7 +116,7 @@ function EventCall() {
         <>
           <nav className="flex justify-center items-center text-center">
             <span
-              className={`m-2 text-m cursor-pointer ${view === 'scheduledEvents' ? 'text-indigo-500 text-l' : 'hover:text-indigo-500'}`}
+              className={`m-0 text-m cursor-pointer ${view === 'scheduledEvents' ? 'text-indigo-500 text-l' : 'hover:text-indigo-500'}`}
               onClick={handleViewScheduledEventsClick}
             >
               Scheduled Events
@@ -107,7 +129,7 @@ function EventCall() {
             </span>
           </nav>
           <div className="flex justify-between w-full py-2">
-          <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+            <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
           </div>
           <GenreSelector selectedGenre={selectedGenre} setSelectedGenre={handleGenreChange} />
         </>
@@ -126,8 +148,8 @@ function EventCall() {
           ))}
         </section>
       )}
-      {view === 'createEvent' && <CreateEvent />}
-      {view === 'myEvents' && <MyEvent />}
+      {view === 'createEvent' && <CreateEvent onGoBack={handleGoBack} />}
+      {view === 'myEvents' && <MyEvent onGoBack={handleGoBack} />}
     </div>
   );
 }

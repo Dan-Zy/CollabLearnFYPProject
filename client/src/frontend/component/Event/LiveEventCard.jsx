@@ -1,12 +1,39 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
-function LiveEventCard({ eventName, title, hostId, numberOfParticipants, eventLink }) {
+function LiveEventCard({ _id,eventName, title, hostId, numberOfParticipants, eventLink, eventId }) {
   const [interested, setInterested] = useState(false);
   const showJoinButton = true;
 
-
   const toggleInterested = () => {
     setInterested(!interested);
+  };
+
+  const handleJoinEvent = async () => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await axios.put(
+        `http://localhost:3001/collablearn/joinEvent/${_id}`,
+        {},
+        {
+          headers: {
+            Authorization: `${token}`
+          }
+        }
+      );
+
+      if (response.status === 200) {
+        // Optionally update the UI or participants list here
+        toast.success('Successfully joined the event!');
+        window.open(eventLink, '_blank');
+      } else {
+        toast.error('Failed to join the event.');
+      }
+    } catch (error) {
+      console.error('Error joining event:', error);
+      toast.error('An error occurred while trying to join the event.');
+    }
   };
 
   return (
@@ -29,11 +56,11 @@ function LiveEventCard({ eventName, title, hostId, numberOfParticipants, eventLi
         <h2 className="flex-1 text-lg font-bold text-start">{title}</h2>
       </div>
       <div className="grid grid-cols-6 gap-1 p-2 w-[80%] opacity-60">
-        {numberOfParticipants > 0 ? (
-          numberOfParticipants.slice(0, 12).map((participants, index) => (
+        {numberOfParticipants.length > 0 ? (
+          numberOfParticipants.slice(0, 12).map((participant, index) => (
             <img
               key={index}
-              src={`http://localhost:3001/${participants?.profilePicture}`}
+              src={`http://localhost:3001/${participant?.profilePicture}`}
               alt={`Participant ${index + 1}`}
               className="w-full h-full object-cover rounded"
             />
@@ -41,9 +68,9 @@ function LiveEventCard({ eventName, title, hostId, numberOfParticipants, eventLi
         ) : (
           <div className="col-span-full text-center text-gray-500">No participants yet</div>
         )}
-        {numberOfParticipants > 12 && (
+        {numberOfParticipants.length > 12 && (
           <div className="flex items-center justify-center bg-gray-200 rounded">
-            <span className="text-sm text-gray-700">+{numberOfParticipants - 12}</span>
+            <span className="text-sm text-gray-700">+{numberOfParticipants.length - 12}</span>
           </div>
         )}
       </div>
@@ -56,10 +83,14 @@ function LiveEventCard({ eventName, title, hostId, numberOfParticipants, eventLi
         </div>
       </div>
       {showJoinButton && (
-        <a href={eventLink} target="_blank" rel="noopener noreferrer" className="w-full">
-          <button className="w-[85%] py-2 px-4 m-4 text-white rounded bg-indigo-500 hover:bg-indigo-600">
-            Join
-          </button>
+
+<a href={eventLink} target="_blank" rel="noopener noreferrer" className="w-full">
+      <button
+          onClick={handleJoinEvent}
+          className="w-[85%] py-2 px-4 m-4 text-white rounded bg-indigo-500 hover:bg-indigo-600"
+        >
+          Join
+        </button>
         </a>
       )}
     </div>
@@ -67,3 +98,5 @@ function LiveEventCard({ eventName, title, hostId, numberOfParticipants, eventLi
 }
 
 export default LiveEventCard;
+
+          
