@@ -6,6 +6,7 @@ import cancelCollabRequest from "../controllers/collablerControllers/cancelColla
 import removeCollabRequest from "../controllers/collablerControllers/removeCollabRequest.js";
 import getAllCollablers from "../controllers/collablerControllers/getAllCollablers.js";
 import getAllCollablersById from "../controllers/collablerControllers/getAllCollablersById.js"; // Import the new controller
+import deleteCollabler from "../controllers/collablerControllers/deleteCollabler.js";
 
 const router = express.Router();
 
@@ -17,5 +18,7 @@ router.get("/getAllCollablers", verifyToken, getAllCollablers);
 
 
 router.get("/getAllCollablers/:userId", verifyToken, getAllCollablersById);
+
+router.put("/deleteCollabler/:collablerId", verifyToken, deleteCollabler);
 
 export default router;
