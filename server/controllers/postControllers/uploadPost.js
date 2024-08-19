@@ -1,66 +1,3 @@
-// import express from "express";
-// import { upload } from "../config/postMulter.js";
-// import { Post } from "../models/postModel.js";
-// import multer from "multer";
-
-// export const uploadPost = (req, res, next) => {
-//     upload(req, res, async (err) => {
-//         if (err) {
-//             // Handle Multer-specific errors
-//             if (err instanceof multer.MulterError) {
-//                 return res.status(400).json({ error: `Multer error: ${err.message}` });
-//             } else {
-//                 return res.status(400).json({ error: `File upload error: ${err.message}` });
-//             }
-//         }
-
-//         try {
-//             // Retrieve userId from authenticated session or JWT
-//             const userId = req.user._id;
-//             const { content } = req.body;
-
-//             // Check for minimum required information: at least content
-//             if (!content) {
-//                 return res.status(400).json({ error: 'Content is required for the post.' });
-//             }
-
-//             // Access the uploaded files, if any
-//             const pictures = req.files['picture'] ? req.files['picture'][0].filename : "";
-//             const documents = req.files['document'] ? req.files['document'][0].filename : "";
-//             const videos = req.files['video'] ? req.files['video'][0].filename : "";
-
-//             // Create a new post object using the model
-//             const newPost = new Post({
-//                 userId,
-//                 content,
-//                 image: pictures,
-//                 document: documents,
-//                 video: videos
-//             });
-
-//             // Save the new post to the database
-//             await newPost.save();
-
-//             // Respond to the client
-//             res.status(201).json({
-//                 message: 'New post created successfully',
-//                 post: newPost
-//             });
-//         } catch (err) {
-//             // Handle potential errors during database operations
-//             if (err.name === 'ValidationError') {
-//                 return res.status(400).json({ error: `Validation error: ${err.message}` });
-//             } else {
-//                 return res.status(500).json({ error: `Internal server error: ${err.message}` });
-//             }
-//         }
-//     });
-
-// };
-
-
-
-
 import { Post } from "../../models/postModel.js";
 import Notification from "../../models/notificationModel.js";
 import User from "../../models/userModel.js";
@@ -111,10 +48,17 @@ export const uploadPost = async (req, res) => {
             }
         }
 
-
         // Document validation
         if (document) {
-            const validDocumentFormats = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+            const validDocumentFormats = [
+                'application/pdf', 
+                'application/msword', 
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 
+                'application/vnd.ms-powerpoint', 
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation', 
+                'application/vnd.ms-excel', 
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            ];
             const documentSize = fs.statSync(document).size;
             const documentFormat = req.files.document[0].mimetype;
 
@@ -132,7 +76,6 @@ export const uploadPost = async (req, res) => {
                 });
             }
         }
-
 
         // Video validation
         if (video) {
@@ -172,7 +115,7 @@ export const uploadPost = async (req, res) => {
 
         await newPost.save();
 
-        const user = await User.findById(userId);
+        const user = await User.findById(userId).populate("username").populate("profilePicture").populate("role");
 
         const newNotification = new Notification({
             userId: userId,
@@ -182,11 +125,17 @@ export const uploadPost = async (req, res) => {
 
         await newNotification.save();
 
+        // Populate the userId field in the notification with the required fields
+        const populatedNotification = await Notification.findById(newNotification._id).populate({
+            path: 'userId',
+            select: 'username role profilePicture'
+        });
+
         res.status(201).json({
             success: true,
             message: "Post uploaded successfully",
             post: newPost,
-            notification: newNotification
+            notification: populatedNotification
         });
         
     } catch (error) {
@@ -197,4 +146,3 @@ export const uploadPost = async (req, res) => {
         });
     }
 }
-

@@ -4,22 +4,22 @@ import fs from "fs";
 import User from "../../models/userModel.js";
 import Notification from './../../models/notificationModel.js';
 
-const createCommunity = async(req , res) => {
+const createCommunity = async(req, res) => {
 
     try {
         
-        const {communityName, communityDescription, privacy, communityGenre, members = []} = req.body;
+        const { communityName, communityDescription, privacy, communityGenre, members = [] } = req.body;
         const userId = req.userId;
         const image = req.file ? req.file.path : "";
 
-        if(!communityName){
+        if (!communityName) {
             return res.status(400).json({
                 success: false,
                 message: "Community Name is Required"
             });
         }
 
-        if(!communityGenre){
+        if (!communityGenre) {
             return res.status(400).json({
                 success: false,
                 message: "Community Genre is Required"
@@ -28,7 +28,7 @@ const createCommunity = async(req , res) => {
 
         const descLength = communityDescription.split(/\s+/).length;
 
-        if(communityDescription && descLength > 500){
+        if (communityDescription && descLength > 500) {
             return res.status(406).json({
                 success: false,
                 message: "Community Description must not exceed 500 words"
@@ -70,12 +70,7 @@ const createCommunity = async(req , res) => {
         });   
         await newCommunity.save();
 
-
-        
-        var users = [];
-        
-        
-        users.push(userId);
+        const users = [userId];
         const groupChat = await Chat.create({
             chatName: newCommunity._id,
             users: users,
@@ -87,8 +82,7 @@ const createCommunity = async(req , res) => {
             .populate("users", "-password")
             .populate("groupAdmin", "-password");
     
-
-        const user = await User.findById(userId);
+        const user = await User.findById(userId).populate("username").populate("profilePicture").populate("role");
 
         const newNotification = new Notification({
             userId: userId,
@@ -98,13 +92,18 @@ const createCommunity = async(req , res) => {
     
         await newNotification.save();
 
+        // Populate the userId field in the notification with the required fields
+        const populatedNotification = await Notification.findById(newNotification._id).populate({
+            path: 'userId',
+            select: 'username role profilePicture'
+        });
 
         res.status(201).json({
             success: true,
             message: "Community has been created successfully",
             community: newCommunity,
             discussionForum: fullGroupChat,
-            notification: newNotification
+            notification: populatedNotification
         });
 
     } catch (error) {
@@ -112,9 +111,8 @@ const createCommunity = async(req , res) => {
         res.status(500).json({
             success: false,
             message: "Internal server error"
-        })
+        });
     }
-
 }
 
 export default createCommunity;

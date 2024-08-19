@@ -4,11 +4,8 @@ import { Comment } from "../../models/postModel.js";
 import Notification from "../../models/notificationModel.js";
 import User from "../../models/userModel.js";
 
-
 const addCommentReply = async (req, res) => {
-
     try {
-
         const userId = req.userId;
         const { commentId } = req.params;
         const { content } = req.body;
@@ -31,7 +28,6 @@ const addCommentReply = async (req, res) => {
                 message: "Content is required"
             });
         }
-
 
         const contentLength = content.split(/\s+/).length;
         if (contentLength > 500) {
@@ -62,7 +58,6 @@ const addCommentReply = async (req, res) => {
             }
         }
 
-
         const newComment = new Comment({
             userId: req.userId,
             parentCommentId: commentId,
@@ -78,32 +73,36 @@ const addCommentReply = async (req, res) => {
 
         const parentComment = await Comment.findById(newComment.parentCommentId);
 
-        const user = await User.findById(userId);
+        const user = await User.findById(userId).populate("username").populate("profilePicture").populate("role");
 
         const newNotification = new Notification({
             userId: userId,
             receivers: [parentComment.userId],
-            message: `${user.username} has added reply to your comment`,
+            message: `${user.username} has added a reply to your comment`,
         });
 
         await newNotification.save();
+
+        // Populate the userId field in the notification with the required fields
+        const populatedNotification = await Notification.findById(newNotification._id).populate({
+            path: 'userId',
+            select: 'username role profilePicture'
+        });
 
         res.status(201).json({
             success: true,
             message: "Comment reply added successfully",
             comment: newComment,
-            notification: newNotification
+            notification: populatedNotification
         });
-
 
     } catch (error) {
         console.log("Error while adding reply: ", error);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error"
-        })
+        });
     }
-
 }
 
 export default addCommentReply;

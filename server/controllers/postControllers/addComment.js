@@ -79,7 +79,7 @@ export const addComment = async (req, res) => {
         
         await post.save();
 
-        const user = await User.findById(userId);
+        const user = await User.findById(userId).populate("username").populate("profilePicture").populate("role");
 
         const newNotification = new Notification({
             userId: userId,
@@ -89,11 +89,17 @@ export const addComment = async (req, res) => {
 
         await newNotification.save();
 
+        // Populate the userId field in the notification with the required fields
+        const populatedNotification = await Notification.findById(newNotification._id).populate({
+            path: 'userId',
+            select: 'username role profilePicture'
+        });
+
         res.status(201).json({
             success: true,
             message: "Comment added successfully!",
             comment: newComment,
-            notification: newNotification
+            notification: populatedNotification
         });
 
     } catch (error) {

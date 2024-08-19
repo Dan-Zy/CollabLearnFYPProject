@@ -1,12 +1,11 @@
 import mongoose from "mongoose";
-import {Post, Comment} from "../../models/postModel.js";
+import { Post, Comment } from "../../models/postModel.js";
 import Notification from "../../models/notificationModel.js";
 import User from "../../models/userModel.js";
 
-const devotePost = async (req , res) => {
+const devotePost = async (req, res) => {
     try {
-        
-        const {postId} = req.params;
+        const { postId } = req.params;
         const userId = req.userId;
 
         // Validate the postId
@@ -17,25 +16,16 @@ const devotePost = async (req , res) => {
             });
         }
 
-        // Ensure the post exists
-        // const post = await Post.findById(postId);
-        // if (!post) {
-        //     return res.status(404).json({ 
-        //         success: false,
-        //         message: 'Post not found' 
-        //     });
-        // }
+        const post = await Post.findByIdAndUpdate(postId, { $addToSet: { devotes: userId } }, { new: true });
 
-        const post = await Post.findByIdAndUpdate(postId, { $addToSet: { devotes: userId } } , {new: true});
-
-        if(!post) {
+        if (!post) {
             return res.status(404).json({
                 success: false,
                 message: "Post not found"
-            })
+            });
         }
 
-        const user = await User.findById(userId);
+        const user = await User.findById(userId).populate("username").populate("profilePicture").populate("role");
 
         const newNotification = new Notification({
             userId: userId,
@@ -45,29 +35,30 @@ const devotePost = async (req , res) => {
 
         await newNotification.save();
 
+        // Populate the userId field in the notification with the required fields
+        const populatedNotification = await Notification.findById(newNotification._id).populate({
+            path: 'userId',
+            select: 'username role profilePicture'
+        });
 
         res.status(200).json({
             success: true,
-            message: "devote has been added to the post",
+            message: "Devote has been added to the post",
             post: post,
-            notification: newNotification
-        })
-
+            notification: populatedNotification
+        });
     } catch (error) {
-        console.log("Error occured while upvoting: ", error);
+        console.log("Error occurred while devoting the post: ", error);
         return res.status(500).json({
             success: false,
             message: "Internal server error"
         });
     }
-}
+};
 
-
-
-const devoteComment = async (req , res) => {
+const devoteComment = async (req, res) => {
     try {
-        
-        const {commentId} = req.params;
+        const { commentId } = req.params;
         const userId = req.userId;
 
         // Validate the commentId
@@ -78,25 +69,16 @@ const devoteComment = async (req , res) => {
             });
         }
 
-        // Ensure the comment exists
-        // const post = await Post.findById(postId);
-        // if (!post) {
-        //     return res.status(404).json({ 
-        //         success: false,
-        //         message: 'Post not found' 
-        //     });
-        // }
+        const comment = await Comment.findByIdAndUpdate(commentId, { $addToSet: { devotes: userId } }, { new: true });
 
-        const comment = await Comment.findByIdAndUpdate(commentId, { $addToSet: { devotes: userId } } , {new: true});
-
-        if(!comment) {
+        if (!comment) {
             return res.status(404).json({
                 success: false,
                 message: "Comment not found"
-            })
+            });
         }
 
-        const user = await User.findById(userId);
+        const user = await User.findById(userId).populate("username").populate("profilePicture").populate("role");
 
         const newNotification = new Notification({
             userId: userId,
@@ -106,22 +88,25 @@ const devoteComment = async (req , res) => {
 
         await newNotification.save();
 
+        // Populate the userId field in the notification with the required fields
+        const populatedNotification = await Notification.findById(newNotification._id).populate({
+            path: 'userId',
+            select: 'username role profilePicture'
+        });
 
         res.status(200).json({
             success: true,
-            message: "devote has been added to the comment",
+            message: "Devote has been added to the comment",
             comment: comment,
-            notification: newNotification
-        })
-
+            notification: populatedNotification
+        });
     } catch (error) {
-        console.log("Error occured while upvoting: ", error);
+        console.log("Error occurred while devoting the comment: ", error);
         return res.status(500).json({
             success: false,
             message: "Internal server error"
         });
     }
-}
+};
 
-
-export { devotePost, devoteComment};
+export { devotePost, devoteComment };

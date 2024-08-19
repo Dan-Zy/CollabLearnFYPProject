@@ -26,7 +26,7 @@ const sharePost = async (req, res) => {
             });
         }
 
-        if(sharedContent && sharedContent !== ""){
+        if (sharedContent && sharedContent !== "") {
             const contentLength = sharedContent.split(/\s+/).length;
 
             if (contentLength > 500) {
@@ -35,9 +35,7 @@ const sharePost = async (req, res) => {
                     message: "Shared Content length must not exceed 500 words"
                 });
             }
-
         }
-
 
         // Create a new post that references the original post
         const sharedPost = new Post({
@@ -51,12 +49,11 @@ const sharePost = async (req, res) => {
             sharedContent: sharedContent
         });
 
-
         await sharedPost.save();
         await sharedPost.populate('originalAuthor', 'username');
         await Post.findByIdAndUpdate(postId, { $addToSet: { shares: userId } });
 
-        const user = await User.findById(userId);
+        const user = await User.findById(userId).populate("username").populate("profilePicture").populate("role");
 
         const newNotification = new Notification({
             userId: userId,
@@ -66,12 +63,18 @@ const sharePost = async (req, res) => {
 
         await newNotification.save();
 
+        // Populate the userId field in the notification with the required fields
+        const populatedNotification = await Notification.findById(newNotification._id).populate({
+            path: 'userId',
+            select: 'username role profilePicture'
+        });
+
         res.status(200).json({
             success: true,
             message: "Post has been shared",
             post: sharedPost,
             originalAuthorUsername: sharedPost.originalAuthor.username, // Return the username
-            notification: newNotification
+            notification: populatedNotification
         });
     } catch (error) {
         console.log("Error occurred while sharing the post: ", error);

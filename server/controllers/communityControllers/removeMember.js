@@ -40,20 +40,26 @@ const removeMemberFromCommunity = async (req, res) => {
         await community.save();
         await discussionForum.save();
 
-        const user = await User.findById(userId);
+        const user = await User.findById(userId).populate("username").populate("profilePicture").populate("role");
 
         const newNotification = new Notification({
             userId: userId,
             receivers: [memberId],
-            message: `${user.username} has removed you from ${community.communityName} community`,
+            message: `${user.username} has removed you from the ${community.communityName} community`,
         });
     
         await newNotification.save();
 
+        // Populate the userId field in the notification with the required fields
+        const populatedNotification = await Notification.findById(newNotification._id).populate({
+            path: 'userId',
+            select: 'username role profilePicture'
+        });
+
         return res.status(200).json({
             success: true,
             message: "Member has been removed from the community and discussion forum successfully",
-            notification: newNotification
+            notification: populatedNotification
         });
 
     } catch (error) {

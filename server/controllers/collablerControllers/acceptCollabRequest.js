@@ -8,8 +8,8 @@ const acceptCollabRequest = async (req, res) => {
         const reqUserId = req.userId;
 
         // Find the users involved
-        const sendedUser = await User.findById(userId);
-        const receivedUser = await User.findById(reqUserId);
+        const sendedUser = await User.findById(userId).populate("username").populate("profilePicture").populate("role");
+        const receivedUser = await User.findById(reqUserId).populate("username").populate("profilePicture").populate("role");
 
         if (!sendedUser) {
             return res.status(400).json({
@@ -80,12 +80,18 @@ const acceptCollabRequest = async (req, res) => {
     
         await newNotification.save();
 
+        // Populate the userId field in the notification with the required fields
+        const populatedNotification = await Notification.findById(newNotification._id).populate({
+            path: 'userId',
+            select: 'username role profilePicture'
+        });
+
         return res.status(200).json({
             success: true,
             message: "Collab Request has been accepted successfully",
             receivedUser: updatedReceivedUser.collablers,
             sendedUser: updatedSendedUser.collablers,
-            notification: newNotification
+            notification: populatedNotification
         });
 
     } catch (error) {
