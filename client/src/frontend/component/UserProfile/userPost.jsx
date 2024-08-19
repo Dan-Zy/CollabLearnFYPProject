@@ -118,8 +118,43 @@ export function Post(props) {
   const [devote, setDevote] = useState(postdetail.devote);
   const [checkedDevote, setCheckedDevote] = useState(postdetail.userDevoted);
   const [showOptions, setShowOptions] = useState(false);
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [originalAuthorInfo, setOriginalAuthorInfo] = useState(null);
 
-  const handleUpvote = async () => {
+  useEffect(() => {
+    if (postdetail.originalAuthor) {
+      fetchOriginalAuthorInfo(postdetail.originalAuthor);
+    }
+  }, [postdetail.originalAuthor]);
+
+  const fetchOriginalAuthorInfo = async (authorId) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No token found");
+      }
+
+      const response = await axios.get(
+        `http://localhost:3001/collablearn/user/getUser/${authorId}`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      if (response.data) {
+        setOriginalAuthorInfo(response.data.user);
+      } else {
+        throw new Error("Failed to fetch original author info");
+      }
+    } catch (error) {
+      console.error("Error fetching original author info:", error);
+      toast.error("Failed to fetch original author info");
+    }
+  };
+
+  const handleUpvote = async (postId) => {
     const token = localStorage.getItem("token");
     if (!token) {
       toast.error("No token found");
@@ -128,8 +163,8 @@ export function Post(props) {
 
     const updateUpvote = async () => {
       const url = checked
-        ? `http://localhost:3001/collablearn/user/removePostUpvote/${postdetail.postId}`
-        : `http://localhost:3001/collablearn/user/upvotePost/${postdetail.postId}`;
+        ? `http://localhost:3001/collablearn/user/removePostUpvote/${postId}`
+        : `http://localhost:3001/collablearn/user/upvotePost/${postId}`;
       const method = checked ? "put" : "post";
 
       await axios[method](url, {}, {
@@ -147,13 +182,13 @@ export function Post(props) {
     };
 
     toast.promise(updateUpvote(), {
-      pending: 'Processing...',
-      success: 'Upvote updated successfully!',
-      error: 'Failed to update upvote status',
+      pending: "Processing...",
+      success: "Upvote updated successfully!",
+      error: "Failed to update upvote status",
     });
   };
 
-  const handleDevote = async () => {
+  const handleDevote = async (postId) => {
     const token = localStorage.getItem("token");
     if (!token) {
       toast.error("No token found");
@@ -162,8 +197,8 @@ export function Post(props) {
 
     const updateDevote = async () => {
       const url = checkedDevote
-        ? `http://localhost:3001/collablearn/user/removePostDevote/${postdetail.postId}`
-        : `http://localhost:3001/collablearn/user/devotePost/${postdetail.postId}`;
+        ? `http://localhost:3001/collablearn/user/removePostDevote/${postId}`
+        : `http://localhost:3001/collablearn/user/devotePost/${postId}`;
       const method = checkedDevote ? "put" : "post";
 
       await axios[method](url, {}, {
@@ -181,24 +216,24 @@ export function Post(props) {
     };
 
     toast.promise(updateDevote(), {
-      pending: 'Processing...',
-      success: 'Devote updated successfully!',
-      error: 'Failed to update devote status',
+      pending: "Processing...",
+      success: "Devote updated successfully!",
+      error: "Failed to update devote status",
     });
   };
 
-  const handleShare = async () => {
+  const handleShare = async (postId) => {
     const token = localStorage.getItem("token");
     if (!token) {
       toast.error("No token found");
       return;
     }
-    const sharedContent = '';
+    const sharedContent = "";
 
     if (window.confirm("Do you want to share this post?")) {
       const sharePost = async () => {
         const res = await axios.post(
-          `http://localhost:3001/collablearn/user/sharePost/${postdetail.postId}`,
+          `http://localhost:3001/collablearn/user/sharePost/${postId}`,
           { sharedContent },
           {
             headers: {
@@ -213,14 +248,14 @@ export function Post(props) {
       };
 
       toast.promise(sharePost(), {
-        pending: 'Processing...',
-        success: 'Post has been shared successfully!',
-        error: 'Error sharing the post',
+        pending: "Processing...",
+        success: "Post has been shared successfully!",
+        error: "Error sharing the post",
       });
     }
   };
 
-  const handleDeletePost = async () => {
+  const handleDeletePost = async (postId) => {
     const token = localStorage.getItem("token");
     if (!token) {
       toast.error("No token found");
@@ -230,7 +265,7 @@ export function Post(props) {
     if (window.confirm("Do you want to delete this post?")) {
       try {
         const res = await axios.delete(
-          `http://localhost:3001/collablearn/user/deletePost/${postdetail.postId}`,
+          `http://localhost:3001/collablearn/user/deletePost/${postId}`,
           {
             headers: {
               Authorization: `${token}`,
@@ -240,7 +275,7 @@ export function Post(props) {
 
         if (res.data.success) {
           toast.success("Post has been deleted successfully!");
-          props.onDelete(postdetail.postId); // Remove post from UI
+          props.onDelete(postId); // Remove post from UI
         } else {
           toast.error(res.data.message);
         }
@@ -251,7 +286,7 @@ export function Post(props) {
     }
   };
 
-  const handleEditPost = async () => {
+  const handleEditPost = async (postId) => {
     const token = localStorage.getItem("token");
     if (!token) {
       toast.error("No token found");
@@ -261,7 +296,8 @@ export function Post(props) {
     if (window.confirm("Do you want to edit this post?")) {
       try {
         const res = await axios.put(
-          `http://localhost:3001/collablearn/user/editPost/${postdetail.postId}`,
+          `http://localhost:3001/collablearn/user/editPost/${postId}`,
+          {},
           {
             headers: {
               Authorization: `${token}`,
@@ -271,7 +307,6 @@ export function Post(props) {
 
         if (res.data.success) {
           toast.success("Post has been edited successfully!");
-          // You might want to refresh or re-fetch posts after editing
         } else {
           toast.error(res.data.message);
         }
@@ -290,28 +325,42 @@ export function Post(props) {
   };
 
   return (
-    <div className="flex  flex-col w-full sm:w-full md:w-full lg:w-full xl:w-full bg-white shadow-lg rounded-lg p-4 my-4">
-      <div className="flex  items-center border-b border-gray-300 pb-2 mb-4">
+    <div className="flex flex-col w-full sm:w-full md:w-full lg:w-full xl:w-full bg-white shadow-lg rounded-lg p-4 my-4">
+      <div className="flex items-center border-b border-gray-300 pb-2 mb-4">
         <img
           src={postdetail.UserImg}
           className="w-12 h-12 rounded-full border border-indigo-500"
         />
         <div className="ml-4">
           <div className="font-bold flex justify-start text-left items-start text-s">
-            {postdetail.originalAuthor ? (
-              <span className="tooltip ">
+            {postdetail.originalAuthor && originalAuthorInfo ? (
+              <span
+                className="relative tooltip-container"
+                onMouseEnter={() => setTooltipVisible(true)}
+                onMouseLeave={() => setTooltipVisible(false)}
+              >
                 {truncateText(postdetail.name, 15)}
-                <span className="pl-1 pr-1 mt-1.5 text-[9px] opacity-50">{" shared from"}</span>
-                <span className="text-[9px] mt-1.5">{truncateText(postdetail.originalAuthor, 10)}</span>
-                <span className="tooltiptext">
-                  The Original Author {postdetail.originalAuthor}
+                <span className="pl-1 pr-1 mt-1.5 text-[9px] opacity-50">
+                  {" shared from"}
                 </span>
+                <span className="text-[9px] mt-1.5">
+                  {truncateText(originalAuthorInfo.username, 10)}
+                </span>
+
+                {tooltipVisible && originalAuthorInfo && (
+                  <span className="absolute left-0 bottom-full mb-2 w-full bg-indigo-200 text-indigo-500 text-xs rounded py-1 px-2 z-10">
+                    Original Author: {originalAuthorInfo.username} <br />
+                    Email: {originalAuthorInfo.email}
+                  </span>
+                )}
               </span>
             ) : (
               postdetail.name
             )}
           </div>
-          <div className="text-gray-500 text-sm text-left">{postdetail.time}</div>
+          <div className="text-gray-500 text-sm text-left">
+            {postdetail.time}
+          </div>
         </div>
         <div className="ml-auto relative">
           <img
@@ -324,14 +373,14 @@ export function Post(props) {
               <button
                 className="flex w-[5vw] mb-1 h-8 text-center justify-center items-center bg-[#d5deff] text-[#8489d8] hover:bg-gray-200"
                 disabled={!postdetail.isOwner}
-                onClick={handleDeletePost}
+                onClick={() => handleDeletePost(postdetail.postId)}
               >
                 Delete Post
               </button>
               <button
                 className="flex w-[5vw] mb-1 h-8 text-center justify-center items-center bg-[#d5deff] text-[#8489d8] hover:bg-gray-200"
                 disabled={!postdetail.isOwner}
-                onClick={handleEditPost}
+                onClick={() => handleEditPost(postdetail.postId)}
               >
                 Edit Post
               </button>
@@ -346,7 +395,7 @@ export function Post(props) {
             <img
               src={postdetail.img}
               alt=""
-              className="w-full max-w-lg h-[30vh] rounded-lg"
+              className="w-full max-w-[40vw] h-[40vh] rounded-lg"
             />
           </div>
         )}
@@ -355,7 +404,7 @@ export function Post(props) {
             <video
               controls
               src={postdetail.video}
-              className="w-full max-w-lg h-auto rounded-lg"
+              className="w-full max-w-[40vw] h-[40vh] rounded-lg"
             />
           </div>
         )}
@@ -378,7 +427,7 @@ export function Post(props) {
           <img
             src={UV}
             className="w-6 h-6 cursor-pointer"
-            onClick={handleUpvote}
+            onClick={() => handleUpvote(postdetail.postId)}
           />
           <span>{upvote}</span>
         </div>
@@ -386,7 +435,7 @@ export function Post(props) {
           <img
             src={DV}
             className="w-6 h-6 cursor-pointer"
-            onClick={handleDevote}
+            onClick={() => handleDevote(postdetail.postId)}
           />
           <span>{devote}</span>
         </div>
@@ -398,7 +447,7 @@ export function Post(props) {
           <img
             src={share}
             className="w-6 h-6 cursor-pointer"
-            onClick={handleShare}
+            onClick={() => handleShare(postdetail.postId)}
           />
           <span>{postdetail.share}</span>
         </div>

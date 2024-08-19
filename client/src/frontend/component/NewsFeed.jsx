@@ -114,6 +114,41 @@ export function Post(props) {
   const [devote, setDevote] = useState(postdetail.devote);
   const [checkedDevote, setCheckedDevote] = useState(postdetail.userDevoted);
   const [showOptions, setShowOptions] = useState(false);
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [originalAuthorInfo, setOriginalAuthorInfo] = useState(null);
+
+  useEffect(() => {
+    if (postdetail.originalAuthor) {
+      fetchOriginalAuthorInfo(postdetail.originalAuthor);
+    }
+  }, [postdetail.originalAuthor]);
+
+  const fetchOriginalAuthorInfo = async (authorId) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No token found");
+      }
+
+      const response = await axios.get(
+        `http://localhost:3001/collablearn/user/getUser/${authorId}`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      if (response.data) {
+        setOriginalAuthorInfo(response.data.user);
+      } else {
+        throw new Error("Failed to fetch original author info");
+      }
+    } catch (error) {
+      console.error("Error fetching original author info:", error);
+      toast.error("Failed to fetch original author info");
+    }
+  };
 
   const handleUpvote = async (postId) => {
     const token = localStorage.getItem("token");
@@ -121,19 +156,19 @@ export function Post(props) {
       toast.error("No token found");
       return;
     }
-  
+
     const updateUpvote = async () => {
       const url = checked
         ? `http://localhost:3001/collablearn/user/removePostUpvote/${postId}`
         : `http://localhost:3001/collablearn/user/upvotePost/${postId}`;
       const method = checked ? "put" : "post";
-  
+
       await axios[method](url, {}, {
         headers: {
           Authorization: `${token}`,
         },
       });
-  
+
       if (checked) {
         setUpvote(upvote - 1);
       } else {
@@ -141,14 +176,13 @@ export function Post(props) {
       }
       setChecked(!checked);
     };
-  
+
     toast.promise(updateUpvote(), {
-      pending: 'Processing...',
-      success: 'Upvote updated successfully!',
-      error: 'Failed to update upvote status',
+      pending: "Processing...",
+      success: "Upvote updated successfully!",
+      error: "Failed to update upvote status",
     });
   };
-  
 
   const handleDevote = async (postId) => {
     const token = localStorage.getItem("token");
@@ -156,19 +190,19 @@ export function Post(props) {
       toast.error("No token found");
       return;
     }
-  
+
     const updateDevote = async () => {
       const url = checkedDevote
         ? `http://localhost:3001/collablearn/user/removePostDevote/${postId}`
         : `http://localhost:3001/collablearn/user/devotePost/${postId}`;
       const method = checkedDevote ? "put" : "post";
-  
+
       await axios[method](url, {}, {
         headers: {
           Authorization: `${token}`,
         },
       });
-  
+
       if (checkedDevote) {
         setDevote(devote - 1);
       } else {
@@ -176,14 +210,13 @@ export function Post(props) {
       }
       setCheckedDevote(!checkedDevote);
     };
-  
+
     toast.promise(updateDevote(), {
-      pending: 'Processing...',
-      success: 'Devote updated successfully!',
-      error: 'Failed to update devote status',
+      pending: "Processing...",
+      success: "Devote updated successfully!",
+      error: "Failed to update devote status",
     });
   };
-  
 
   const handleShare = async (postId) => {
     const token = localStorage.getItem("token");
@@ -191,8 +224,8 @@ export function Post(props) {
       toast.error("No token found");
       return;
     }
-    const sharedContent = '';
-  
+    const sharedContent = "";
+
     if (window.confirm("Do you want to share this post?")) {
       const sharePost = async () => {
         const res = await axios.post(
@@ -204,20 +237,19 @@ export function Post(props) {
             },
           }
         );
-  
+
         if (!res.data.success) {
           throw new Error(res.data.message);
         }
       };
-  
+
       toast.promise(sharePost(), {
-        pending: 'Processing...',
-        success: 'Post has been shared successfully!',
-        error: 'Error sharing the post',
+        pending: "Processing...",
+        success: "Post has been shared successfully!",
+        error: "Error sharing the post",
       });
     }
   };
-  
 
   const handleDeletePost = async (postId) => {
     const token = localStorage.getItem("token");
@@ -260,7 +292,8 @@ export function Post(props) {
     if (window.confirm("Do you want to edit this post?")) {
       try {
         const res = await axios.put(
-          `http://localhost:3001/collablearn/user/deletePost/${postId}`,
+          `http://localhost:3001/collablearn/user/editPost/${postId}`,
+          {},
           {
             headers: {
               Authorization: `${token}`,
@@ -270,7 +303,6 @@ export function Post(props) {
 
         if (res.data.success) {
           toast.success("Post has been edited successfully!");
-          props.onDelete(postId); // Remove post from UI
         } else {
           toast.error(res.data.message);
         }
@@ -289,7 +321,7 @@ export function Post(props) {
   };
 
   return (
-    <div className="flex flex-col w-full sm:w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 bg-white shadow-lg rounded-lg p-4 my-4">
+    <div className="flex flex-col w-[80%] sm:w-full md:w-full lg:w-[80%] xl:w-[80%] bg-white shadow-lg rounded-lg p-4 my-4">
       <div className="flex items-center border-b border-gray-300 pb-2 mb-4">
         <img
           src={postdetail.UserImg}
@@ -297,20 +329,34 @@ export function Post(props) {
         />
         <div className="ml-4">
           <div className="font-bold flex justify-start text-left items-start text-s">
-            {postdetail.originalAuthor ? (
-              <span className="tooltip ">
+            {postdetail.originalAuthor && originalAuthorInfo ? (
+              <span
+                className="relative tooltip-container"
+                onMouseEnter={() => setTooltipVisible(true)}
+                onMouseLeave={() => setTooltipVisible(false)}
+              >
                 {truncateText(postdetail.name, 15)}
-                <span className="pl-1 pr-1 mt-1.5 text-[9px] opacity-50">{" shared from"}</span>
-                <span className="text-[9px] mt-1.5">{truncateText(postdetail.originalAuthor, 10)}</span>
-                <span className="tooltiptext">
-                  The Original Author {postdetail.originalAuthor}
+                <span className="pl-1 pr-1 mt-1.5 text-[9px] opacity-50">
+                  {" shared from"}
                 </span>
+                <span className="text-[9px] mt-1.5">
+                  {truncateText(originalAuthorInfo.username, 10)}
+                </span>
+
+                {tooltipVisible && originalAuthorInfo && (
+                  <span className="absolute left-0 bottom-full mb-2 w-full bg-indigo-200 text-indigo-500 text-xs rounded py-1 px-2 z-10">
+                    Original Author: {originalAuthorInfo.username} <br />
+                    Email: {originalAuthorInfo.email}
+                  </span>
+                )}
               </span>
             ) : (
               postdetail.name
             )}
           </div>
-          <div className="text-gray-500 text-sm text-left">{postdetail.time}</div>
+          <div className="text-gray-500 text-sm text-left">
+            {postdetail.time}
+          </div>
         </div>
         <div className="ml-auto relative">
           <img
@@ -345,7 +391,7 @@ export function Post(props) {
             <img
               src={postdetail.img}
               alt=""
-              className="w-full max-w-lg h-auto rounded-lg"
+              className="w-full max-w-[50vw] h-[50vh] rounded-lg"
             />
           </div>
         )}
@@ -354,7 +400,7 @@ export function Post(props) {
             <video
               controls
               src={postdetail.video}
-              className="w-full max-w-lg h-auto rounded-lg"
+              className="w-full max-w-[50vw] h-[50vh] rounded-lg"
             />
           </div>
         )}

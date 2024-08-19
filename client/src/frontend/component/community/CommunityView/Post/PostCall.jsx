@@ -107,267 +107,289 @@ export function PostCall({ communityId }) {
 }
 
 export function Post({ postdetail, onDelete }) {
-    const [upvote, setUpvote] = useState(postdetail.upvote);
-    const [checked, setChecked] = useState(postdetail.userUpvoted);
-    const [devote, setDevote] = useState(postdetail.devote);
-    const [checkedDevote, setCheckedDevote] = useState(postdetail.userDevoted);
-    const [showOptions, setShowOptions] = useState(false);
-  
-    const handleUpvote = async (postId) => {
+  const [upvote, setUpvote] = useState(postdetail.upvote);
+  const [checked, setChecked] = useState(postdetail.userUpvoted);
+  const [devote, setDevote] = useState(postdetail.devote);
+  const [checkedDevote, setCheckedDevote] = useState(postdetail.userDevoted);
+  const [showOptions, setShowOptions] = useState(false);
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [originalAuthorInfo, setOriginalAuthorInfo] = useState(null);
+
+  useEffect(() => {
+    if (postdetail.originalAuthor) {
+      fetchOriginalAuthorInfo(postdetail.originalAuthor);
+    }
+  }, [postdetail.originalAuthor]);
+
+  const fetchOriginalAuthorInfo = async (authorId) => {
+    try {
       const token = localStorage.getItem("token");
       if (!token) {
-        toast.error("No token found");
-        return;
+        throw new Error("No token found");
       }
-  
-      const updateUpvote = async () => {
-        const url = checked
-          ? `http://localhost:3001/collablearn/removeCommunityPostUpvote/${postId}`
-          : `http://localhost:3001/collablearn/upvoteCommunityPost/${postId}`;
-        const method = checked ? "put" : "post";
-  
-        await axios[method](url, {}, {
+
+      const response = await axios.get(
+        `http://localhost:3001/collablearn/user/getUser/${authorId}`,
+        {
           headers: {
             Authorization: `${token}`,
           },
-        });
-  
-        if (checked) {
-          setUpvote(upvote - 1);
-        } else {
-          setUpvote(upvote + 1);
         }
-        setChecked(!checked);
-      };
-  
-      toast.promise(updateUpvote(), {
-        pending: 'Processing...',
-        success: 'Upvote updated successfully!',
-        error: 'Failed to update upvote status',
+      );
+
+      if (response.data) {
+        setOriginalAuthorInfo(response.data.user);
+      } else {
+        throw new Error("Failed to fetch original author info");
+      }
+    } catch (error) {
+      console.error("Error fetching original author info:", error);
+      toast.error("Failed to fetch original author info");
+    }
+  };
+
+  const handleUpvote = async (postId) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("No token found");
+      return;
+    }
+
+    const updateUpvote = async () => {
+      const url = checked
+        ? `http://localhost:3001/collablearn/removeCommunityPostUpvote/${postId}`
+        : `http://localhost:3001/collablearn/upvoteCommunityPost/${postId}`;
+      const method = checked ? "put" : "post";
+
+      await axios[method](url, {}, {
+        headers: {
+          Authorization: `${token}`,
+        },
       });
-    };
-  
-    const handleDevote = async (postId) => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        toast.error("No token found");
-        return;
+
+      if (checked) {
+        setUpvote(upvote - 1);
+      } else {
+        setUpvote(upvote + 1);
       }
-  
-      const updateDevote = async () => {
-        const url = checkedDevote
-          ? `http://localhost:3001/collablearn/removePostDevote/${postId}`
-          : `http://localhost:3001/collablearn/devotePost/${postId}`;
-        const method = checkedDevote ? "put" : "post";
-  
-        await axios[method](url, {}, {
-          headers: {
-            Authorization: `${token}`,
-          },
-        });
-  
-        if (checkedDevote) {
-          setDevote(devote - 1);
-        } else {
-          setDevote(devote + 1);
-        }
-        setCheckedDevote(!checkedDevote);
-      };
-  
-      toast.promise(updateDevote(), {
-        pending: 'Processing...',
-        success: 'Devote updated successfully!',
-        error: 'Failed to update devote status',
+      setChecked(!checked);
+    };
+
+    toast.promise(updateUpvote(), {
+      pending: 'Processing...',
+      success: 'Upvote updated successfully!',
+      error: 'Failed to update upvote status',
+    });
+  };
+
+  const handleDevote = async (postId) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("No token found");
+      return;
+    }
+
+    const updateDevote = async () => {
+      const url = checkedDevote
+        ? `http://localhost:3001/collablearn/removePostDevote/${postId}`
+        : `http://localhost:3001/collablearn/devotePost/${postId}`;
+      const method = checkedDevote ? "put" : "post";
+
+      await axios[method](url, {}, {
+        headers: {
+          Authorization: `${token}`,
+        },
       });
+
+      if (checkedDevote) {
+        setDevote(devote - 1);
+      } else {
+        setDevote(devote + 1);
+      }
+      setCheckedDevote(!checkedDevote);
     };
-  
-    const handleShare = async (postId) => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        toast.error("No token found");
-        return;
-      }
-      const sharedContent = '';
-  
-      if (window.confirm("Do you want to share this post?")) {
-        const sharePost = async () => {
-          const res = await axios.post(
-            `http://localhost:3001/collablearn/shareCommunityPost/${postId}`,
-            { sharedContent },
-            {
-              headers: {
-                Authorization: `${token}`,
-              },
-            }
-          );
-  
-          if (!res.data.success) {
-            throw new Error(res.data.message);
+
+    toast.promise(updateDevote(), {
+      pending: 'Processing...',
+      success: 'Devote updated successfully!',
+      error: 'Failed to update devote status',
+    });
+  };
+
+  const handleShare = async (postId) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("No token found");
+      return;
+    }
+    const sharedContent = '';
+
+    if (window.confirm("Do you want to share this post?")) {
+      const sharePost = async () => {
+        const res = await axios.post(
+          `http://localhost:3001/collablearn/shareCommunityPost/${postId}`,
+          { sharedContent },
+          {
+            headers: {
+              Authorization: `${token}`,
+            },
           }
-        };
-  
-        toast.promise(sharePost(), {
-          pending: 'Processing...',
-          success: 'Post has been shared successfully!',
-          error: 'Error sharing the post',
-        });
-      }
-    };
-  
-    const handleDeletePost = async (postId) => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        toast.error("No token found");
-        return;
-      }
-  
-      if (window.confirm("Do you want to delete this post?")) {
-        try {
-          const res = await axios.delete(
-            `http://localhost:3001/collablearn/deleteCommunityPost/${postId}`,
-            {
-              headers: {
-                Authorization: `${token}`,
-              },
-            }
-          );
-  
-          if (res.data.success) {
-            toast.success("Post has been deleted successfully!");
-            onDelete(postId); // Remove post from UI
-          } else {
-            toast.error(res.data.message);
-          }
-        } catch (error) {
-          console.error("Error deleting the post:", error);
-          toast.error("Error deleting the post");
+        );
+
+        if (!res.data.success) {
+          throw new Error(res.data.message);
         }
+      };
+
+      toast.promise(sharePost(), {
+        pending: 'Processing...',
+        success: 'Post has been shared successfully!',
+        error: 'Error sharing the post',
+      });
+    }
+  };
+
+  const handleDeletePost = async (postId) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("No token found");
+      return;
+    }
+
+    if (window.confirm("Do you want to delete this post?")) {
+      try {
+        const res = await axios.delete(
+          `http://localhost:3001/collablearn/deleteCommunityPost/${postId}`,
+          {
+            headers: {
+              Authorization: `${token}`,
+            },
+          }
+        );
+
+        if (res.data.success) {
+          toast.success("Post has been deleted successfully!");
+          onDelete(postId); // Remove post from UI
+        } else {
+          toast.error(res.data.message);
+        }
+      } catch (error) {
+        console.error("Error deleting the post:", error);
+        toast.error("Error deleting the post");
       }
-    };
-  
-    const handleEditPost = async (postId) => {
-    //   const token = localStorage.getItem("token");
-    //   if (!token) {
-    //     toast.error("No token found");
-    //     return;
-    //   }
-  
-    //   if (window.confirm("Do you want to edit this post?")) {
-    //     try {
-    //       const res = await axios.put(
-    //         `http://localhost:3001/collablearn//${postId}`,
-    //         {
-    //           headers: {
-    //             Authorization: `${token}`,
-    //           },
-    //         }
-    //       );
-  
-    //       if (res.data.success) {
-    //         toast.success("Post has been edited successfully!");
-    //         onDelete(postId); // Remove post from UI
-    //       } else {
-    //         toast.error(res.data.message);
-    //       }
-    //     } catch (error) {
-    //       console.error("Error editing the post:", error);
-    //       toast.error("Error editing the post");
-    //     }
-    //   }
-    };
-  
-    const truncateText = (text, maxLength) => {
-      if (text.length > maxLength) {
-        return text.slice(0, maxLength) + "...";
-      }
-      return text;
-    };
-  
-    return (
-      <div className="flex flex-col w-full sm:w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 bg-white shadow-lg rounded-lg p-4 my-4">
-        <div className="flex items-center border-b border-gray-300 pb-2 mb-4">
-          <img
-            src={postdetail.UserImg}
-            className="w-12 h-12 rounded-full border border-indigo-500"
-          />
-          <div className="ml-4">
-            <div className="font-bold flex justify-start text-left items-start text-s">
-              {postdetail.originalAuthor ? (
-                <span className="tooltip ">
-                  {truncateText(postdetail.name, 15)}
-                  <span className="pl-1 pr-1 mt-1.5 text-[9px] opacity-50">{" shared from"}</span>
-                  <span className="text-[9px] mt-1.5">{truncateText(postdetail.originalAuthor, 10)}</span>
-                  <span className="tooltiptext">
-                    The Original Author {postdetail.originalAuthor}
-                  </span>
+    }
+  };
+
+  const handleEditPost = async (postId) => {
+    // The edit functionality placeholder
+  };
+
+  const truncateText = (text, maxLength) => {
+    if (text.length > maxLength) {
+      return text.slice(0, maxLength) + "...";
+    }
+    return text;
+  };
+
+  return (
+    <div className="flex flex-col w-full sm:w-full md:w-full lg:w-full xl:w-full bg-white shadow-lg rounded-lg p-4 my-4">
+      <div className="flex items-center border-b border-gray-300 pb-2 mb-4">
+        <img
+          src={postdetail.UserImg}
+          className="w-12 h-12 rounded-full border border-indigo-500"
+        />
+        <div className="ml-4">
+          <div className="font-bold flex justify-start text-left items-start text-s">
+            {postdetail.originalAuthor && originalAuthorInfo ? (
+              <span
+                className="relative"
+                onMouseEnter={() => setTooltipVisible(true)}
+                onMouseLeave={() => setTooltipVisible(false)}
+              >
+                {truncateText(postdetail.name, 15)}
+                <span className="pl-1 pr-1 mt-1.5 text-[9px] opacity-50">
+                  {" shared from"}
                 </span>
-              ) : (
-                postdetail.name
-              )}
-            </div>
-            <div className="text-gray-500 text-sm text-left">{postdetail.time}</div>
-          </div>
-          <div className="ml-auto relative">
-            <img
-              src={img2}
-              className="w-6 h-6 cursor-pointer"
-              onClick={() => setShowOptions(!showOptions)}
-            />
-            {showOptions && (
-              <div className="absolute right-0.1 mt-1 p-1 text-[10px] border-[#d5deff] border rounded-lg shadow-lg">
-                <button
-                  className="flex w-[5vw] mb-1 h-8 text-center justify-center items-center bg-[#d5deff] text-[#8489d8] hover:bg-gray-200"
-                  disabled={!postdetail.isOwner}
-                  onClick={() => handleDeletePost(postdetail.postId)}
-                >
-                  Delete Post
-                </button>
-                <button
-                  className="flex w-[5vw] mb-1 h-8 text-center justify-center items-center bg-[#d5deff] text-[#8489d8] hover:bg-gray-200"
-                  disabled={!postdetail.isOwner}
-                  onClick={() => handleEditPost(postdetail.postId)}
-                >
-                  Edit Post
-                </button>
-              </div>
+                <span className="text-[9px] mt-1.5">
+                  {truncateText(originalAuthorInfo.username, 10)}
+                </span>
+                {tooltipVisible && (
+                  <div className="absolute left-0 bottom-full mb-2 w-64 bg-indigo-200 text-indigo-500 text-xs rounded py-1 px-2 z-10">
+                    <p><strong>Username:</strong> {originalAuthorInfo.username}</p>
+                    <p><strong>Email:</strong> {originalAuthorInfo.email}</p>
+                    {/* Add any additional information about the original author here */}
+                  </div>
+                )}
+              </span>
+            ) : (
+              postdetail.name
             )}
           </div>
+          <div className="text-gray-500 text-sm text-left">
+            {postdetail.time}
+          </div>
         </div>
-        <div className="mb-4">
-          <div className="text-lg">{postdetail.text}</div>
-          {postdetail.img && (
-            <div className="mt-4 flex justify-center">
-              <img
-                src={postdetail.img}
-                alt=""
-                className="w-full max-w-lg h-auto rounded-lg"
-              />
-            </div>
-          )}
-          {postdetail.video && (
-            <div className="mt-4 flex justify-center">
-              <video
-                controls
-                src={postdetail.video}
-                className="w-full max-w-lg h-auto rounded-lg"
-              />
-            </div>
-          )}
-          {postdetail.document && (
-            <div className="mt-4 flex justify-center">
-              <a
-                href={postdetail.document}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center text-indigo-500 hover:underline"
+        <div className="ml-auto relative">
+          <img
+            src={img2}
+            className="w-6 h-6 cursor-pointer"
+            onClick={() => setShowOptions(!showOptions)}
+          />
+          {showOptions && (
+            <div className="absolute right-0.1 mt-1 p-1 text-[10px] border-[#d5deff] border rounded-lg shadow-lg">
+              <button
+                className="flex w-[5vw] mb-1 h-8 text-center justify-center items-center bg-[#d5deff] text-[#8489d8] hover:bg-gray-200"
+                disabled={!postdetail.isOwner}
+                onClick={() => handleDeletePost(postdetail.postId)}
               >
-                <img src={docImg} alt="Document" className="w-12 h-12" />
-                <div>{postdetail.documentName}</div>
-              </a>
+                Delete Post
+              </button>
+              <button
+                className="flex w-[5vw] mb-1 h-8 text-center justify-center items-center bg-[#d5deff] text-[#8489d8] hover:bg-gray-200"
+                disabled={!postdetail.isOwner}
+                onClick={() => handleEditPost(postdetail.postId)}
+              >
+                Edit Post
+              </button>
             </div>
           )}
         </div>
-        <div className="flex items-center justify-around border-t border-gray-300 pt-2">
+      </div>
+      <div className="mb-4">
+        <div className="text-lg">{postdetail.text}</div>
+        {postdetail.img && (
+          <div className="mt-4 flex justify-center">
+            <img
+              src={postdetail.img}
+              alt=""
+              className="w-full max-w-[40vw] h-[40vh] rounded-lg"
+            />
+          </div>
+        )}
+        {postdetail.video && (
+          <div className="mt-4 flex justify-center">
+            <video
+              controls
+              src={postdetail.video}
+              className="w-full max-w-[40vw] h-[40vh] rounded-lg"
+            />
+          </div>
+        )}
+        {postdetail.document && (
+          <div className="mt-4 flex justify-center">
+            <a
+              href={postdetail.document}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center text-indigo-500 hover:underline"
+            >
+              <img src={docImg} alt="Document" className="w-12 h-12" />
+              <div>{postdetail.documentName}</div>
+            </a>
+          </div>
+        )}
+      </div>
+      <div className="flex items-center justify-around border-t border-gray-300 pt-2">
         <div className="flex items-center space-x-2">
           <img
             src={UV}
@@ -397,8 +419,7 @@ export function Post({ postdetail, onDelete }) {
           <span>{postdetail.share}</span>
         </div>
       </div>
-        <ToastContainer />
-      </div>
-    );
-  }
-  
+      <ToastContainer />
+    </div>
+  );
+}
