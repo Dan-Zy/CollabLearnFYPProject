@@ -24,6 +24,7 @@ import chatRoutes from "./routes/chatRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
 import communityLiveSpaceRoutes from "./routes/communityLiveSpaceRoutes.js";
 import collablerRoutes from "./routes/collablerRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 
 
 /* CONFIGURATIONS */
@@ -93,6 +94,8 @@ const storage = multer.diskStorage({
   app.use("/collablearn", communityLiveSpaceRoutes);
 
   app.use("/collablearn", collablerRoutes);
+
+  app.use("/collablearn", notificationRoutes);
 
 
 

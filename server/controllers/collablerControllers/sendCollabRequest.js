@@ -84,6 +84,7 @@ const sendCollabRequest = async (req, res) => {
             userId: reqUserId,
             receivers: [userId],
             message: `${requestSendUser.username} has sent you a collab request`,
+            type: "Requested"
         });
 
         await newNotification.save();

@@ -122,6 +122,8 @@
 import { DateTime } from "luxon";
 import liveSpaceModel from "../../models/liveSpaceModel.js";
 import fs from "fs";
+import User from './../../models/userModel.js';
+import Notification from './../../models/notificationModel.js';
 
 const createEvent = async (req, res) => {
     try {
@@ -232,11 +234,33 @@ const createEvent = async (req, res) => {
             ? `Scheduled Live Space has been created Successfully and will start at: ${startDateTime} and will end at ${endDateTime}`
             : "Instant Live Space has been created Successfully";
 
+        const user = await User.findById(hostId);
+
+        let message = ``;
+
+        if(type === "Instant"){
+            message = `${user.username} has created an Instant Live Space named as ${newLiveSpace.eventName}`
+        }
+
+        else{
+           message = `${user.username} has created a Scheduled Live Space named as ${newLiveSpace.eventName} starting from ${startDateTime} to ${endDateTime}`
+        }
+
+        const newNotification = new Notification({
+            userId: hostId,
+            receivers: user.collablers,
+            message: message,
+        });
+        
+        await newNotification.save();
+
         return res.status(201).json({
             success: true,
             message: responseMessage,
-            event: newLiveSpace
+            event: newLiveSpace,
+            notification: newNotification
         });
+
     } catch (error) {
         console.log("Error while creating Live Space: ", error);
         return res.status(500).json({
