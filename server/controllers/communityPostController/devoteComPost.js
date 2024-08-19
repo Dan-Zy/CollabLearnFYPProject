@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import CommunityPost from "../../models/communityPostModel.js";
+import Notification from "../../models/notificationModel.js";
+import User from "../../models/userModel.js";
 
 const devoteComPost = async (req , res) => {
     try {
@@ -33,12 +35,23 @@ const devoteComPost = async (req , res) => {
             })
         }
 
+        const user = await User.findById(userId);
+
+        const newNotification = new Notification({
+            userId: userId,
+            receivers: [post.userId],
+            message: `${user.username} has devoted your post`,
+        });
+
+        await newNotification.save();
+
 
         res.status(200).json({
             success: true,
             message: "Devote has been added to the community post",
-            post: post
-        })
+            post: post,
+            notification: newNotification
+        });
 
     } catch (error) {
         console.log("Error occured while upvoting: ", error);

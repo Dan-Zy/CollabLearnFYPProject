@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import CommunityPost from "../../models/communityPostModel.js";
+import Notification from "../../models/notificationModel.js";
+import User from "../../models/userModel.js";
 
 const upvoteComPost = async (req , res) => {
     try {
@@ -40,10 +42,27 @@ const upvoteComPost = async (req , res) => {
         post.upvotes.push(userId);
         await post.save();
 
+        const user = await User.findById(userId);
+
+        const newNotification = new Notification({
+            userId: userId,
+            receivers: [post.userId],
+            message: `${user.username} has upvoted your post`,
+        });
+
+        await newNotification.save();
+
+        // Populate the userId field in the notification with the required fields
+        // const populatedNotification = await Notification.findById(newNotification._id).populate({
+        //     path: 'userId',
+        //     select: 'username role profilePicture'
+        // });
+
         res.status(200).json({
             success: true,
             message: 'Upvote has been added to the community post',
-            post: post
+            post: post,
+            notification: newNotification
         });
 
 

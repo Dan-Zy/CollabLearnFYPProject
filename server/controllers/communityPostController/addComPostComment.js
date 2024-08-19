@@ -2,9 +2,12 @@ import fs from 'fs';
 import mongoose from 'mongoose';
 import { Comment } from '../../models/postModel.js';
 import CommunityPost from '../../models/communityPostModel.js';
+import Notification from '../../models/notificationModel.js';
+import User from '../../models/userModel.js';
 
 export const addComPostComment = async (req, res) => {
     try {
+        const userId = req.userId;
         const { postId } = req.params;
         const { content } = req.body;
         const image = req.file ? req.file.path : "";
@@ -83,10 +86,22 @@ export const addComPostComment = async (req, res) => {
         
         await post.save();
 
+        const user = await User.findById(userId);
+
+        const newNotification = new Notification({
+            userId: userId,
+            receivers: [post.userId],
+            message: `${user.username} has uploaded a comment on your post`,
+        });
+
+        await newNotification.save();
+
+
         res.status(201).json({
             success: true,
             message: "Comment added successfully to the community post",
-            comment: newComment
+            comment: newComment,
+            notification: newNotification
         });
 
     } catch (error) {

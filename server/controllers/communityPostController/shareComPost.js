@@ -80,6 +80,8 @@
 import mongoose from "mongoose";
 import CommunityPost from "../../models/communityPostModel.js";
 import Community from "../../models/communityModel.js";
+import User from "../../models/userModel.js";
+import Notification from "../../models/notificationModel.js";
 
 const shareComPost = async (req, res) => {
     try {
@@ -140,10 +142,21 @@ const shareComPost = async (req, res) => {
         // Update the shares array in the original post
         await CommunityPost.findByIdAndUpdate(postId, { $addToSet: { shares: userId } });
 
+        const user = await User.findById(userId);
+
+        const newNotification = new Notification({
+            userId: userId,
+            receivers: [originalPost.userId],
+            message: `${user.username} has shared your post`,
+        });
+
+        await newNotification.save();
+
         res.status(200).json({
             success: true,
             message: "Post has been shared",
-            post: sharedPost
+            post: sharedPost,
+            notification: newNotification
         });
 
     } catch (error) {

@@ -1,8 +1,12 @@
 import CommunityPost from "../../models/communityPostModel.js";
 import fs from "fs";
+import Community from "../../models/communityModel.js";
+import Notification from "../../models/notificationModel.js";
+import User from "../../models/userModel.js";
 
 export const uploadCommunityPost = async (req, res) => {
     try {
+        const userId = req.userId;
         const { communityId } = req.params;
         const { content } = req.body;
         const image = req.files.image ? req.files.image[0].path : "";
@@ -46,7 +50,6 @@ export const uploadCommunityPost = async (req, res) => {
             }
         }
 
-
         // Document validation
         if (document) {
             const validDocumentFormats = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
@@ -67,7 +70,6 @@ export const uploadCommunityPost = async (req, res) => {
                 });
             }
         }
-
 
         // Video validation
         if (video) {
@@ -107,11 +109,27 @@ export const uploadCommunityPost = async (req, res) => {
 
         await newCommunityPost.save();
 
+        const user = await User.findById(userId);
+        const community = await Community.findById(communityId);
+
+        // Filter out the userId of the post uploader from the community members
+        const receivers = community.members.filter(memberId => !memberId.equals(userId));
+
+        const newNotification = new Notification({
+            userId: userId,
+            receivers: receivers,
+            message: `${user.username} has uploaded a post in Community ${community.communityName}`,
+        });
+
+        await newNotification.save();
+
         res.status(201).json({
             success: true,
-            message: "Post uploaded successfully",
-            post: newCommunityPost
+            message: "Post uploaded successfully in community",
+            post: newCommunityPost,
+            notification: newNotification
         });
+        
     } catch (error) {
         console.error("Error uploading post in community:", error);
         res.status(500).json({
@@ -119,4 +137,4 @@ export const uploadCommunityPost = async (req, res) => {
             message: "Internal Server Error"
         });
     }
-}
+};
