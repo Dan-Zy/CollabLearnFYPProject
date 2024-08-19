@@ -75,6 +75,7 @@ const acceptCollabRequest = async (req, res) => {
             userId: reqUserId,
             receivers: [userId],
             message: `${receivedUser.username} has accepted your collab request`,
+            type: "Requested"
         });
     
         await newNotification.save();
