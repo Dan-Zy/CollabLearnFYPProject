@@ -340,7 +340,7 @@ export function Post(props) {
                   {" shared from"}
                 </span>
                 <span className="text-[9px] mt-1.5">
-                  {truncateText(originalAuthorInfo.username, 10)}
+                  {truncateText(originalAuthorInfo.username, 15)}
                 </span>
 
                 {tooltipVisible && originalAuthorInfo && (

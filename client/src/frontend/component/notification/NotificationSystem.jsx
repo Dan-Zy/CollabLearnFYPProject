@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { Bell } from 'lucide-react';
+import { Bell, Check, X } from 'lucide-react'; // Import tick and cross icons
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 
 export function NotificationSystem() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('requests');
-  const [userInfo, setUserInfo] = useState(null);
-  const [ReqNotifications, setReqNotifications] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [hasUnseen, setHasUnseen] = useState(false);
 
   useEffect(() => {
-    const fetchUserAndNotifications = async () => {
+    const fetchNotifications = async () => {
       const token = localStorage.getItem("token");
       
       if (!token) {
@@ -21,27 +21,47 @@ export function NotificationSystem() {
       try {
         const decodedToken = jwtDecode(token);
 
-        const userInfoResponse = await axios.get(
-          `http://localhost:3001/collablearn/user/getUser/${decodedToken.id}`,
+        const response = await axios.get(
+          `http://localhost:3001/collablearn/getAllNotifications`,
           {
             headers: {
               Authorization: `${token}`,
             },
           }
         );
-       
-        setUserInfo(userInfoResponse.data.user);
-        console.log('====================================');
-        console.log(userInfo.receivedRequests);
-        console.log('====================================');
-        setReqNotifications(userInfoResponse.data.user.receivedRequests); // Ensure that receivedRequests is an array
+        
+        const allNotifications = response.data.data;
+        // Filter notifications into requests and others
+        const reqNotifications = allNotifications.filter(
+          (notification) => notification.type === 'Requested'
+        );
+        const otherNotifications = allNotifications.filter(
+          (notification) => notification.type !== 'Requested'
+        );
+
+        // Check if there are any unseen notifications
+        const unseenRequests = reqNotifications.some(notification => !notification.seen);
+        const unseenOthers = otherNotifications.some(notification => !notification.seen);
+        
+        // Determine which tab to open by default based on unseen notifications
+        if (unseenRequests) {
+          setActiveTab('requests');
+        } else if (unseenOthers) {
+          setActiveTab('others');
+        }
+
+        // Set notifications state
+        setNotifications({ requests: reqNotifications, others: otherNotifications });
+
+        // Set whether there are any unseen notifications overall
+        setHasUnseen(unseenRequests || unseenOthers);
          
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
-    fetchUserAndNotifications();
+    fetchNotifications();
   }, []);
 
   useEffect(() => {
@@ -60,24 +80,33 @@ export function NotificationSystem() {
 
   const handleAccept = (id) => {
     console.log(`Accepted request with id: ${id}`);
-    setReqNotifications(ReqNotifications.filter(notification => notification.id !== id));
+    setNotifications(prev => ({
+      ...prev,
+      requests: prev.requests.filter(notification => notification.id !== id)
+    }));
   };
 
   const handleCancel = (id) => {
     console.log(`Canceled request with id: ${id}`);
-    setReqNotifications(ReqNotifications.filter(notification => notification.id !== id));
+    setNotifications(prev => ({
+      ...prev,
+      requests: prev.requests.filter(notification => notification.id !== id)
+    }));
   };
 
   return (
     <>
-      <button onClick={toggleModal} className="ml-4 p-2 rounded-full hover:bg-gray-200 focus:outline-none">
-        <Bell className="text-gray-600" />
+      <button onClick={toggleModal} className="ml-4 p-2 rounded-full hover:bg-gray-200 focus:outline-none relative">
+        <Bell className={`text-gray-600 ${hasUnseen ? 'text-indigo-500' : ''}`} />
+        {hasUnseen && (
+          <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-indigo-500" />
+        )}
       </button>
 
       {isModalOpen && (
-        <div className="fixed top-0 right-0 m-4 bg-gray-800 bg-opacity-50 flex items-start justify-end z-10" onClick={toggleModal}>
-          <div className="bg-white p-4 border border-indigo-300 rounded-lg shadow-lg w-full max-w-md mx-auto md:max-w-lg" onClick={e => e.stopPropagation()}>
-            <div className="flex flex-col">
+        <div className="fixed top-12 right-4 bg-gray-800 bg-opacity-50 flex items-start justify-end z-10">
+          <div className="bg-white p-4 border border-indigo-300 rounded-lg shadow-lg w-72 h-96" onClick={e => e.stopPropagation()}>
+            <div className="flex flex-col h-full">
               <div className="flex justify-between">
                 <button 
                   className={`flex-1 py-2 ${activeTab === 'requests' ? 'bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-500' : ''} text-sm md:text-base rounded-lg`}
@@ -92,26 +121,48 @@ export function NotificationSystem() {
                   Others
                 </button>
               </div>
-              <div className="mt-4 overflow-auto max-h-60">
-                {activeTab === 'requests' && ReqNotifications.length > 0 ? (
-                  ReqNotifications.map(notification => (
-                    <div key={notification.id} className="flex items-center mb-3">
+              <div className="mt-4 overflow-auto">
+                {activeTab === 'requests' && notifications.requests.length > 0 ? (
+                  notifications.requests.map(notification => (
+                    <div key={notification.id} className="flex items-center text-left m-3 shadow-xl rounded-lg">
+                      <img 
+                        src={`http://localhost:3001/${notification.userId.profilePicture}`} 
+                        alt="Profile" 
+                        className="h-10 w-10 rounded-full mr-3" 
+                      />
                       <div className="text-sm md:text-base flex-1">
-                        <p className="font-bold">{notification} has sent you a collab request</p>
-                      </div>
-                      <div className="flex space-x-2">
+                        <p className="font-bold">{notification.userId.username} has sent you a collab request</p>
+                        <div className="flex m-2 justify-center items-center space-x-2">
                         <button 
                           onClick={() => handleAccept(notification.id)} 
-                          className="bg-green-500 text-white px-2 py-1 rounded-lg text-xs md:text-sm"
+                          className="bg-indigo-200 text-indigo-500 h-7 w-7  rounded-full text-xs md:text-sm flex items-center justify-center"
                         >
-                          Accept
+                          <Check size={16} />
                         </button>
                         <button 
                           onClick={() => handleCancel(notification.id)} 
-                          className="bg-red-500 text-white px-2 py-1 rounded-lg text-xs md:text-sm"
+                          className="bg-red-200 text-red-500  h-7 w-7 rounded-full text-xs md:text-sm flex items-center justify-center"
                         >
-                          Cancel
+                          <X size={16} />
                         </button>
+                      </div>
+                      
+                      </div>
+                      
+                    </div>
+                  ))
+                ) : activeTab === 'requests' ? (
+                  <p className="text-gray-600 text-center">No requests available</p>
+                ) : notifications.others.length > 0 ? (
+                  notifications.others.map(notification => (
+                    <div key={notification.id} className="flex items-left text-left shadow-lg mb-3">
+                      <div className="text-sm md:text-base flex-1">
+                      <img 
+                        src={`http://localhost:3001/${notification.userId.profilePicture}`} 
+                        alt="Profile" 
+                        className="h-10 w-10 rounded-full mr-3" 
+                      />
+                        <p className="font-bold">{notification.message}</p>
                       </div>
                     </div>
                   ))

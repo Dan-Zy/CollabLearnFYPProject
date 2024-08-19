@@ -311,7 +311,7 @@ export function Post({ postdetail, onDelete }) {
                   {" shared from"}
                 </span>
                 <span className="text-[9px] mt-1.5">
-                  {truncateText(originalAuthorInfo.username, 10)}
+                  {truncateText(originalAuthorInfo.username, 15)}
                 </span>
                 {tooltipVisible && (
                   <div className="absolute left-0 bottom-full mb-2 w-64 bg-indigo-200 text-indigo-500 text-xs rounded py-1 px-2 z-10">
