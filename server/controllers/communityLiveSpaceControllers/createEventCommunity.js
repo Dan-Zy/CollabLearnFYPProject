@@ -1,6 +1,8 @@
 import communityLiveSpaceModel from "../../models/communityLiveSpaceModel.js";
 import fs from "fs";
 import Community from './../../models/communityModel.js';
+import User from './../../models/userModel.js';
+import Notification from './../../models/notificationModel.js';
 
 const createEventCommunity = async (req, res) => {
     try {
@@ -87,11 +89,37 @@ const createEventCommunity = async (req, res) => {
 
         await newCommunityLiveSpace.save();
 
+         const responseMessage = type === "Scheduled"
+            ? `Scheduled Live Space has been created Successfully and will start at: ${startDateTime} and will end at ${endDateTime}`
+            : "Instant Live Space has been created Successfully";
+
+        const user = await User.findById(hostId);
+
+        let message = ``;
+
+        if (type === "Instant") {
+            message = `${user.username} has created an Instant Live Space named as ${newCommunityLiveSpace.eventName}`;
+        } else {
+            message = `${user.username} has created a Scheduled Live Space named as ${newCommunityLiveSpace.eventName} starting from ${startDateTime} to ${endDateTime}`;
+        }
+
+        // Filter out the userId of the post uploader from the community members
+        const receivers = community.members.filter(memberId => !memberId.equals(hostId));
+
+        const newNotification = new Notification({
+            userId: hostId,
+            receivers: receivers,
+            message: message,
+        });
+
+        await newNotification.save();
+
 
         return res.status(201).json({
             success: true,
-            message: "Community Instant Live Space has been created successfully",
-            event: newCommunityLiveSpace
+            message: responseMessage,
+            event: newCommunityLiveSpace,
+            notification: newNotification
         });
     } catch (error) {
         console.log("Error while creating Live Space: ", error);
