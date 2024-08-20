@@ -5,6 +5,9 @@ import logo from "../../../assets/MainLogo_White.png";
 
 export default function BasicQuestionFaculty() {
   const [form, setForm] = useState({
+    gender: "",
+    dateOfBirth: "",
+    city: "",
     highestQualification: "",
     lastDegreeMajor: "",
     degree: "",
@@ -14,6 +17,20 @@ export default function BasicQuestionFaculty() {
     researchInterests: [""],
     interestedSubjects: [""],
   });
+
+  const [otherInstitution, setOtherInstitution] = useState(false);
+
+  const institutionsByCity = {
+    Lahore: [
+      "Punjab University",
+      "Lahore University of Management Sciences (LUMS)",
+    ],
+    Gujranwala: ["IISAT", "Punjab University (GRW Campus)", "GIFT University"],
+    Islamabad: [
+      "National University of Sciences and Technology (NUST)",
+      "Quaid-i-Azam University",
+    ],
+  };
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -25,6 +42,12 @@ export default function BasicQuestionFaculty() {
       ...form,
       [name]: value,
     });
+
+    if (name === "currentlyTeachingAt" && value === "Others") {
+      setOtherInstitution(true);
+    } else if (name === "currentlyTeachingAt") {
+      setOtherInstitution(false);
+    }
   };
 
   const handleArrayChange = (e, index, fieldName) => {
@@ -44,8 +67,6 @@ export default function BasicQuestionFaculty() {
   };
 
   const handleSubmit = (e) => {
-    // console.log("Role: ", role);
-    // console.log("Form: ", form);
     e.preventDefault();
     navigate("/SetProfileImage", { state: { userInfo, role, form } });
   };
@@ -82,75 +103,205 @@ export default function BasicQuestionFaculty() {
 
         <div className="w-full max-w-md">
           <form onSubmit={handleSubmit}>
+            {/* Gender Dropdown */}
+            <div className="mb-4">
+              <select
+                name="gender"
+                value={form.gender}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded"
+                required
+              >
+                <option value="" disabled>
+                  Select Gender
+                </option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Others">Others</option>
+              </select>
+            </div>
+
+            {/* Date of Birth */}
             <div className="mb-4">
               <input
-                type="text"
+                type="date"
+                name="dateOfBirth"
+                value={form.dateOfBirth}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded"
+                required
+              />
+            </div>
+
+            {/* City Dropdown */}
+            <div className="mb-4">
+              <select
+                name="city"
+                value={form.city}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded"
+                required
+              >
+                <option value="" disabled>
+                  Select City
+                </option>
+                {Object.keys(institutionsByCity).map((city) => (
+                  <option key={city} value={city}>
+                    {city}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Highest Qualification Dropdown */}
+            <div className="mb-4">
+              <select
                 name="highestQualification"
                 value={form.highestQualification}
                 onChange={handleChange}
-                placeholder="Highest Qualification"
                 className="w-full p-2 border border-gray-300 rounded"
                 required
-              />
+              >
+                <option value="" disabled>
+                  Select Highest Qualification
+                </option>
+                <option value="Masters">Masters</option>
+                <option value="PHD">PHD</option>
+              </select>
             </div>
+
+            {/* Last Degree Major Dropdown */}
             <div className="mb-4">
-              <input
-                type="text"
+              <select
                 name="lastDegreeMajor"
                 value={form.lastDegreeMajor}
                 onChange={handleChange}
-                placeholder="Last Degree Major"
                 className="w-full p-2 border border-gray-300 rounded"
                 required
-              />
+              >
+                <option value="" disabled>
+                  Select Last Degree Major
+                </option>
+                <option value="Computer Science">Computer Science</option>
+              </select>
             </div>
+
+            {/* Degree Dropdown */}
             <div className="mb-4">
-              <input
-                type="text"
+              <select
                 name="degree"
                 value={form.degree}
                 onChange={handleChange}
-                placeholder="Degree"
                 className="w-full p-2 border border-gray-300 rounded"
                 required
-              />
+              >
+                <option value="" disabled>
+                  Select Degree
+                </option>
+                <option value="Computer Science">Computer Science</option>
+                <option value="Software Engineering">
+                  Software Engineering
+                </option>
+                <option value="Data Science">Data Science</option>
+              </select>
             </div>
+
+            {/* Currently Teaching At Dropdown */}
             <div className="mb-4">
-              <input
-                type="text"
+              <select
                 name="currentlyTeachingAt"
                 value={form.currentlyTeachingAt}
                 onChange={handleChange}
-                placeholder="Currently Teaching At"
                 className="w-full p-2 border border-gray-300 rounded"
                 required
-              />
+              >
+                <option value="" disabled>
+                  Select Institution
+                </option>
+                {form.city &&
+                  institutionsByCity[form.city]?.map((institution) => (
+                    <option key={institution} value={institution}>
+                      {institution}
+                    </option>
+                  ))}
+                <option value="Others">Others</option>
+              </select>
             </div>
+
+            {/* Other Institution Input */}
+            {otherInstitution && (
+              <div className="mb-4">
+                <input
+                  type="text"
+                  name="currentlyTeachingAt"
+                  value={form.currentlyTeachingAt}
+                  onChange={handleChange}
+                  placeholder="Enter your institution"
+                  className="w-full p-2 border border-gray-300 rounded"
+                  required
+                />
+              </div>
+            )}
+
+            {/* Academic Position Dropdown */}
             <div className="mb-4">
-              <input
-                type="text"
+              <select
                 name="academicPosition"
                 value={form.academicPosition}
                 onChange={handleChange}
-                placeholder="Academic Position"
                 className="w-full p-2 border border-gray-300 rounded"
                 required
-              />
+              >
+                <option value="" disabled>
+                  Select Academic Position
+                </option>
+                <option value="Lab Instructor">Lab Instructor</option>
+                <option value="Lecturer">Lecturer</option>
+                <option value="Professor">Professor</option>
+                <option value="Associate Professor">Associate Professor</option>
+              </select>
             </div>
-            <p className="text-indigo-300 pt-5 pb-10">
-              ____________________________
-            </p>
+
+            {/* Courses Currently Teaching */}
             {form.coursesCurrentlyTeaching.map((course, index) => (
-              <div className="mb-4 " key={index}>
-                <input
-                  type="text"
+              <div className="mb-4" key={index}>
+                <select
                   value={course}
                   onChange={(e) =>
                     handleArrayChange(e, index, "coursesCurrentlyTeaching")
                   }
-                  placeholder="Course Currently Teaching"
                   className="w-full p-2 border border-gray-300 rounded"
-                />
+                >
+                  <option value="" disabled>
+                    Select Course Currently Teaching
+                  </option>
+                  <option value="Artificial Intelligence">
+                    Artificial Intelligence
+                  </option>
+                  <option value="Machine Learning">Machine Learning</option>
+                  <option value="Database Management Systems">
+                    Database Management Systems
+                  </option>
+                  <option value="Programming Fundamentals">
+                    Programming Fundamentals
+                  </option>
+                  <option value="Data Structures and Algorithms">
+                    Data Structures and Algorithms
+                  </option>
+                  <option value="Object Oriented Programming">
+                    Object Oriented Programming
+                  </option>
+                  <option value="Object Oriented Analysis & Design">
+                    Object Oriented Analysis & Design
+                  </option>
+                  <option value="Software Requirement Engineering">
+                    Software Requirement Engineering
+                  </option>
+                  <option value="Human Computer Interaction">
+                    Human Computer Interaction
+                  </option>
+                  <option value="Others">Others</option>
+                </select>
               </div>
             ))}
             <button
@@ -160,20 +311,33 @@ export default function BasicQuestionFaculty() {
             >
               Add Course
             </button>
-            <p className="text-indigo-300 pt-5 pb-10">
-              ____________________________
-            </p>
+
+            {/* Research Interests */}
             {form.researchInterests.map((interest, index) => (
               <div className="mb-4" key={index}>
-                <input
-                  type="text"
+                <select
                   value={interest}
                   onChange={(e) =>
                     handleArrayChange(e, index, "researchInterests")
                   }
-                  placeholder="Research Interest"
                   className="w-full p-2 border border-gray-300 rounded"
-                />
+                >
+                  <option value="" disabled>
+                    Select Research Interest
+                  </option>
+                  <option value="Artificial Intelligence">
+                    Artificial Intelligence
+                  </option>
+                  <option value="Machine Learning">Machine Learning</option>
+                  <option value="Networking">Networking</option>
+                  <option value="Data Science">Data Science</option>
+                  <option value="Software Development">
+                    Software Development
+                  </option>
+                  <option value="Human Computer Interaction">
+                    Human Computer Interaction
+                  </option>
+                </select>
               </div>
             ))}
             <button
@@ -183,20 +347,33 @@ export default function BasicQuestionFaculty() {
             >
               Add Research Interest
             </button>
-            <p className="text-indigo-300 pt-5 pb-10">
-              ____________________________
-            </p>
+
+            {/* Interested Subjects */}
             {form.interestedSubjects.map((subject, index) => (
               <div className="mb-4" key={index}>
-                <input
-                  type="text"
+                <select
                   value={subject}
                   onChange={(e) =>
                     handleArrayChange(e, index, "interestedSubjects")
                   }
-                  placeholder="Interested Subject"
                   className="w-full p-2 border border-gray-300 rounded"
-                />
+                >
+                  <option value="" disabled>
+                    Select Interested Subject
+                  </option>
+                  <option value="Artificial Intelligence">
+                    Artificial Intelligence
+                  </option>
+                  <option value="Machine Learning">Machine Learning</option>
+                  <option value="Networking">Networking</option>
+                  <option value="Data Science">Data Science</option>
+                  <option value="Software Development">
+                    Software Development
+                  </option>
+                  <option value="Human Computer Interaction">
+                    Human Computer Interaction
+                  </option>
+                </select>
               </div>
             ))}
             <button

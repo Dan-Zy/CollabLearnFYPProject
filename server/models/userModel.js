@@ -70,11 +70,6 @@ const industrialSchema = new mongoose.Schema({
         required: true
     },
 
-    occupation: {
-        type: String,
-        required: true
-    },
-
     designation: {
         type: String,
         required: true
@@ -91,7 +86,7 @@ const industrialSchema = new mongoose.Schema({
     },
 
     yearsOfExperience: {
-        type: Number,
+        type: String,
         required: true
     }
 
@@ -133,11 +128,6 @@ const userSchema = new mongoose.Schema({
         normalizedDate.setUTCHours(0, 0, 0, 0);
         return normalizedDate;
         } 
-    },
-
-    country: {
-        type: String,
-        // required: true,
     },
 
     city: {

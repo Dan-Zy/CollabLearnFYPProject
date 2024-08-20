@@ -118,7 +118,7 @@ import nodemailer from 'nodemailer';
 
     const registerUser = async (req, res) => {
         try {
-            let { username, email, password, gender = "Male", dateOfBirth = "", country = "", city = "", role, bio, isActive, studentDetails, facultyDetails, industrialDetails } = req.body;
+            let { username, email, password, gender, dateOfBirth, city, role, bio, isActive, studentDetails, facultyDetails, industrialDetails } = req.body;
     
             // Validate dateOfBirth format
             if (dateOfBirth) {
@@ -177,7 +177,6 @@ import nodemailer from 'nodemailer';
                 password: hashedPassword,
                 gender,
                 dateOfBirth,
-                country,
                 city,
                 role,
                 profilePicture,
