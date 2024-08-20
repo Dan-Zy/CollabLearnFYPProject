@@ -20,6 +20,8 @@ function CreateEventCard() {
   const [endDate, setEndDate] = useState("");
   const [endTime, setEndTime] = useState("");
   const [genre, setGenre] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSlowInternetWarning, setShowSlowInternetWarning] = useState(false); // New state for slow internet warning
 
   const [showTitle, setShowTitle] = useState(false);
   const [showEventDescription, setShowEventDescription] = useState(false);
@@ -93,6 +95,12 @@ function CreateEventCard() {
       return;
     }
 
+    setIsSubmitting(true); // Set the submission state to true
+
+    const slowInternetTimeout = setTimeout(() => {
+      setShowSlowInternetWarning(true);
+    }, 3000); // Show slow internet warning after 5 seconds
+
     const roomName = `event-${Date.now()}`;
     const jitsiLink = `https://meet.jit.si/${roomName}`;
 
@@ -120,19 +128,14 @@ function CreateEventCard() {
 
     try {
       const token = localStorage.getItem("token");
-      await toast.promise(
-        axios.post("http://localhost:3001/collablearn/createEvent", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `${token}`,
-          },
-        }),
-        {
-          pending: "Creating event...",
-          success: "Event created successfully!",
-          error: "Error creating event. Please try again.",
-        }
-      );
+      await axios.post("http://localhost:3001/collablearn/createEvent", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `${token}`,
+        },
+      });
+
+      clearTimeout(slowInternetTimeout); // Clear the slow internet warning timeout
 
       // Reset all fields after event creation
       setTitle("");
@@ -152,9 +155,13 @@ function CreateEventCard() {
       setShowEndTime(false);
       setShowPoster(false);
       setShowGenre(false);
+      setShowSlowInternetWarning(false);
+      toast.success("Event created successfully");
     } catch (error) {
       console.error("Error creating event:", error);
       toast.error("Error creating event. Please try again.");
+    } finally {
+      setIsSubmitting(false); // Reset the submission state after the process
     }
   };
 
@@ -350,36 +357,42 @@ function CreateEventCard() {
                 className="text-center m-2 h-[5vh] w-[80%] border border-[#7d7dc3] rounded"
               >
                 <option value="" disabled>
-            Select a genre
-          </option>
-          <option value="Artificial Intelligence">
-            Artificial Intelligence
-          </option>
-          <option value="Machine Learning">Machine Learning</option>
-          <option value="Networking">Networking</option>
-          <option value="Human Computer Interaction">
-            Human Computer Interaction
-          </option>
-          <option value="Data Science">Data Science</option>
-          <option value="Software Development">Software Development</option>
-          <option value="Other">Other</option>
+                  Select a genre
+                </option>
+                <option value="Artificial Intelligence">
+                  Artificial Intelligence
+                </option>
+                <option value="Machine Learning">Machine Learning</option>
+                <option value="Networking">Networking</option>
+                <option value="Human Computer Interaction">
+                  Human Computer Interaction
+                </option>
+                <option value="Data Science">Data Science</option>
+                <option value="Software Development">Software Development</option>
+                <option value="Other">Other</option>
               </select>
               {errors.genre && (
                 <p className="text-red-500 text-sm">{errors.genre}</p>
               )}
             </div>
           )}
-
         </fieldset>
         <div className="w-full flex justify-center mt-4">
           <button
             type="submit"
-            className="bg-[#7d7dc3] text-white font-bold py-2 px-4 rounded hover:bg-[#6c6ca7]"
+            disabled={isSubmitting} // Disable the button while submitting
+            className={`bg-indigo-500 w-full text-white py-2 px-4 rounded ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#6c6ca7]'}`}
           >
-            Create Event
+            {isSubmitting ? "In Process..." : "Create Event"}
           </button>
         </div>
       </form>
+
+      {showSlowInternetWarning && (
+        <div className="text-center mt-4 text-red-500">
+          Your internet seems a bit slow. Please stay here while we process your request.
+        </div>
+      )}
 
       <ToastContainer />
     </section>
