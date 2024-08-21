@@ -126,10 +126,10 @@ const postSchema = mongoose.Schema({
         default: ""
     },
 
-    visibility: {
+    postType: {
         type: String,
-        enum: ['Public', 'Private'],
-        default: "Public"   
+        enum: ['General', 'Student', "Faculty", "Industrial"],
+        default: "General"   
     },
 
     createdAt: {

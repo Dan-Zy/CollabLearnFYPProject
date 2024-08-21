@@ -30,7 +30,7 @@ export function CreatePostModal() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    
+
     if (!text.trim()) {
       setTextError("Please write something before submitting."); // Set error message
       return;
@@ -44,15 +44,15 @@ export function CreatePostModal() {
 
     try {
       const result = await query({ text: trimmedText });
-      console.log('API Response:', result);
+      console.log("API Response:", result);
 
       setTimeout(() => {
         if (result.length > 0) {
           let maxScore = -1;
-          let maxLabel = '';
+          let maxLabel = "";
           let toxicWords = [];
 
-          result.forEach(item => {
+          result.forEach((item) => {
             if (item.score > maxScore) {
               maxScore = item.score;
               maxLabel = item.label;
@@ -62,11 +62,17 @@ export function CreatePostModal() {
             }
           });
 
-          if (maxLabel === 'LABEL_0') {
-            toast.success('Post is appropriate. Proceeding with submission.');
+          if (maxLabel === "LABEL_0") {
+            toast.success("Post is appropriate. Proceeding with submission.");
 
             // Proceed with form submission
-            console.log({ text: trimmedText, imageFile, videoFile, pdfFile, privacy });
+            console.log({
+              text: trimmedText,
+              imageFile,
+              videoFile,
+              pdfFile,
+              privacy,
+            });
 
             const formData = new FormData();
             formData.append("content", trimmedText);
@@ -74,46 +80,48 @@ export function CreatePostModal() {
             if (videoFile) formData.append("video", videoFile);
             if (pdfFile) formData.append("document", pdfFile);
 
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem("token");
 
             fetch("http://localhost:3001/collablearn/user/uploadPost", {
               method: "POST",
               headers: {
-                Authorization: `${token}` // or however you store the token
+                Authorization: `${token}`, // or however you store the token
               },
-              body: formData
+              body: formData,
             })
-            .then(response => response.json())
-            .then(data => {
-              if (data.success) {
-                toast.success("Post uploaded successfully");
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  toast.success("Post uploaded successfully");
 
-                setText("");
-                setImageFile(null);
-                setVideoFile(null);
-                setPdfFile(null);
-                setPrivacy("public");
-                setHighlightedText(""); // Reset highlighted text
-                closeModal();
-              } else {
-                toast.error("Failed to upload post: " + data.message);
-              }
-            })
-            .catch(error => {
-              console.error("Error uploading post:", error);
-              toast.error("Error uploading post");
-            });
+                  setText("");
+                  setImageFile(null);
+                  setVideoFile(null);
+                  setPdfFile(null);
+                  setPrivacy("public");
+                  setHighlightedText(""); // Reset highlighted text
+                  closeModal();
+                } else {
+                  toast.error("Failed to upload post: " + data.message);
+                }
+              })
+              .catch((error) => {
+                console.error("Error uploading post:", error);
+                toast.error("Error uploading post");
+              });
           } else {
             const highlighted = highlightToxicWords(trimmedText, toxicWords);
             setHighlightedText(highlighted);
-            toast.error('Toxic content detected in your post. Please revise.');
+            toast.error("Toxic content detected in your post. Please revise.");
           }
         } else {
-          toast.error('There is an issue with the Toxic Word Detection Module. Please try again.');
+          toast.error(
+            "There is an issue with the Toxic Word Detection Module. Please try again."
+          );
         }
       }, 2000); // Wait for 2 seconds
     } catch (error) {
-      console.error('Error querying API:', error);
+      console.error("Error querying API:", error);
       toast.error("Error querying toxic word detection API.");
     } finally {
       setLoading(false); // End loading
@@ -143,10 +151,12 @@ export function CreatePostModal() {
 
   async function query(data) {
     const response = await fetch(
-      'https://api-inference.huggingface.co/models/IMSyPP/hate_speech_en',
+      "https://api-inference.huggingface.co/models/IMSyPP/hate_speech_en",
       {
-        headers: { Authorization: 'Bearer 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' },
-        method: 'POST',
+        headers: {
+          Authorization: "Bearer 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",
+        },
+        method: "POST",
         body: JSON.stringify(data),
       }
     );
@@ -162,9 +172,12 @@ export function CreatePostModal() {
 
   const highlightToxicWords = (text, toxicWords) => {
     let highlighted = text;
-    toxicWords.forEach(word => {
+    toxicWords.forEach((word) => {
       const regex = new RegExp(`(${word})`, "gi");
-      highlighted = highlighted.replace(regex, "<span class='bg-red-200'>$1</span>");
+      highlighted = highlighted.replace(
+        regex,
+        "<span class='bg-red-200'>$1</span>"
+      );
     });
     return highlighted;
   };
@@ -186,10 +199,21 @@ export function CreatePostModal() {
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl relative">
             <div className="flex items-center justify-between border-b pb-2 mb-4">
               <div className="flex items-center">
-                <img src={`http://localhost:3001/${JSON.parse(localStorage.getItem('userInfo'))?.profilePicture}`} alt="User" className="w-10 h-10 rounded-full border border-indigo-400" />
+                <img
+                  src={`http://localhost:3001/${
+                    JSON.parse(localStorage.getItem("userInfo"))?.profilePicture
+                  }`}
+                  alt="User"
+                  className="w-10 h-10 rounded-full border border-indigo-400"
+                />
                 <p className="ml-4 text-lg">Something to write or share?</p>
               </div>
-              <img onClick={closeModal} src={cross} alt="Close" className="w-6 h-6 cursor-pointer" />
+              <img
+                onClick={closeModal}
+                src={cross}
+                alt="Close"
+                className="w-6 h-6 cursor-pointer"
+              />
             </div>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
@@ -200,7 +224,8 @@ export function CreatePostModal() {
                   className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   rows="4"
                 />
-                {textError && <p className="text-red-500">{textError}</p>} {/* Error message */}
+                {textError && <p className="text-red-500">{textError}</p>}{" "}
+                {/* Error message */}
                 <div
                   className="mt-2 text-red-500"
                   dangerouslySetInnerHTML={{ __html: highlightedText }}
@@ -299,14 +324,15 @@ export function CreatePostModal() {
                   <option value="General">General</option>
                   <option value="Student">Student</option>
                   <option value="Faculty">Faculty</option>
-                  <option value="Industrial-Professional">Industrial-Professional</option>
+                  <option value="Industrial">Industrial-Professional</option>
                 </select>
                 <button
                   type="submit"
                   className="py-2 px-4 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600"
                   disabled={loading || !text.trim()} // Disable if loading or text is empty
                 >
-                  {loading ? "Creating Post..." : "Create Post"} {/* Show loading text */}
+                  {loading ? "Creating Post..." : "Create Post"}{" "}
+                  {/* Show loading text */}
                 </button>
               </div>
             </form>

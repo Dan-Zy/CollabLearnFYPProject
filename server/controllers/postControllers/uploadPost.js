@@ -6,7 +6,7 @@ import fs from "fs";
 export const uploadPost = async (req, res) => {
     try {
         const userId = req.userId;
-        const { content } = req.body;
+        const { content, postType } = req.body;
         const image = req.files.image ? req.files.image[0].path : "";
         const document = req.files.document ? req.files.document[0].path : "";
         const video = req.files.video ? req.files.video[0].path : "";
@@ -108,7 +108,7 @@ export const uploadPost = async (req, res) => {
             devotes: [],
             comments: [],
             shares: [],
-            visibility: "Public",
+            postType,
             createdAt: new Date(),
             updatedAt: new Date()
         });
