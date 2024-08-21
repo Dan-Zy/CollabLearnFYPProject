@@ -71,8 +71,7 @@ function GoLiveCard() {
       );
 
       if (response.status === 201) {
-        console.log(response.data.message);
-
+      
         const configOverwrite = {
           startWithAudioMuted: true,
           startWithVideoMuted: false,
@@ -88,8 +87,7 @@ function GoLiveCard() {
           userInfo: { displayName },
         });
 
-        // Show success toast and reset form
-        toast.success("Event created successfully!");
+        // Reset the form
         setRoomName("");
         setEventTitle("");
         setGenre("");
@@ -97,25 +95,38 @@ function GoLiveCard() {
         setPoster(null); // if you add poster upload functionality
         setErrors({}); // Clear any validation errors
       } else {
-        toast.error("Failed to create event");
+          // Reset the form
+          setRoomName("");
+          setEventTitle("");
+          setGenre("");
+          setEventDescription("");
+          setPoster(null); // if you add poster upload functionality
+          setErrors({}); // Clear any validation errors
       }
     } catch (error) {
-      toast.success("Event created successfully!");
-      setRoomName("");
-      setEventTitle("");
-      setGenre("");
-      setEventDescription("");
-      setPoster(null); // if you add poster upload functionality
-      setErrors({}); // Clear any validation errors
-
+        // Reset the form
+        setRoomName("");
+        setEventTitle("");
+        setGenre("");
+        setEventDescription("");
+        setPoster(null); // if you add poster upload functionality
+        setErrors({}); // Clear any validation errors
     } finally {
+        // Reset the form
+        setRoomName("");
+        setEventTitle("");
+        setGenre("");
+        setEventDescription("");
+        setPoster(null); // if you add poster upload functionality
+        setErrors({}); // Clear any validation errors
       setIsSubmitting(false);
+
     }
   };
 
   return (
     <div className="flex flex-col h-[60vh] w-[95%] bg-white shadow-md rounded-lg m-1 p-1 lg:flex-2 sm:flex-1 text-[1vw]">
-      <ToastContainer />
+      <ToastContainer /> {/* Ensure ToastContainer is included */}
       <div className="flex flex-col items-center flex-1">
         <h3 className="text-2xl text-[#7d7dc3] antialiased font-bold m-2">
           Golive

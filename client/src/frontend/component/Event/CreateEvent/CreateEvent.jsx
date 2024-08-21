@@ -10,10 +10,15 @@ function CreateEvent({ onGoBack }) {
     localStorage.setItem('myEventView', 'createEvent');
   }, []);
 
+  const handleBackClick = () => {
+    const suggestions = ['Consider reviewing upcoming events', 'Maybe check out the ongoing events section'];
+    onGoBack(suggestions);
+  };
+
   return (
     <div className="flex flex-col ">
       <div className="flex items-center justify-start w-full pl-2">
-        <button onClick={onGoBack}>
+        <button onClick={handleBackClick}>
           <FontAwesomeIcon icon={faArrowLeft} className="text-indigo-500 text-xl hover:text-indigo-600" />
         </button>
       </div>

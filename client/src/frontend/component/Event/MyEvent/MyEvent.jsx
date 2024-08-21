@@ -50,12 +50,17 @@ function MyEvent({ onGoBack }) {
     }
   };
 
+  const handleBackClick = () => {
+    const suggestions = ['Check your scheduled events', 'Explore new event categories'];
+    onGoBack(suggestions);
+  };
+
   const filteredEvents = events.filter(event => event.hostId._id === userId);
 
   return (
     <div className="flex flex-col justify-center items-center mr-5 ml-5">
       <div className="flex items-center justify-start w-full ">
-        <button onClick={onGoBack}>
+        <button onClick={handleBackClick}>
           <FontAwesomeIcon icon={faArrowLeft} className="text-indigo-500 text-xl hover:text-indigo-600" />
         </button>
       </div>

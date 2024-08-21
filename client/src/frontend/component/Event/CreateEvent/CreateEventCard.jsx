@@ -135,9 +135,8 @@ function CreateEventCard() {
         },
       });
 
-      clearTimeout(slowInternetTimeout); // Clear the slow internet warning timeout
+      clearTimeout(slowInternetTimeout); 
 
-      // Reset all fields after event creation
       setTitle("");
       setEventDescription("");
       setStartDate("");

@@ -15,6 +15,7 @@ function EventCall() {
   const [ongoingEvents, setOngoingEvents] = useState([]);
   const [selectedGenre, setSelectedGenre] = useState(() => localStorage.getItem('eventCallGenre') || '');
   const [searchQuery, setSearchQuery] = useState(() => localStorage.getItem('eventCallSearchQuery') || '');
+  const [suggestions, setSuggestions] = useState([]);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -65,11 +66,8 @@ function EventCall() {
   };
 
   const handleGoBack = () => {
-    const previousView = localStorage.getItem('previousView');
-    if (previousView) {
-      triggerFlashEffect(() => setView(previousView));
-      localStorage.removeItem('previousView'); // Clear previous view to prevent unintended navigation
-    }
+    triggerFlashEffect(() => setView('scheduledEvents'));
+    localStorage.removeItem('previousView'); // Clear previous view to prevent unintended navigation
   };
 
   const handleViewScheduledEventsClick = () => {
@@ -112,6 +110,16 @@ function EventCall() {
         onCreateEvent={handleCreateEventClick}
         onViewEvents={handleViewEventsClick}
       />
+      {suggestions.length > 0 && (
+        <div className="p-4 bg-gray-200 text-center">
+          <p className="text-indigo-600 font-semibold">Suggestions:</p>
+          <ul>
+            {suggestions.map((suggestion, index) => (
+              <li key={index}>{suggestion}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       {view !== 'createEvent' && view !== 'myEvents' && (
         <>
           <nav className="flex justify-center items-center text-center">
