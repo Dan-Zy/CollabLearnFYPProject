@@ -41,16 +41,14 @@ export function CommunityHome() {
           }
         });
         setCommunities(response.data.communities);
+        toast.success("Communities loaded successfully!");
       } catch (error) {
-        console.error("Error fetching communities", error);
+        console.error('Error fetching communities', error);
+        toast.error("Error fetching communities");
       }
     };
 
-    toast.promise(fetchCommunities(), {
-      pending: 'Loading communities...',
-      success: 'Communities loaded successfully!',
-      error: 'Error loading communities'
-    });
+    fetchCommunities();
   }, []);
 
   useEffect(() => {
@@ -178,7 +176,7 @@ export function CommunityHome() {
           communityId={communityId}
           onLeaveCommunity={handleLeaveCommunity}
           onDeleteCommunity={handleDeleteCommunity}
-          onBack={handleBack}  // Passing the onBack function to CommunityViewHome
+          onBack={handleBack}
         />
       )}
     </div>
