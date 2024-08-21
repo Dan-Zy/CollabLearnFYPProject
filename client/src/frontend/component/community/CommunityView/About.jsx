@@ -2,13 +2,17 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import CustomModal from './CustomModal'; // Ensure this path is correct based on where you place the CustomModal
 
 function About({ communityId }) {
-
   const [community, setCommunity] = useState(null);
   const [members, setMembers] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [actionType, setActionType] = useState('');
+  const [memberToRemove, setMemberToRemove] = useState(null);
+
   const [formData, setFormData] = useState({
     communityName: '',
     communityDescription: '',
@@ -23,15 +27,16 @@ function About({ communityId }) {
       try {
         const response = await axios.get(`http://localhost:3001/collablearn/getCommunity/${communityId}`, {
           headers: {
-            'Authorization': `${token}`
+            Authorization: `${token}`
           }
         });
-        setCommunity(response.data.community);
-        setIsAdmin(response.data.community.adminId._id === JSON.parse(localStorage.getItem('userInfo'))._id);
+        const fetchedCommunity = response.data.community;
+        setCommunity(fetchedCommunity);
+        setIsAdmin(fetchedCommunity.adminId._id === JSON.parse(localStorage.getItem('userInfo'))._id);
         setFormData({
-          communityName: response.data.community.communityName,
-          communityDescription: response.data.community.communityDescription,
-          privacy: response.data.community.privacy,
+          communityName: fetchedCommunity.communityName,
+          communityDescription: fetchedCommunity.communityDescription,
+          privacy: fetchedCommunity.privacy,
         });
       } catch (error) {
         console.error('Error fetching community', error);
@@ -42,7 +47,7 @@ function About({ communityId }) {
       try {
         const response = await axios.get(`http://localhost:3001/collablearn/getCommunityMembers/${communityId}`, {
           headers: {
-            'Authorization': `${token}`
+            Authorization: `${token}`
           }
         });
         setMembers(response.data.members);
@@ -63,18 +68,29 @@ function About({ communityId }) {
     });
   };
 
-  const handleRemoveMember = async (memberId) => {
+  const handleRemoveMember = (memberId) => {
+    const member = members.find((m) => m._id === memberId);
+    setMemberToRemove(member);
+    setActionType('remove');
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmRemove = async () => {
     const token = localStorage.getItem('token');
     try {
-      const response = await axios.put(`http://localhost:3001/collablearn/removeMemberFromCommunity/${communityId}/${memberId}`, {}, {
-        headers: {
-          'Authorization': `${token}`
+      const response = await axios.put(
+        `http://localhost:3001/collablearn/removeMemberFromCommunity/${communityId}/${memberToRemove._id}`,
+        {},
+        {
+          headers: {
+            Authorization: `${token}`
+          }
         }
-      });
+      );
       
       if (response.data.success) {
         toast.success('Member removed successfully!');
-        setMembers(members.filter(member => member._id !== memberId)); // Update the members list
+        setMembers(members.filter(member => member._id !== memberToRemove._id));
       } else {
         toast.error('Failed to remove member.');
       }
@@ -82,10 +98,16 @@ function About({ communityId }) {
       console.error('Error removing member', error);
       toast.error('An error occurred while removing the member.');
     }
+    setIsModalOpen(false);
   };
-  
-  const handleSubmit = async (e) => {
+
+  const handleSubmit = (e) => {
     e.preventDefault();
+    setActionType('edit');
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmEdit = async () => {
     const token = localStorage.getItem('token');
     const formDataToSend = new FormData();
     
@@ -95,21 +117,23 @@ function About({ communityId }) {
     if (formData.communityBanner) {
       formDataToSend.append('image', formData.communityBanner);
     }
-
+  
     try {
       const response = await axios.put(`http://localhost:3001/collablearn/updateCommunity/${communityId}`, formDataToSend, {
         headers: {
-          'Authorization': `${token}`,
+          Authorization: `${token}`,
           'Content-Type': 'multipart/form-data',
         }
       });
-
-      // Update the community state immediately after successful update
+  
       setCommunity(response.data.community);
       setEditing(false);
+      toast.success("Community updated successfully!");
     } catch (error) {
       console.error('Error updating community', error);
+      toast.error('An error occurred while updating the community.');
     }
+    setIsModalOpen(false);
   };
 
   if (!community) {
@@ -204,6 +228,15 @@ function About({ communityId }) {
           ))}
         </ul>
       </div>
+
+      <CustomModal
+        isOpen={isModalOpen}
+        onRequestClose={() => setIsModalOpen(false)}
+        onConfirm={actionType === 'remove' ? handleConfirmRemove : handleConfirmEdit}
+        title={actionType === 'remove' ? 'Confirm Remove Member' : 'Confirm Save Changes'}
+        message={actionType === 'remove' ? `Are you sure you want to remove ${memberToRemove?.username}?` : 'Are you sure you want to save these changes?'}
+      />
+      
       <ToastContainer />
     </div>
   );
