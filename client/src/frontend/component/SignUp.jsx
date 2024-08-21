@@ -11,11 +11,32 @@ export function SignUp() {
     email: '',
     password: ''
   });
+  const [passwordStrength, setPasswordStrength] = useState('');
+  const [usernameError, setUsernameError] = useState('');
 
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // Validate username
+    if (name === 'name') {
+      if (value.length <= 2) {
+        setUsernameError('Username must be more than 2 characters');
+      } else {
+        setUsernameError('');
+      }
+    }
+
+    // Validate password
+    if (name === 'password') {
+      if (value.length < 8) {
+        setPasswordStrength('Password is too weak');
+      } else {
+        setPasswordStrength('Password is strong');
+      }
+    }
+
     setUserInfo({
       ...userInfo,
       [name]: value
@@ -24,6 +45,10 @@ export function SignUp() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (passwordStrength !== 'Password is strong' || usernameError) {
+      alert('Please correct the errors before submitting.');
+      return;
+    }
     navigate('/role', { state: { userInfo } });
   };
 
@@ -60,9 +85,10 @@ export function SignUp() {
             placeholder="Enter Your Name"
             value={userInfo.name}
             onChange={handleChange}
-            className="flex justify-center items-center text-center w-80 p-2 mb-4 border border-indigo-600 rounded-full bg-gray-200"
+            className="flex justify-center items-center text-center w-80 p-2 mb-2 border border-indigo-600 rounded-full bg-gray-200"
             required
           />
+          {usernameError && <p className="text-red-600 mb-4">{usernameError}</p>}
           <input
             type="email"
             name="email"
@@ -78,12 +104,13 @@ export function SignUp() {
             placeholder="Enter Your Password"
             value={userInfo.password}
             onChange={handleChange}
-            className="flex justify-center items-center text-center w-80 p-2 mb-4 border border-indigo-600 rounded-full bg-gray-200"
+            className="flex justify-center items-center text-center w-80 p-2 mb-2 border border-indigo-600 rounded-full bg-gray-200"
             required
           />
+          {passwordStrength && <p className={`mb-4 ${passwordStrength === 'Password is strong' ? 'text-green-600' : 'text-red-600'}`}>{passwordStrength}</p>}
           <button
             type="submit"
-            className="flex justify-center items-center text-center w-40 py-2 bg-indigo-600  text-white rounded-full hover:bg-transparent hover:text-indigo-600 border border-indigo-600 transition duration-300"
+            className="flex justify-center items-center text-center w-40 py-2 bg-indigo-600 text-white rounded-full hover:bg-transparent hover:text-indigo-600 border border-indigo-600 transition duration-300"
           >
             Sign Up
           </button>

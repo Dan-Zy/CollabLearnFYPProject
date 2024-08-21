@@ -13,6 +13,7 @@ export default function SetPhotos() {
   const [profilePic, setProfilePic] = useState(null);
   const [coverPhoto, setCoverPhoto] = useState(null);
   const [inProp, setInProp] = useState(true);
+  const [loading, setLoading] = useState(false); // New loading state
 
   const handleProfilePicChange = (event) => {
     const file = event.target.files[0];
@@ -25,6 +26,7 @@ export default function SetPhotos() {
   };
 
   const handleSubmit = async () => {
+    setLoading(true); // Set loading state to true when process starts
     try {
       const formData = new FormData();
       formData.append("username", userInfo.name);
@@ -70,6 +72,8 @@ export default function SetPhotos() {
       }
     } catch (error) {
       console.error("There was an error registering the user!", error);
+    } finally {
+      setLoading(false); // Reset loading state to false when process ends
     }
   };
 
@@ -94,7 +98,7 @@ export default function SetPhotos() {
     <>
       <ToastContainer />
       <CSSTransition in={inProp} timeout={500} classNames="fade" unmountOnExit>
-        <div className="flex flex-col lg:flex-row h-screen">
+        <div className="flex flex-col lg:flex-row w-screen h-screen">
           <div className="flex flex-1 flex-col items-center bg-gradient-to-r from-indigo-600 to-indigo-400 p-2">
             <div>
               <img src={logo} alt="Logo" className="w-1/2 lg:w-1/4" />
@@ -154,8 +158,9 @@ export default function SetPhotos() {
                 type="button"
                 className="w-[70%] m-2 bg-gradient-to-r from-indigo-600 to-indigo-400 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
                 onClick={handleSubmit}
+                disabled={loading} // Disable the button when loading
               >
-                Ready to SignUp
+                {loading ? "Processing..." : "Ready to SignUp"} {/* Change button text based on loading state */}
               </button>
             </div>
           </div>

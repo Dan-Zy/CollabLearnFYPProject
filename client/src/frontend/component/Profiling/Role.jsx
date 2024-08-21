@@ -15,7 +15,7 @@ export default function Role() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row h-screen">
+    <div className="flex flex-col lg:flex-row w-screen h-screen">
       <div className="flex flex-1 flex-col items-center bg-indigo-600 p-2">
         <div className="">
           <img src={logo} alt="Logo" className="w-1/2 lg:w-1/4" />

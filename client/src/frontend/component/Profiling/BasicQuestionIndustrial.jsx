@@ -63,7 +63,7 @@ export default function BasicQuestionIndustrial() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen">
+    <div className="flex flex-col lg:flex-row w-screen min-h-screen">
       <div className="flex flex-1 flex-col items-center bg-gradient-to-r from-indigo-600 to-indigo-400 p-2">
         <div className="mb-5">
           <img src={logo} alt="Logo" className="w-1/2 lg:w-1/4" />

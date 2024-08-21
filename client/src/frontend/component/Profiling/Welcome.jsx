@@ -68,7 +68,7 @@ export default function Welcome() {
 
   return (
     <div
-      className={`flex flex-1 flex-col h-screen justify-center items-center text-center bg-gradient-to-r from-indigo-600 to-indigo-400 transition-opacity duration-1000 ${
+      className={`flex flex-1 flex-col w-screen h-screen justify-center items-center text-center bg-gradient-to-r from-indigo-600 to-indigo-400 transition-opacity duration-1000 ${
         fadeOut ? "opacity-0" : "opacity-100"
       }`}
     >
