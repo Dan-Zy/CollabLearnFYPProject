@@ -4,7 +4,7 @@ import { CommunityHome } from './Community.jsx';
 import EventCall from './Events.jsx';
 
 const SearchResults = ({ query }) => {
-  const [activeTab, setActiveTab] = useState('Posts');
+  const [activeTab, setActiveTab] = useState('Community');
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
