@@ -4,6 +4,7 @@ import createEvent from '../controllers/LiveSpaceControllers/createEvent.js';
 import uploadBanner from "../config/eventMulter.js";
 import getEvents from "../controllers/LiveSpaceControllers/getEvents.js";
 import joinEvent from "../controllers/LiveSpaceControllers/joinEvent.js";
+import getNumberOfParticipants from "../controllers/LiveSpaceControllers/getNumberofParticipants.js";
 
 const router = express.Router();
 
@@ -14,5 +15,7 @@ router.post("/createEvent", verifyToken, uploadBanner.single("image"), createEve
 router.get("/getEvents", verifyToken, getEvents);
 
 router.put("/joinEvent/:eventId", verifyToken, joinEvent);
+
+router.get("/getNumberOfParticipants/:eventId", verifyToken, getNumberOfParticipants);
 
 export default router;
