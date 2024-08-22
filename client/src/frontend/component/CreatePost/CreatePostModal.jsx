@@ -13,7 +13,7 @@ export function CreatePostModal() {
   const [imageFile, setImageFile] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
   const [pdfFile, setPdfFile] = useState(null);
-  const [privacy, setPrivacy] = useState("public");
+  const [privacy, setPrivacy] = useState("General");
   const [loading, setLoading] = useState(false);
   const [highlightedText, setHighlightedText] = useState("");
   const [textError, setTextError] = useState(""); // State to track error message
@@ -88,7 +88,7 @@ export function CreatePostModal() {
                   setImageFile(null);
                   setVideoFile(null);
                   setPdfFile(null);
-                  setPrivacy("public");
+                  setPrivacy("General");
                   setHighlightedText("");
                   closeModal();
                 } else {

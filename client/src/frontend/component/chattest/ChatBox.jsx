@@ -72,6 +72,12 @@ export function ChatBox() {
 
     fetchChats();
     fetchAllUsers();
+
+    // Set interval to fetch chats every 3 seconds
+    const intervalId = setInterval(fetchChats, 3000);
+
+    // Clean up interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   const filteredUsers = allUser.filter(user =>
@@ -87,14 +93,14 @@ export function ChatBox() {
   const displayData = searchTerm ? filteredUsers : filteredChats;
 
   const handleUserClick = async (user) => {
-    console.log('User clicked:', user); // Debug statement
+    console.log('User clicked:', user);
 
     let existingChat = chatBoxData.find(chat => {
       return chat.users && chat.users.some(chatUser => chatUser._id === user._id);
     });
 
     if (existingChat) {
-      console.log('Existing chat found:', existingChat); // Debug statement
+      console.log('Existing chat found:', existingChat);
       setSelectedChat(existingChat);
     } else {
       try {
@@ -115,11 +121,9 @@ export function ChatBox() {
           { userId: user._id },
           config
         );
-          
-        if (data ) {
 
+        if (data) {
           setSelectedChat(data);
-          
         } else {
           console.error('Unexpected response format', data);
         }
@@ -134,9 +138,8 @@ export function ChatBox() {
     setSearchTerm(''); // Reset search term
   };
 
-
   useEffect(() => {
-    console.log('Selected chat updated:', selectedChat); // Debug statement
+    console.log('Selected chat updated:', selectedChat);
   }, [selectedChat]);
 
   return (
@@ -166,10 +169,10 @@ export function ChatBox() {
               className="flex justify-start border-b-2 p-1 border-indigo-100 items-center cursor-pointer"
               onClick={() => {
                 if (item.users) {
-                  console.log('Selecting existing chat:', item); // Debug statement
+                  console.log('Selecting existing chat:', item);
                   setSelectedChat(item);
                 } else {
-                  console.log('Selecting user from search:', item); // Debug statement
+                  console.log('Selecting user from search:', item);
                   handleUserClick(item);
                 }
               }}
