@@ -18,7 +18,7 @@ export default function Welcome() {
         setLoading(false);
         return;
       }
-
+      console.log("hassan");
       const decodedToken = jwt_decode(token);
       try {
         const userInfoResponse = await axios.get(
@@ -62,7 +62,7 @@ export default function Welcome() {
         }`}
       >
         Loading...
-      </div> 
+      </div>
     );
   }
 
