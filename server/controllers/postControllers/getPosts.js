@@ -30,12 +30,13 @@ export const getPosts = async (req, res) => {
             });
         }
 
-        // Filter posts: Only posts from collablers and where the postType is "General" or matches the user's role
+        // Filter posts: Include posts from the user and their collablers, 
+        // and where the postType is "General" or matches the user's role
         const posts = await Post.find({
-            userId: { $in: user.collablers }, // Posts from collablers
             $or: [
-                { postType: 'General' },       // Posts of type "General"
-                { postType: user.role }        // Posts matching the user's role
+                { userId: { $in: [...user.collablers, userId] } },  // Posts from collablers and the user
+                { postType: 'General' },                            // Posts of type "General"
+                { postType: user.role }                             // Posts matching the user's role
             ]
         })
         .populate('userId', 'username profilePicture')

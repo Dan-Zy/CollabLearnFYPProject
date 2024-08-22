@@ -32,13 +32,11 @@ export function CreatePostModal() {
     event.preventDefault();
 
     if (!text.trim()) {
-      setTextError("Please write something before submitting."); // Set error message
+      setTextError("Please write something before submitting.");
       return;
-    } else {
-      setTextError(""); // Clear error message if there is text
     }
 
-    setLoading(true); // Start loading
+    setLoading(true);
 
     const trimmedText = text.trim();
 
@@ -58,34 +56,26 @@ export function CreatePostModal() {
               maxLabel = item.label;
             }
             if (item.label !== "LABEL_0") {
-              toxicWords.push(item.word); // Collect toxic words
+              toxicWords.push(item.word);
             }
           });
 
           if (maxLabel === "LABEL_0") {
-            toast.success("Post is appropriate. Proceeding with submission.");
-
-            // Proceed with form submission
-            console.log({
-              text: trimmedText,
-              imageFile,
-              videoFile,
-              pdfFile,
-              privacy,
-            });
+            // toast.success("Post is appropriate. Proceeding with submission.");
 
             const formData = new FormData();
             formData.append("content", trimmedText);
             if (imageFile) formData.append("image", imageFile);
             if (videoFile) formData.append("video", videoFile);
             if (pdfFile) formData.append("document", pdfFile);
+            formData.append("postType", privacy); // Add this line
 
             const token = localStorage.getItem("token");
 
             fetch("http://localhost:3001/collablearn/user/uploadPost", {
               method: "POST",
               headers: {
-                Authorization: `${token}`, // or however you store the token
+                Authorization: `${token}`,
               },
               body: formData,
             })
@@ -99,7 +89,7 @@ export function CreatePostModal() {
                   setVideoFile(null);
                   setPdfFile(null);
                   setPrivacy("public");
-                  setHighlightedText(""); // Reset highlighted text
+                  setHighlightedText("");
                   closeModal();
                 } else {
                   toast.error("Failed to upload post: " + data.message);
@@ -119,12 +109,12 @@ export function CreatePostModal() {
             "There is an issue with the Toxic Word Detection Module. Please try again."
           );
         }
-      }, 2000); // Wait for 2 seconds
+      }, 2000);
     } catch (error) {
       console.error("Error querying API:", error);
       toast.error("Error querying toxic word detection API.");
     } finally {
-      setLoading(false); // End loading
+      setLoading(false);
     }
   };
 
