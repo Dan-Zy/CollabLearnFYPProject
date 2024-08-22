@@ -11,7 +11,6 @@ import axios from "axios";
 import jwt_decode from "jwt-decode";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-//import './Extra.css';
 
 export function PostCall() {
   const [PostData, setPostData] = useState([]);
@@ -68,7 +67,7 @@ export function PostCall() {
               comment: post.comments?.length || 0,
               userUpvoted: post.upvotes?.includes(userid.id) || false,
               userDevoted: post.devotes?.includes(userid.id) || false,
-              originalAuthor:  post.originalAuthor,
+              originalAuthor: post.originalAuthor,
               shared: !!post.sharedPost,
               isOwner: post.userId?._id === userid.id,
             };
@@ -126,12 +125,15 @@ export function Post(props) {
   const fetchOriginalAuthorInfo = async (authorId) => {
     try {
       const token = localStorage.getItem("token");
+      console.log('====================================');
+      console.log(authorId);
+      console.log('====================================');
       if (!token) {
         throw new Error("No token found");
       }
 
       const response = await axios.get(
-        `http://localhost:3001/collablearn/user/getUser/${authorId}`,
+        `http://localhost:3001/collablearn/user/getUser/${authorId._id}`,
         {
           headers: {
             Authorization: `${token}`,
@@ -157,7 +159,7 @@ export function Post(props) {
       return;
     }
 
-    const updateUpvote = async () => {
+    try {
       const url = checked
         ? `http://localhost:3001/collablearn/user/removePostUpvote/${postId}`
         : `http://localhost:3001/collablearn/user/upvotePost/${postId}`;
@@ -169,19 +171,13 @@ export function Post(props) {
         },
       });
 
-      if (checked) {
-        setUpvote(upvote - 1);
-      } else {
-        setUpvote(upvote + 1);
-      }
+      setUpvote(checked ? upvote - 1 : upvote + 1);
       setChecked(!checked);
-    };
-
-    toast.promise(updateUpvote(), {
-      pending: "Processing...",
-      success: "Upvote updated successfully!",
-      error: "Failed to update upvote status",
-    });
+      toast.success("Upvote updated successfully!");
+    } catch (error) {
+      toast.error("Failed to update upvote status");
+      console.error("Error updating upvote:", error);
+    }
   };
 
   const handleDevote = async (postId) => {
@@ -191,7 +187,7 @@ export function Post(props) {
       return;
     }
 
-    const updateDevote = async () => {
+    try {
       const url = checkedDevote
         ? `http://localhost:3001/collablearn/user/removePostDevote/${postId}`
         : `http://localhost:3001/collablearn/user/devotePost/${postId}`;
@@ -203,19 +199,13 @@ export function Post(props) {
         },
       });
 
-      if (checkedDevote) {
-        setDevote(devote - 1);
-      } else {
-        setDevote(devote + 1);
-      }
+      setDevote(checkedDevote ? devote - 1 : devote + 1);
       setCheckedDevote(!checkedDevote);
-    };
-
-    toast.promise(updateDevote(), {
-      pending: "Processing...",
-      success: "Devote updated successfully!",
-      error: "Failed to update devote status",
-    });
+      toast.success("Devote updated successfully!");
+    } catch (error) {
+      toast.error("Failed to update devote status");
+      console.error("Error updating devote:", error);
+    }
   };
 
   const handleShare = async (postId) => {
@@ -227,7 +217,7 @@ export function Post(props) {
     const sharedContent = "";
 
     if (window.confirm("Do you want to share this post?")) {
-      const sharePost = async () => {
+      try {
         const res = await axios.post(
           `http://localhost:3001/collablearn/user/sharePost/${postId}`,
           { sharedContent },
@@ -238,16 +228,15 @@ export function Post(props) {
           }
         );
 
-        if (!res.data.success) {
+        if (res.data.success) {
+          toast.success("Post shared successfully!");
+        } else {
           throw new Error(res.data.message);
         }
-      };
-
-      toast.promise(sharePost(), {
-        pending: "Processing...",
-        success: "Post has been shared successfully!",
-        error: "Error sharing the post",
-      });
+      } catch (error) {
+        toast.error("Failed to share post");
+        console.error("Error sharing post:", error);
+      }
     }
   };
 
@@ -373,13 +362,7 @@ export function Post(props) {
               >
                 Delete Post
               </button>
-              <button
-                className="flex w-[5vw] mb-1 h-8 text-center justify-center items-center bg-[#d5deff] text-[#8489d8] hover:bg-gray-200"
-                disabled={!postdetail.isOwner}
-                onClick={() => handleEditPost(postdetail.postId)}
-              >
-                Edit Post
-              </button>
+              
             </div>
           )}
         </div>

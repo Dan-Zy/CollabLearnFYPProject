@@ -6,7 +6,7 @@ import jwtDecode from 'jwt-decode';
 export function NotificationSystem() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('requests');
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState({ requests: [], others: [] });
   const [hasUnseen, setHasUnseen] = useState(false);
 
   useEffect(() => {
@@ -32,6 +32,7 @@ export function NotificationSystem() {
         
         const allNotifications = response.data.data;
         // Filter notifications into requests and others
+        allNotifications.sort((a,b) => new Date(b.createdAt)- new Date(a.createdAt))
         const reqNotifications = allNotifications.filter(
           (notification) => notification.type === 'Requested'
         );
@@ -42,27 +43,37 @@ export function NotificationSystem() {
         // Check if there are any unseen notifications
         const unseenRequests = reqNotifications.some(notification => !notification.seen);
         const unseenOthers = otherNotifications.some(notification => !notification.seen);
-        
-        // Determine which tab to open by default based on unseen notifications
-        if (unseenRequests) {
-          setActiveTab('requests');
-        } else if (unseenOthers) {
-          setActiveTab('others');
+
+        // Update the state only if there are changes in unseen notifications or notifications count
+        const hasNewRequests = reqNotifications.length !== notifications.requests.length || unseenRequests !== hasUnseen;
+        const hasNewOthers = otherNotifications.length !== notifications.others.length || unseenOthers !== hasUnseen;
+
+        if (hasNewRequests || hasNewOthers) {
+          // Determine which tab to open by default based on unseen notifications
+          if (unseenRequests) {
+            setActiveTab('requests');
+          } else if (unseenOthers) {
+            setActiveTab('others');
+          }
+
+          // Set notifications state
+          setNotifications({ requests: reqNotifications, others: otherNotifications });
+
+          // Set whether there are any unseen notifications overall
+          setHasUnseen(unseenRequests || unseenOthers);
         }
-
-        // Set notifications state
-        setNotifications({ requests: reqNotifications, others: otherNotifications });
-
-        // Set whether there are any unseen notifications overall
-        setHasUnseen(unseenRequests || unseenOthers);
          
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
-    fetchNotifications();
-  }, []);
+    fetchNotifications(); // Initial fetch
+
+    const intervalId = setInterval(fetchNotifications, 3000); // Fetch every 3 seconds
+
+    return () => clearInterval(intervalId); // Clear interval on component unmount
+  }, [notifications, hasUnseen]);
 
   useEffect(() => {
     if (isModalOpen) {
@@ -121,10 +132,10 @@ export function NotificationSystem() {
                   Others
                 </button>
               </div>
-              <div className="mt-4 overflow-auto">
+              <div className="mt-4 overflow-auto justify-start items-start text-left">
                 {activeTab === 'requests' && notifications.requests.length > 0 ? (
                   notifications.requests.map(notification => (
-                    <div key={notification.id} className="flex items-center text-left m-3 shadow-xl rounded-lg">
+                    <div key={notification.id} className="flex justify-start items-start text-left m-3 shadow-xl rounded-lg">
                       <img 
                         src={`http://localhost:3001/${notification.userId.profilePicture}`} 
                         alt="Profile" 
@@ -133,18 +144,7 @@ export function NotificationSystem() {
                       <div className="text-sm md:text-base flex-1">
                         <p className="font-bold">{notification.userId.username} has sent you a collab request</p>
                         <div className="flex m-2 justify-center items-center space-x-2">
-                        <button 
-                          onClick={() => handleAccept(notification.id)} 
-                          className="bg-indigo-200 text-indigo-500 h-7 w-7  rounded-full text-xs md:text-sm flex items-center justify-center"
-                        >
-                          <Check size={16} />
-                        </button>
-                        <button 
-                          onClick={() => handleCancel(notification.id)} 
-                          className="bg-red-200 text-red-500  h-7 w-7 rounded-full text-xs md:text-sm flex items-center justify-center"
-                        >
-                          <X size={16} />
-                        </button>
+                        
                       </div>
                       
                       </div>
@@ -155,10 +155,10 @@ export function NotificationSystem() {
                   <p className="text-gray-600 text-center">No requests available</p>
                 ) : notifications.others.length > 0 ? (
                   notifications.others.map(notification => (
-                    <div key={notification.id} className="flex items-left text-left shadow-lg mb-3">
-                      <div className="text-sm md:text-base flex-1">
+                    <div key={notification.id} className="flex  justify-start items-start text-left shadow-lg mb-3">
+                      <div className="text-sm md:text-base flex">
                       <img 
-                        src={`http://localhost:3001/${notification.userId.profilePicture}`} 
+                        src={`http://localhost:3001/${notification.userId?.profilePicture}`} 
                         alt="Profile" 
                         className="h-10 w-10 rounded-full mr-3" 
                       />
