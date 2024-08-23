@@ -3,9 +3,7 @@ import cross from "../../../assets/cross_icon1.png";
 import dco from "../../../assets/image (7).png";
 import img from "../../../assets/image_icon.png";
 import emo from "../../../assets/emoji_icon.png";
-import user from "../../../assets/person_icon.png";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Notification from "../SystemNotification";
 
 export function CreatePostModal() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -16,7 +14,8 @@ export function CreatePostModal() {
   const [privacy, setPrivacy] = useState("General");
   const [loading, setLoading] = useState(false);
   const [highlightedText, setHighlightedText] = useState("");
-  const [textError, setTextError] = useState(""); // State to track error message
+  const [textError, setTextError] = useState(""); 
+  const [notification, setNotification] = useState({ message: "", type: "" });
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -26,6 +25,10 @@ export function CreatePostModal() {
   const closeModal = () => {
     setIsModalOpen(false);
     document.body.classList.remove("modal-open");
+  };
+
+  const closeNotification = () => {
+    setNotification({ message: "", type: "" });
   };
 
   const handleSubmit = async (event) => {
@@ -61,14 +64,12 @@ export function CreatePostModal() {
           });
 
           if (maxLabel === "LABEL_0") {
-            // toast.success("Post is appropriate. Proceeding with submission.");
-
             const formData = new FormData();
             formData.append("content", trimmedText);
             if (imageFile) formData.append("image", imageFile);
             if (videoFile) formData.append("video", videoFile);
             if (pdfFile) formData.append("document", pdfFile);
-            formData.append("postType", privacy); // Add this line
+            formData.append("postType", privacy); 
 
             const token = localStorage.getItem("token");
 
@@ -82,7 +83,7 @@ export function CreatePostModal() {
               .then((response) => response.json())
               .then((data) => {
                 if (data.success) {
-                  toast.success("Post uploaded successfully");
+                  setNotification({ message: "Post uploaded successfully", type: "success" });
 
                   setText("");
                   setImageFile(null);
@@ -92,27 +93,25 @@ export function CreatePostModal() {
                   setHighlightedText("");
                   closeModal();
                 } else {
-                  toast.error("Failed to upload post: " + data.message);
+                  setNotification({ message: "Failed to upload post: " + data.message, type: "error" });
                 }
               })
               .catch((error) => {
                 console.error("Error uploading post:", error);
-                toast.error("Error uploading post");
+                setNotification({ message: "Error uploading post", type: "error" });
               });
           } else {
             const highlighted = highlightToxicWords(trimmedText, toxicWords);
             setHighlightedText(highlighted);
-            toast.error("Toxic content detected in your post. Please revise.");
+            setNotification({ message: "Toxic content detected in your post. Please revise.", type: "error" });
           }
         } else {
-          toast.error(
-            "There is an issue with the Toxic Word Detection Module. Please try again."
-          );
+          setNotification({ message: "There is an issue with the Toxic Word Detection Module. Please try again.", type: "error" });
         }
       }, 2000);
     } catch (error) {
       console.error("Error querying API:", error);
-      toast.error("Error querying toxic word detection API.");
+      setNotification({ message: "Error querying toxic word detection API.", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -174,7 +173,13 @@ export function CreatePostModal() {
 
   return (
     <>
-      <ToastContainer />
+      {notification.message && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={closeNotification}
+        />
+      )}
       <button
         className="w-full py-2 px-4 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600"
         onClick={openModal}
@@ -214,8 +219,7 @@ export function CreatePostModal() {
                   className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   rows="4"
                 />
-                {textError && <p className="text-red-500">{textError}</p>}{" "}
-                {/* Error message */}
+                {textError && <p className="text-red-500">{textError}</p>}
                 <div
                   className="mt-2 text-red-500"
                   dangerouslySetInnerHTML={{ __html: highlightedText }}
@@ -319,10 +323,9 @@ export function CreatePostModal() {
                 <button
                   type="submit"
                   className="py-2 px-4 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600"
-                  disabled={loading || !text.trim()} // Disable if loading or text is empty
+                  disabled={loading || !text.trim()} 
                 >
                   {loading ? "Creating Post..." : "Create Post"}{" "}
-                  {/* Show loading text */}
                 </button>
               </div>
             </form>

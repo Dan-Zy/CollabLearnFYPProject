@@ -1,3 +1,4 @@
+// src/components/PostCall/PostCall.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import img from "../../assets/person_icon.png";
@@ -9,12 +10,12 @@ import docImg from "../../assets/pdf_icon.png";
 import Comment from "./Comment/comment";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import Notification from "./SystemNotification"; // Import the Notification component
 
 export function PostCall() {
   const [PostData, setPostData] = useState([]);
   const [error, setError] = useState(null);
+  const [notification, setNotification] = useState({ message: "", type: "" });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,7 +34,7 @@ export function PostCall() {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              'Authorization': `Bearer ${token}`,
+              Authorization: `Bearer ${token}`,
             },
           }
         );
@@ -49,11 +50,17 @@ export function PostCall() {
 
         setPostData(
           data.posts.map((post) => {
-            const documentUrl = post.document ? `http://localhost:3001/${post.document}` : "";
-            const documentName = post.document ? extractDocumentName(post.document) : "";
+            const documentUrl = post.document
+              ? `http://localhost:3001/${post.document}`
+              : "";
+            const documentName = post.document
+              ? extractDocumentName(post.document)
+              : "";
             return {
               postId: post._id,
-              UserImg: post.userId?.profilePicture ? `http://localhost:3001/${post.userId.profilePicture}` : img,
+              UserImg: post.userId?.profilePicture
+                ? `http://localhost:3001/${post.userId.profilePicture}`
+                : img,
               name: post.userId?.username || "Unknown User",
               time: new Date(post.createdAt).toLocaleString(),
               text: post.content,
@@ -73,10 +80,10 @@ export function PostCall() {
             };
           })
         );
-
       } catch (error) {
         console.error("Error fetching posts:", error);
         setError("Error fetching posts");
+        setNotification({ message: "Error fetching posts", type: "error" });
         navigate("/");
       }
     };
@@ -95,16 +102,33 @@ export function PostCall() {
     setPostData(PostData.filter((post) => post.postId !== postId));
   };
 
+  const closeNotification = () => {
+    setNotification({ message: "", type: "" });
+  };
+
   return (
     <div className="flex flex-col items-center justify-center w-full">
+      {notification.message && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={closeNotification}
+        />
+      )}
       {error && <div className="text-red-500">{error}</div>}
+
       {PostData.map((postdetail, index) => (
-        <Post key={index} postdetail={postdetail} onDelete={handleDeletePostFromUI} />
+        <Post
+          key={index}
+          postdetail={postdetail}
+          onDelete={handleDeletePostFromUI}
+          setNotification={setNotification} // Pass the setNotification function to Post component
+        />
       ))}
-      <ToastContainer />
     </div>
   );
 }
+
 
 export function Post(props) {
   const postdetail = props.postdetail;
@@ -125,9 +149,6 @@ export function Post(props) {
   const fetchOriginalAuthorInfo = async (authorId) => {
     try {
       const token = localStorage.getItem("token");
-      console.log('====================================');
-      console.log(authorId);
-      console.log('====================================');
       if (!token) {
         throw new Error("No token found");
       }
@@ -148,14 +169,17 @@ export function Post(props) {
       }
     } catch (error) {
       console.error("Error fetching original author info:", error);
-      toast.error("Failed to fetch original author info");
+      props.setNotification({
+        message: "Failed to fetch original author info",
+        type: "error",
+      });
     }
   };
 
   const handleUpvote = async (postId) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("No token found");
+      props.setNotification({ message: "No token found", type: "error" });
       return;
     }
 
@@ -173,9 +197,15 @@ export function Post(props) {
 
       setUpvote(checked ? upvote - 1 : upvote + 1);
       setChecked(!checked);
-      toast.success("Upvote updated successfully!");
+      props.setNotification({
+        message: "Upvote updated successfully!",
+        type: "success",
+      });
     } catch (error) {
-      toast.error("Failed to update upvote status");
+      props.setNotification({
+        message: "Failed to update upvote status",
+        type: "error",
+      });
       console.error("Error updating upvote:", error);
     }
   };
@@ -183,7 +213,7 @@ export function Post(props) {
   const handleDevote = async (postId) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("No token found");
+      props.setNotification({ message: "No token found", type: "error" });
       return;
     }
 
@@ -201,9 +231,15 @@ export function Post(props) {
 
       setDevote(checkedDevote ? devote - 1 : devote + 1);
       setCheckedDevote(!checkedDevote);
-      toast.success("Devote updated successfully!");
+      props.setNotification({
+        message: "Devote updated successfully!",
+        type: "success",
+      });
     } catch (error) {
-      toast.error("Failed to update devote status");
+      props.setNotification({
+        message: "Failed to update devote status",
+        type: "error",
+      });
       console.error("Error updating devote:", error);
     }
   };
@@ -211,16 +247,15 @@ export function Post(props) {
   const handleShare = async (postId) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("No token found");
+      props.setNotification({ message: "No token found", type: "error" });
       return;
     }
-    const sharedContent = "";
 
     if (window.confirm("Do you want to share this post?")) {
       try {
         const res = await axios.post(
           `http://localhost:3001/collablearn/user/sharePost/${postId}`,
-          { sharedContent },
+          {},
           {
             headers: {
               Authorization: `${token}`,
@@ -229,12 +264,18 @@ export function Post(props) {
         );
 
         if (res.data.success) {
-          toast.success("Post shared successfully!");
+          props.setNotification({
+            message: "Post shared successfully!",
+            type: "success",
+          });
         } else {
           throw new Error(res.data.message);
         }
       } catch (error) {
-        toast.error("Failed to share post");
+        props.setNotification({
+          message: "Failed to share post",
+          type: "error",
+        });
         console.error("Error sharing post:", error);
       }
     }
@@ -243,7 +284,7 @@ export function Post(props) {
   const handleDeletePost = async (postId) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("No token found");
+      props.setNotification({ message: "No token found", type: "error" });
       return;
     }
 
@@ -259,45 +300,23 @@ export function Post(props) {
         );
 
         if (res.data.success) {
-          toast.success("Post has been deleted successfully!");
+          props.setNotification({
+            message: "Post has been deleted successfully!",
+            type: "success",
+          });
           props.onDelete(postId); // Remove post from UI
         } else {
-          toast.error(res.data.message);
+          props.setNotification({
+            message: res.data.message,
+            type: "error",
+          });
         }
       } catch (error) {
         console.error("Error deleting the post:", error);
-        toast.error("Error deleting the post");
-      }
-    }
-  };
-
-  const handleEditPost = async (postId) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("No token found");
-      return;
-    }
-
-    if (window.confirm("Do you want to edit this post?")) {
-      try {
-        const res = await axios.put(
-          `http://localhost:3001/collablearn/user/editPost/${postId}`,
-          {},
-          {
-            headers: {
-              Authorization: `${token}`,
-            },
-          }
-        );
-
-        if (res.data.success) {
-          toast.success("Post has been edited successfully!");
-        } else {
-          toast.error(res.data.message);
-        }
-      } catch (error) {
-        console.error("Error editing the post:", error);
-        toast.error("Error editing the post");
+        props.setNotification({
+          message: "Error deleting the post",
+          type: "error",
+        });
       }
     }
   };
@@ -362,7 +381,6 @@ export function Post(props) {
               >
                 Delete Post
               </button>
-              
             </div>
           )}
         </div>

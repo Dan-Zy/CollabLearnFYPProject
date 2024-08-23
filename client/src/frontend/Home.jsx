@@ -1,3 +1,4 @@
+// MainPage.jsx
 import React, { useState, useEffect } from "react";
 import Header from "./component/Header";
 import Sidebar from "./component/SideBar";

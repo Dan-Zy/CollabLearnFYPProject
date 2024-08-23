@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { PostCall } from './Posts.jsx';
 import { CommunityHome } from './Community.jsx';
 import EventCall from './Events.jsx';
+import { People } from './People.jsx';
 
 const SearchResults = ({ query }) => {
-  const [activeTab, setActiveTab] = useState('Community');
+  const [activeTab, setActiveTab] = useState('Posts');
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -29,7 +30,7 @@ const SearchResults = ({ query }) => {
       </nav>
       <div>
         {activeTab === 'Posts' && <div><PostCall query={query} /></div>}
-        {activeTab === 'People' && <div>People results</div>}
+        {activeTab === 'People' && <div><People query={query} /></div>}
         {activeTab === 'Community' && <div><CommunityHome query={query} /></div>}
         {activeTab === 'Events' && <div><EventCall query={query} /></div>}
       </div>
