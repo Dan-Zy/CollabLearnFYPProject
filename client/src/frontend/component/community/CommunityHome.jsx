@@ -6,8 +6,7 @@ import { GenreSelector } from './GenerSelector';
 import { CommunityCard } from './CommunityCard';
 import CommunityViewHome from './CommunityView/CommunityViewHome';
 import jwt_decode from 'jwt-decode';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import Notification from '../SystemNotification'; // Import Notification
 
 export function CommunityHome() {
   const [activeTab, setActiveTab] = useState(localStorage.getItem('activeTab') || 'joined');
@@ -18,6 +17,7 @@ export function CommunityHome() {
   const [view, setView] = useState('CommunityHome');
   const [communityId, setCommunityId] = useState(null);
   const [flash, setFlash] = useState(false);
+  const [notification, setNotification] = useState({ message: "", type: "" });
 
   useEffect(() => {
     const fetchUserId = () => {
@@ -41,10 +41,10 @@ export function CommunityHome() {
           }
         });
         setCommunities(response.data.communities);
-        toast.success("Communities loaded successfully!");
+        setNotification({ message: "Communities loaded successfully!", type: "success" });
       } catch (error) {
         console.error('Error fetching communities', error);
-        toast.error("Error fetching communities");
+        setNotification({ message: "Error fetching communities", type: "error" });
       }
     };
 
@@ -62,6 +62,10 @@ export function CommunityHome() {
   useEffect(() => {
     localStorage.setItem('selectedGenre', selectedGenre);
   }, [selectedGenre]);
+
+  const closeNotification = () => {
+    setNotification({ message: "", type: "" });
+  };
 
   const handleRemoveCommunity = (communityId) => {
     setCommunities((prevCommunities) => prevCommunities.filter((community) => community._id !== communityId));
@@ -104,10 +108,10 @@ export function CommunityHome() {
       });
       handleRemoveCommunity(communityId);
       setView('CommunityHome');
-      toast.success("You have successfully left the community.");
+      setNotification({ message: "You have successfully left the community.", type: "success" });
     } catch (error) {
       console.error('Error leaving community', error);
-      toast.error("Failed to leave the community.");
+      setNotification({ message: "Failed to leave the community.", type: "error" });
     }
   };
 
@@ -121,10 +125,10 @@ export function CommunityHome() {
       });
       handleRemoveCommunity(communityId);
       setView('CommunityHome');
-      toast.success("Community has been deleted.");
+      setNotification({ message: "Community has been deleted.", type: "success" });
     } catch (error) {
       console.error('Error deleting community', error);
-      toast.error("Failed to delete the community.");
+      setNotification({ message: "Failed to delete the community.", type: "error" });
     }
   };
 
@@ -140,7 +144,13 @@ export function CommunityHome() {
 
   return (
     <div className={`container mx-auto p-4 ${flash ? 'animate-flash' : ''}`}>
-      <ToastContainer />
+      {notification.message && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={closeNotification}
+        />
+      )}
       {view === 'CommunityHome' ? (
         <>
           <div className="flex flex-col items-center">
@@ -182,3 +192,5 @@ export function CommunityHome() {
     </div>
   );
 }
+
+export default CommunityHome;

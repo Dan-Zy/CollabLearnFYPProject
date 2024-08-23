@@ -2,16 +2,15 @@ import React, { useState } from 'react';
 import dco from "../../../../assets/image (7).png";
 import img from "../../../../assets/image_icon.png";
 import emo from "../../../../assets/emoji_icon.png";
+import Notification from '../../SystemNotification'; // Import the Notification component
 
 function PostCard({ communityId, onClose }) {
-  console.log('====================================');
-  console.log({communityId});
-  console.log('====================================');
   const [text, setText] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
   const [pdfFile, setPdfFile] = useState(null);
   const [privacy, setPrivacy] = useState('public');
+  const [notification, setNotification] = useState({ message: "", type: "" }); // Add notification state
 
   const handleFileChange = (event, fileType) => {
     const file = event.target.files[0];
@@ -34,13 +33,17 @@ function PostCard({ communityId, onClose }) {
     }
   };
 
+  const closeNotification = () => {
+    setNotification({ message: "", type: "" });
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const trimmedText = text.trim();
     if (trimmedText) {
       try {
         const token = localStorage.getItem('token');
-
+  
         const formData = new FormData();
         formData.append("content", trimmedText);
         if (imageFile) formData.append("image", imageFile);
@@ -55,27 +58,38 @@ function PostCard({ communityId, onClose }) {
           },
           body: formData
         });
-
+  
         const data = await response.json();
         if (data.success) {
-          alert("Post uploaded successfully");
+          setNotification({ message: "Post uploaded successfully", type: "success" });
+          console.log('Notification set to success:', { message: "Post uploaded successfully", type: "success" });
           setText('');
           setImageFile(null);
           setVideoFile(null);
           setPdfFile(null);
           onClose();
         } else {
-          alert("Failed to upload post: " + data.message);
+          setNotification({ message: "Failed to upload post: " + data.message, type: "error" });
+          console.log('Notification set to error:', { message: "Failed to upload post: " + data.message, type: "error" });
         }
       } catch (error) {
         console.error("Error uploading post:", error);
-        alert("Error uploading post");
+        setNotification({ message: "Error uploading post", type: "error" });
+        console.log('Notification set to error:', { message: "Error uploading post", type: "error" });
       }
     }
   };
+  
 
   return (
     <div className="flex-1 w-[60vw] bg-white p-6 rounded-lg shadow-lg  max-w-2xl">
+      {notification.message && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={closeNotification}
+        />
+      )}
       <form onSubmit={handleSubmit} className='flex-1'>
         <div className="mb-4 ">
           <textarea

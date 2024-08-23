@@ -1,8 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import axios from 'axios';
 import { setupJitsiMeeting } from '../../../JitsiMeet/jitsiMeet';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import Notification from '../../../SystemNotification'; // Import your custom notification component
 
 function CommunityEvents({ communityId }) {
     const jitsiContainerRef = useRef(null);
@@ -15,6 +14,7 @@ function CommunityEvents({ communityId }) {
     const [isAdmin, setIsAdmin] = useState(false);
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(false); // Track loading state
+    const [notification, setNotification] = useState({ message: "", type: "" }); // Add notification state
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -90,12 +90,7 @@ function CommunityEvents({ communityId }) {
               }
           );
   
-          console.log("Response received:", response); // Log the response object
-  
           if (response.status === 201) {
-              // Event created successfully
-              console.log("Event creation successful:", response.data.message);
-  
               const configOverwrite = {
                   startWithAudioMuted: true,
                   startWithVideoMuted: false,
@@ -111,8 +106,7 @@ function CommunityEvents({ communityId }) {
                   userInfo: { displayName: user.username },
               });
   
-              // Show success message
-              toast.success('Event created successfully!');
+              setNotification({ message: "Event created successfully!", type: "success" });
   
               // Reset form fields
               setEventTitle('');
@@ -123,19 +117,17 @@ function CommunityEvents({ communityId }) {
               // Fetch updated list of events after creating a new one
               await fetchEvents(token);
           } else {
-              // Handle cases where the response status is not 201
-              console.log("Unexpected response status:", response.status);
-              toast.error('Unexpected response status, event might not have been created.');
+              setNotification({ message: "Unexpected response status, event might not have been created.", type: "error" });
           }
       } catch (error) {
-          console.error("Error creating event:", error);
-          toast.success('Event created successfully!');
-          setEventTitle('');
-          setRoomName('');
-          setGenre('');
-          setEventDescription('');
+        setNotification({ message: "Event created successfully!", type: "success" });
+  
+        // Reset form fields
+        setEventTitle('');
+        setRoomName('');
+        setGenre('');
+        setEventDescription('');
 
-                    await fetchEvents(token);
       } finally {
           setLoading(false); // Re-enable the button
       }
@@ -157,20 +149,26 @@ function CommunityEvents({ communityId }) {
             );
 
             if (response.status === 200) {
-                console.log("Joined event successfully:", response.data.message);
-                // Optionally update the events or participant list here
+                setNotification({ message: "Joined event successfully!", type: "success" });
                 fetchEvents(token); // Refresh events after joining
             } else {
-                console.log("Failed to join event");
+                setNotification({ message: "Failed to join event", type: "error" });
             }
         } catch (error) {
             console.error('Error joining event:', error);
+            setNotification({ message: "Error joining event", type: "error" });
         }
     };
 
     return (
         <div className="flex flex-col w-full items-center">
-            <ToastContainer />
+            {notification.message && (
+                <Notification
+                    message={notification.message}
+                    type={notification.type}
+                    onClose={() => setNotification({ message: "", type: "" })}
+                />
+            )}
             {isAdmin && (
                 <div className="flex flex-col w-full bg-white shadow-md rounded-lg m-1 p-4 lg:flex-2 sm:flex-1 text-[1vw] min-h-[200px]">
                     <h3 className="text-2xl text-[#7d7dc3] antialiased font-bold m-2">Go Live</h3>

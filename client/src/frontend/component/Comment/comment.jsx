@@ -6,8 +6,7 @@ import send from "../../../assets/send_icon.png";
 import UV from "../../../assets/upvote_icon.png";
 import DV from "../../../assets/devote_icon.png";
 import jwt_decode from "jwt-decode";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import Notification from "../SystemNotification"; 
 
 function Comment({ postId }) {
   const [comments, setComments] = useState([]);
@@ -16,6 +15,7 @@ function Comment({ postId }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showOptions, setShowOptions] = useState(null); 
+  const [notification, setNotification] = useState({ message: "", type: "" }); // Add notification state
 
   const token = localStorage.getItem('token');
   let decodedToken;
@@ -56,6 +56,10 @@ function Comment({ postId }) {
     setIsModalOpen(false);
   };
 
+  const closeNotification = () => {
+    setNotification({ message: "", type: "" });
+  };
+
   const handleCommentChange = (e) => {
     setContent(e.target.value);
   };
@@ -64,7 +68,7 @@ function Comment({ postId }) {
     if (!content.trim()) return;
 
     setIsSubmitting(true);
-    const submitComment = async () => {
+    try {
       await axios.post(
         `http://localhost:3001/collablearn/user/addComment/${postId}`,
         { content },
@@ -76,26 +80,23 @@ function Comment({ postId }) {
       );
       setContent('');
       fetchComments();
-    };
-
-    toast.promise(submitComment(), {
-      pending: 'Posting comment...',
-      success: 'Comment posted successfully!',
-      error: 'Failed to post comment',
-    });
-
-    setIsSubmitting(false);
+      setNotification({ message: "Comment posted successfully!", type: "success" });
+    } catch (error) {
+      setNotification({ message: "Failed to post comment", type: "error" });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleUpvoteComment = async (comment) => {
     if (!token) {
-      toast.error("No token found");
+      setNotification({ message: "No token found", type: "error" });
       return;
     }
 
     const isUpvoted = comment.upvotes.includes(decodedToken.id);
 
-    const updateUpvote = async () => {
+    try {
       const url = isUpvoted
         ? `http://localhost:3001/collablearn/user/removeCommentUpvote/${comment.commentId}`
         : `http://localhost:3001/collablearn/user/upvoteComment/${comment.commentId}`;
@@ -108,24 +109,21 @@ function Comment({ postId }) {
       });
 
       fetchComments();
-    };
-
-    toast.promise(updateUpvote(), {
-      pending: 'Updating upvote...',
-      success: 'Upvote updated successfully!',
-      error: 'Failed to update upvote status',
-    });
+      setNotification({ message: "Upvote updated successfully!", type: "success" });
+    } catch (error) {
+      setNotification({ message: "Failed to update upvote status", type: "error" });
+    }
   };
 
   const handleDevoteComment = async (comment) => {
     if (!token) {
-      toast.error("No token found");
+      setNotification({ message: "No token found", type: "error" });
       return;
     }
 
     const isDevoted = comment.devotes.includes(decodedToken.id);
 
-    const updateDevote = async () => {
+    try {
       const url = isDevoted
         ? `http://localhost:3001/collablearn/user/removeCommentDevote/${comment.commentId}`
         : `http://localhost:3001/collablearn/user/devoteComment/${comment.commentId}`;
@@ -138,30 +136,24 @@ function Comment({ postId }) {
       });
 
       fetchComments();
-    };
-
-    toast.promise(updateDevote(), {
-      pending: 'Updating devote...',
-      success: 'Devote updated successfully!',
-      error: 'Failed to update devote status',
-    });
+      setNotification({ message: "Devote updated successfully!", type: "success" });
+    } catch (error) {
+      setNotification({ message: "Failed to update devote status", type: "error" });
+    }
   };
 
   const handleDeleteComment = async (commentId) => {
-    const deleteComment = async () => {
+    try {
       await axios.delete(`http://localhost:3001/collablearn/user/deleteComment/${commentId}`, {
         headers: {
           'Authorization': `${token}`
         }
       });
       setComments((prevComments) => prevComments.filter(comment => comment.commentId !== commentId));
-    };
-
-    toast.promise(deleteComment(), {
-      pending: 'Deleting comment...',
-      success: 'Comment deleted successfully!',
-      error: 'Failed to delete comment',
-    });
+      setNotification({ message: "Comment deleted successfully!", type: "success" });
+    } catch (error) {
+      setNotification({ message: "Failed to delete comment", type: "error" });
+    }
   };
 
   const toggleOptions = (commentId) => {
@@ -170,6 +162,13 @@ function Comment({ postId }) {
 
   return (
     <>
+      {notification.message && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={closeNotification}
+        />
+      )}
       <img
         src={com}
         className="w-6 h-6 cursor-pointer"
@@ -275,7 +274,6 @@ function Comment({ postId }) {
           </div>
         </div>
       )}
-      <ToastContainer />
     </>
   );
 }

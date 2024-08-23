@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
-import { toast } from "react-toastify";
+import Notification from '../../SystemNotification'; // Import the Notification component
 
 export function CreateCommunity() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -10,7 +10,8 @@ export function CreateCommunity() {
   const [privacy, setPrivacy] = useState('Public');
   const [communityGenre, setGenre] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);  // Add loading state
+  const [isLoading, setIsLoading] = useState(false);
+  const [notification, setNotification] = useState({ message: "", type: "" }); // Add notification state
   const token = localStorage.getItem('token');
 
   useEffect(() => {
@@ -27,13 +28,17 @@ export function CreateCommunity() {
     setIsModalOpen(prev => !prev);
   };
 
+  const closeNotification = () => {
+    setNotification({ message: "", type: "" });
+  };
+
   const handleGenreChange = (selectedGenre) => {
     setGenre(selectedGenre);
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setIsLoading(true);  // Disable button by setting loading state to true
+    setIsLoading(true);
     const formData = new FormData();
     formData.append('communityName', communityName);
     formData.append('communityDescription', communityDescription);
@@ -45,15 +50,13 @@ export function CreateCommunity() {
       const response = await axios.post('http://localhost:3001/collablearn/createCommunity', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'Authorization': `${token}` // Include the token in the Authorization header
+          'Authorization': `${token}`
         },
       });
   
       if (response.status === 201 || response.status === 200) {
-        // Community created successfully
-        toast.success("Community created successfully!");
+        setNotification({ message: "Community created successfully!", type: "success" });
         toggleModal();
-        // Reset form fields
         setCommunityName('');
         setCommunityDescription('');
         setCommunityImage(null);
@@ -61,31 +64,35 @@ export function CreateCommunity() {
         setGenre('');
         setError('');
       } else {
-        // Handle unexpected response status
         setError("Unexpected response from the server.");
         console.error("Unexpected status code:", response.status, response.data);
       }
     } catch (error) {
       if (error.response) {
-        // Server returned a response with a status code other than 2xx
         setError(error.response.data.message || "An error occurred on the server.");
         console.error("Server responded with:", error.response.status, error.response.data);
       } else if (error.request) {
-        // Request was made but no response was received
         setError("No response from the server. Please try again later.");
         console.error("No response received:", error.request);
       } else {
-        // Something else happened in making the request
         setError("An error occurred while creating the community.");
         console.error("Error occurred:", error.message);
       }
+      setNotification({ message: error.message || "An error occurred while creating the community.", type: "error" });
     } finally {
-      setIsLoading(false);  // Re-enable the button after processing is done
+      setIsLoading(false);
     }
   };
   
   return (
     <>
+      {notification.message && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={closeNotification}
+        />
+      )}
       <button onClick={toggleModal} className="bg-indigo-500 text-white px-4 py-2 rounded-full">Create Community</button>
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50" onClick={toggleModal}>

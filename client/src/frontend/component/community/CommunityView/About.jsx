@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import CustomModal from './CustomModal'; // Ensure this path is correct based on where you place the CustomModal
-
+import Notification from '../../SystemNotification'; // Ensure this path is correct
+import CustomModal from './CustomModal'
 function About({ communityId }) {
   const [community, setCommunity] = useState(null);
   const [members, setMembers] = useState([]);
@@ -12,6 +10,7 @@ function About({ communityId }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [actionType, setActionType] = useState('');
   const [memberToRemove, setMemberToRemove] = useState(null);
+  const [notification, setNotification] = useState({ message: "", type: "" });
 
   const [formData, setFormData] = useState({
     communityName: '',
@@ -89,14 +88,14 @@ function About({ communityId }) {
       );
       
       if (response.data.success) {
-        toast.success('Member removed successfully!');
+        setNotification({ message: 'Member removed successfully!', type: 'success' });
         setMembers(members.filter(member => member._id !== memberToRemove._id));
       } else {
-        toast.error('Failed to remove member.');
+        setNotification({ message: 'Failed to remove member.', type: 'error' });
       }
     } catch (error) {
       console.error('Error removing member', error);
-      toast.error('An error occurred while removing the member.');
+      setNotification({ message: 'An error occurred while removing the member.', type: 'error' });
     }
     setIsModalOpen(false);
   };
@@ -128,10 +127,10 @@ function About({ communityId }) {
   
       setCommunity(response.data.community);
       setEditing(false);
-      toast.success("Community updated successfully!");
+      setNotification({ message: "Community updated successfully!", type: "success" });
     } catch (error) {
       console.error('Error updating community', error);
-      toast.error('An error occurred while updating the community.');
+      setNotification({ message: 'An error occurred while updating the community.', type: 'error' });
     }
     setIsModalOpen(false);
   };
@@ -144,6 +143,13 @@ function About({ communityId }) {
 
   return (
     <div className="w-full flex flex-col p-6 bg-gray-50">
+      {notification.message && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification({ message: "", type: "" })}
+        />
+      )}
       <div className="mb-6 p-6 bg-white shadow-md rounded-lg">
         <h2 className="text-2xl font-bold text-indigo-600">About</h2>
         {!editing ? (
@@ -236,8 +242,6 @@ function About({ communityId }) {
         title={actionType === 'remove' ? 'Confirm Remove Member' : 'Confirm Save Changes'}
         message={actionType === 'remove' ? `Are you sure you want to remove ${memberToRemove?.username}?` : 'Are you sure you want to save these changes?'}
       />
-      
-      <ToastContainer />
     </div>
   );
 }

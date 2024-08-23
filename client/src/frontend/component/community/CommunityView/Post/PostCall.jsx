@@ -9,13 +9,13 @@ import docImg from "../../../../../assets/pdf_icon.png";
 import Comment from "../../../Comment/comment";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import Notification from '../../../SystemNotification'; // Adjust the path as necessary
 
 export function PostCall({ communityId }) {
   const [PostData, setPostData] = useState([]);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [notification, setNotification] = useState({ message: "", type: "" });
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -97,11 +97,17 @@ export function PostCall({ communityId }) {
 
   return (
     <div className="flex flex-col items-center justify-center w-full">
+      {notification.message && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification({ message: "", type: "" })}
+        />
+      )}
       {error && <div className="text-red-500">{error}</div>}
       {PostData.map((postdetail, index) => (
         <Post key={index} postdetail={postdetail} onDelete={handleDeletePostFromUI} />
       ))}
-      <ToastContainer />
     </div>
   );
 }
@@ -114,6 +120,7 @@ export function Post({ postdetail, onDelete }) {
   const [showOptions, setShowOptions] = useState(false);
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [originalAuthorInfo, setOriginalAuthorInfo] = useState(null);
+  const [notification, setNotification] = useState({ message: "", type: "" });
 
   useEffect(() => {
     if (postdetail.originalAuthor) {
@@ -144,14 +151,14 @@ export function Post({ postdetail, onDelete }) {
       }
     } catch (error) {
       console.error("Error fetching original author info:", error);
-      toast.error("Failed to fetch original author info");
+      setNotification({ message: "Failed to fetch original author info", type: "error" });
     }
   };
 
   const handleUpvote = async (postId) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("No token found");
+      setNotification({ message: "No token found", type: "error" });
       return;
     }
 
@@ -175,17 +182,19 @@ export function Post({ postdetail, onDelete }) {
       setChecked(!checked);
     };
 
-    toast.promise(updateUpvote(), {
-      pending: 'Processing...',
-      success: 'Upvote updated successfully!',
-      error: 'Failed to update upvote status',
-    });
+    try {
+      setNotification({ message: "Processing...", type: "info" });
+      await updateUpvote();
+      setNotification({ message: "Upvote updated successfully!", type: "success" });
+    } catch (error) {
+      setNotification({ message: "Failed to update upvote status", type: "error" });
+    }
   };
 
   const handleDevote = async (postId) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("No token found");
+      setNotification({ message: "No token found", type: "error" });
       return;
     }
 
@@ -209,26 +218,28 @@ export function Post({ postdetail, onDelete }) {
       setCheckedDevote(!checkedDevote);
     };
 
-    toast.promise(updateDevote(), {
-      pending: 'Processing...',
-      success: 'Devote updated successfully!',
-      error: 'Failed to update devote status',
-    });
+    try {
+      setNotification({ message: "Processing...", type: "info" });
+      await updateDevote();
+      setNotification({ message: "Devote updated successfully!", type: "success" });
+    } catch (error) {
+      setNotification({ message: "Failed to update devote status", type: "error" });
+    }
   };
 
   const handleShare = async (postId) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("No token found");
+      setNotification({ message: "No token found", type: "error" });
       return;
     }
-    const sharedContent = '';
+    const sharedContent = "";
 
     if (window.confirm("Do you want to share this post?")) {
       const sharePost = async () => {
         const res = await axios.post(
           `http://localhost:3001/collablearn/shareCommunityPost/${postId}`,
-          { sharedContent },
+          {}, 
           {
             headers: {
               Authorization: `${token}`,
@@ -241,18 +252,20 @@ export function Post({ postdetail, onDelete }) {
         }
       };
 
-      toast.promise(sharePost(), {
-        pending: 'Processing...',
-        success: 'Post has been shared successfully!',
-        error: 'Error sharing the post',
-      });
+      try {
+        setNotification({ message: "Processing...", type: "info" });
+        await sharePost();
+        setNotification({ message: "Post has been shared successfully!", type: "success" });
+      } catch (error) {
+        setNotification({ message: "Error sharing the post", type: "error" });
+      }
     }
   };
 
   const handleDeletePost = async (postId) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("No token found");
+      setNotification({ message: "No token found", type: "error" });
       return;
     }
 
@@ -268,14 +281,14 @@ export function Post({ postdetail, onDelete }) {
         );
 
         if (res.data.success) {
-          toast.success("Post has been deleted successfully!");
+          setNotification({ message: "Post has been deleted successfully!", type: "success" });
           onDelete(postId); // Remove post from UI
         } else {
-          toast.error(res.data.message);
+          setNotification({ message: res.data.message, type: "error" });
         }
       } catch (error) {
         console.error("Error deleting the post:", error);
-        toast.error("Error deleting the post");
+        setNotification({ message: "Error deleting the post", type: "error" });
       }
     }
   };
@@ -293,6 +306,13 @@ export function Post({ postdetail, onDelete }) {
 
   return (
     <div className="flex flex-col w-full sm:w-full md:w-full lg:w-full xl:w-full bg-white shadow-lg rounded-lg p-4 my-4">
+      {notification.message && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification({ message: "", type: "" })}
+        />
+      )}
       <div className="flex items-center border-b border-gray-300 pb-2 mb-4">
         <img
           src={postdetail.UserImg}
@@ -344,13 +364,7 @@ export function Post({ postdetail, onDelete }) {
               >
                 Delete Post
               </button>
-              <button
-                className="flex w-[5vw] mb-1 h-8 text-center justify-center items-center bg-[#d5deff] text-[#8489d8] hover:bg-gray-200"
-                disabled={!postdetail.isOwner}
-                onClick={() => handleEditPost(postdetail.postId)}
-              >
-                Edit Post
-              </button>
+
             </div>
           )}
         </div>
@@ -419,7 +433,6 @@ export function Post({ postdetail, onDelete }) {
           <span>{postdetail.share}</span>
         </div>
       </div>
-      <ToastContainer />
     </div>
   );
 }
