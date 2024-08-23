@@ -1,25 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 function UserCard({ user, type, onUserClick }) {
-  const [actionState, setActionState] = useState(null);
+  const [actionState, setActionState] = useState(type); // Set initial state based on type
+  const [loading, setLoading] = useState(false); // State to manage loading indicator
+  const [successMessage, setSuccessMessage] = useState(''); // State to manage success message
+  const [errorMessage, setErrorMessage] = useState(''); // State to manage error message
 
   const handleActionClick = async (e, actionType = null) => {
     e.stopPropagation(); // Prevent click event from propagating to the card
+    setLoading(true); // Set loading state to true
+    setSuccessMessage(''); // Clear any previous success message
+    setErrorMessage(''); // Clear any previous error message
+
     let endpoint, method;
 
-    switch (type) {
+    switch (actionState) {
       case 'suggested':
-        endpoint = actionState ? `/removeCollabRequest/${user._id}` : `/sendCollabRequest/${user._id}`;
-        method = actionState ? 'put' : 'post';
+        endpoint = `/sendCollabRequest/${user._id}`;
+        method = 'post';
+        break;
+      case 'undo':
+        endpoint = `/removeCollabRequest/${user._id}`;
+        method = 'put';
         break;
       case 'received':
         if (actionType === 'accepted') {
           endpoint = `/acceptCollabRequest/${user._id}`;
+          method = 'put';
         } else if (actionType === 'declined') {
           endpoint = `/cancelCollabRequest/${user._id}`; // Adjusted endpoint for decline
+          method = 'put';
         }
-        method = 'put';
         break;
       case 'collaborator':
         endpoint = `/deleteCollabler/${user._id}`;
@@ -27,6 +39,7 @@ function UserCard({ user, type, onUserClick }) {
         break;
       default:
         console.error('Unknown type:', type);
+        setLoading(false);
         return;
     }
 
@@ -39,21 +52,53 @@ function UserCard({ user, type, onUserClick }) {
           Authorization: `${token}`,
         },
       });
-      setActionState(!actionState);
+
+      // Update action state after successful request
+      if (actionState === 'suggested') {
+        setActionState('undo'); // Change state to 'undo' after sending request
+      } else if (actionState === 'undo') {
+        setActionState('suggested'); // Change state back to 'suggested' after undoing
+      } else if (actionState === 'received') {
+        setActionState(actionType === 'accepted' ? 'collaborator' : 'suggested');
+      } else if (actionState === 'collaborator') {
+        setActionState('suggested');
+      }
+
+      setSuccessMessage('Action successful!'); // Set success message
     } catch (error) {
       console.error(`Error handling action for type ${type}:`, error);
+      setErrorMessage('Action failed. Please try again.'); // Set error message
+      // Revert the state change if there's an error
+      if (actionState === 'undo') {
+        setActionState('undo'); // Keep it as 'undo' if undo action fails
+      } else if (actionState === 'suggested') {
+        setActionState('suggested'); // Keep it as 'suggested' if sending request fails
+      }
+    } finally {
+      setLoading(false); // Set loading state to false
     }
   };
 
   const renderButton = () => {
-    switch (type) {
+    switch (actionState) {
       case 'suggested':
         return (
           <button 
-            className={`bg-indigo-500 text-white px-4 py-1 rounded-full mt-2 ${actionState ? 'bg-indigo-300' : ''}`} 
+            className="bg-indigo-500 text-white px-4 py-1 rounded-full mt-2"
             onClick={handleActionClick}  // Call the handler with the event
+            disabled={loading} // Disable button when loading
           >
-            {actionState ? 'Undo' : 'Send Request'}
+            {loading ? 'Processing...' : 'Send Request'}
+          </button>
+        );
+      case 'undo':
+        return (
+          <button 
+            className="bg-indigo-300 text-white px-4 py-1 rounded-full mt-2"
+            onClick={handleActionClick}  // Call the handler with the event
+            disabled={loading} // Disable button when loading
+          >
+            {loading ? 'Processing...' : 'Undo'}
           </button>
         );
       case 'received':
@@ -62,14 +107,16 @@ function UserCard({ user, type, onUserClick }) {
             <button
               onClick={(e) => { handleActionClick(e, 'accepted'); }}  // Call the handler with "accepted" action
               className="bg-indigo-500 text-white px-4 py-1 rounded-full"
+              disabled={loading} // Disable button when loading
             >
-              Accept
+              {loading ? 'Processing...' : 'Accept'}
             </button>
             <button
               onClick={(e) => { handleActionClick(e, 'declined'); }}  // Call the handler with "declined" action
               className="bg-red-500 text-white px-4 py-1 rounded-full"
+              disabled={loading} // Disable button when loading
             >
-              Decline
+              {loading ? 'Processing...' : 'Decline'}
             </button>
           </div>
         );
@@ -78,8 +125,9 @@ function UserCard({ user, type, onUserClick }) {
           <button 
             className="bg-indigo-500 text-white px-4 py-1 rounded-full mt-2"
             onClick={handleActionClick}  // Call the handler with the event
+            disabled={loading} // Disable button when loading
           >
-            Remove
+            {loading ? 'Processing...' : 'Remove'}
           </button>
         );
       default:
@@ -89,7 +137,7 @@ function UserCard({ user, type, onUserClick }) {
 
   return (
     <div
-      className="flex flex-col items-center bg-white rounded-lg p-4 mr-4 mb-4 shadow-lg w-full md:w-1/3 lg:w-1/4"
+      className="flex flex-col items-center bg-white rounded-lg p-4 mr-4 mb-4 shadow-lg w-full sm:w-1/2 md:w-1/3 lg:w-1/4"
       onClick={() => onUserClick(user._id, type)}  // Pass userId and type
     >
       <img 
@@ -102,6 +150,9 @@ function UserCard({ user, type, onUserClick }) {
         <p>{user.role}</p>
       </div>
       {renderButton()}
+      {loading && <p className="text-sm text-gray-500 mt-2">Please wait...</p>}
+      {successMessage && <p className="text-sm text-green-500 mt-2">{successMessage}</p>}
+      {errorMessage && <p className="text-sm text-red-500 mt-2">{errorMessage}</p>}
     </div>
   );
 }

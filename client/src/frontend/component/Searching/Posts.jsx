@@ -294,13 +294,13 @@ export function Post(props) {
         />
         <div className="ml-4">
           <div className="font-bold flex justify-start text-left items-start text-s">
-            {postdetail.originalAuthor ? (
-              <span className="tooltip ">
+            {postdetail.originalAuthor && postdetail.originalAuthor.username ? (
+              <span className="tooltip">
                 {truncateText(postdetail.name, 15)}
                 <span className="pl-1 pr-1 mt-1.5 text-[9px] opacity-50">{" shared from"}</span>
-                <span className="text-[9px] mt-1.5">{truncateText(postdetail.originalAuthor, 10)}</span>
+                <span className="text-[9px] mt-1.5">{truncateText(postdetail.originalAuthor.username, 10)}</span>
                 <span className="tooltiptext">
-                  The Original Author {postdetail.originalAuthor}
+                  The Original Author {postdetail.originalAuthor.username}
                 </span>
               </span>
             ) : (

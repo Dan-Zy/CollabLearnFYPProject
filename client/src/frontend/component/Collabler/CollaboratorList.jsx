@@ -5,7 +5,7 @@ function CollaboratorList({ users, onUserClick }) {  // Receive filtered users a
   return (
     <div className="m-4">
       <h2 className="text-indigo-600">My Collaborators</h2>
-      <div className="flex flex-wrap justify-start">
+      <div className="flex  flex-wrap justify-center">
         {users.map((collab) => (
           <UserCard 
             key={collab._id} 
