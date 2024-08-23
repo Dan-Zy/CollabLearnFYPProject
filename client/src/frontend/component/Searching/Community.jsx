@@ -3,8 +3,7 @@ import axios from 'axios';
 import { CommunityCard } from '../community/CommunityCard';
 import CommunityViewHome from '../community/CommunityView/CommunityViewHome';
 import jwt_decode from 'jwt-decode';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import Notification from '../SystemNotification'; 
 
 export function CommunityHome({ query }) {
   const [activeTab, setActiveTab] = useState(localStorage.getItem('activeTab') || 'joined');
@@ -14,6 +13,7 @@ export function CommunityHome({ query }) {
   const [communities, setCommunities] = useState([]);
   const [filteredCommunities, setFilteredCommunities] = useState([]);
   const [userId, setUserId] = useState(null);
+  const [notification, setNotification] = useState({ message: "", type: "" }); // Add notification state
 
   useEffect(() => {
     setSearchQuery(query);
@@ -31,6 +31,10 @@ export function CommunityHome({ query }) {
     fetchUserId();
   }, []);
 
+  const closeNotification = () => {
+    setNotification({ message: "", type: "" });
+  };
+
   useEffect(() => {
     const fetchCommunities = async () => {
       try {
@@ -41,16 +45,14 @@ export function CommunityHome({ query }) {
           }
         });
         setCommunities(response.data.communities);
+        setNotification({ message: "Communities loaded successfully!", type: "success" });
       } catch (error) {
         console.error("Error fetching communities", error);
+        setNotification({ message: "Error loading communities", type: "error" });
       }
     };
 
-    toast.promise(fetchCommunities(), {
-      pending: 'Loading communities...',
-      success: 'Communities loaded successfully!',
-      error: 'Error loading communities'
-    });
+    fetchCommunities();
   }, []);
 
   useEffect(() => {
@@ -91,7 +93,13 @@ export function CommunityHome({ query }) {
 
   return (
     <div className="container mx-auto p-4">
-      <ToastContainer />
+      {notification.message && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={closeNotification}
+        />
+      )}
       {view === 'CommunityHome' ? (
         <div className="mt-4">
           {renderContent()}

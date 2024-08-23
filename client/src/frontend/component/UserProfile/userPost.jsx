@@ -6,15 +6,15 @@ import UV from "../../../assets/upvote_icon.png";
 import DV from "../../../assets/devote_icon.png";
 import share from "../../../assets/share_icon.png";
 import docImg from "../../../assets/pdf_icon.png";
-import Comment from "./comment";
+import Comment from "../Comment/comment";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import Notification from "../SystemNotification"; 
 
 export function PostCall({ userId }) {
   const [PostData, setPostData] = useState([]);
   const [error, setError] = useState(null);
+  const [notification, setNotification] = useState({ message: "", type: "" });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -78,12 +78,17 @@ export function PostCall({ userId }) {
       } catch (error) {
         console.error("Error fetching posts:", error);
         setError("Error fetching posts");
+        setNotification({ message: "Error fetching posts", type: "error" });
         navigate("/");
       }
     };
 
     fetchPosts();
   }, [navigate, userId]);
+
+  const closeNotification = () => {
+    setNotification({ message: "", type: "" });
+  };
 
   const extractDocumentName = (filePath) => {
     const fileName = filePath.split("\\").pop();
@@ -98,15 +103,21 @@ export function PostCall({ userId }) {
 
   return (
     <div className="flex flex-col items-center justify-center w-full">
+      {notification.message && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={closeNotification}
+        />
+      )}
       {error && <div className="text-red-500">{error}</div>}
       {PostData.length === 0 ? (
         <div>No posts yet</div>
       ) : (
         PostData.map((postdetail, index) => (
-          <Post key={index} postdetail={postdetail} onDelete={handleDeletePostFromUI} />
+          <Post key={index} postdetail={postdetail} onDelete={handleDeletePostFromUI} setNotification={setNotification} />
         ))
       )}
-      <ToastContainer />
     </div>
   );
 }
@@ -135,7 +146,7 @@ export function Post(props) {
       }
 
       const response = await axios.get(
-        `http://localhost:3001/collablearn/user/getUser/${authorId}`,
+        `http://localhost:3001/collablearn/user/getUser/${authorId._id}`,
         {
           headers: {
             Authorization: `${token}`,
@@ -150,14 +161,16 @@ export function Post(props) {
       }
     } catch (error) {
       console.error("Error fetching original author info:", error);
-      toast.error("Failed to fetch original author info");
+      props.setNotification({
+        message: "Failed to fetch original author info",
+        type: "error",
+      });
     }
   };
-
   const handleUpvote = async (postId) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("No token found");
+      props.setNotification({ message: "No token found", type: "error" });
       return;
     }
 
@@ -181,17 +194,24 @@ export function Post(props) {
       setChecked(!checked);
     };
 
-    toast.promise(updateUpvote(), {
-      pending: "Processing...",
-      success: "Upvote updated successfully!",
-      error: "Failed to update upvote status",
-    });
+    try {
+      await updateUpvote();
+      props.setNotification({
+        message: "Upvote updated successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      props.setNotification({
+        message: "Failed to update upvote status",
+        type: "error",
+      });
+    }
   };
 
   const handleDevote = async (postId) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("No token found");
+      props.setNotification({ message: "No token found", type: "error" });
       return;
     }
 
@@ -215,17 +235,24 @@ export function Post(props) {
       setCheckedDevote(!checkedDevote);
     };
 
-    toast.promise(updateDevote(), {
-      pending: "Processing...",
-      success: "Devote updated successfully!",
-      error: "Failed to update devote status",
-    });
+    try {
+      await updateDevote();
+      props.setNotification({
+        message: "Devote updated successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      props.setNotification({
+        message: "Failed to update devote status",
+        type: "error",
+      });
+    }
   };
 
   const handleShare = async (postId) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("No token found");
+      props.setNotification({ message: "No token found", type: "error" });
       return;
     }
     const sharedContent = "";
@@ -247,18 +274,25 @@ export function Post(props) {
         }
       };
 
-      toast.promise(sharePost(), {
-        pending: "Processing...",
-        success: "Post has been shared successfully!",
-        error: "Error sharing the post",
-      });
+      try {
+        await sharePost();
+        props.setNotification({
+          message: "Post has been shared successfully!",
+          type: "success",
+        });
+      } catch (error) {
+        props.setNotification({
+          message: "Error sharing the post",
+          type: "error",
+        });
+      }
     }
   };
 
   const handleDeletePost = async (postId) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("No token found");
+      props.setNotification({ message: "No token found", type: "error" });
       return;
     }
 
@@ -274,14 +308,22 @@ export function Post(props) {
         );
 
         if (res.data.success) {
-          toast.success("Post has been deleted successfully!");
+          props.setNotification({
+            message: "Post has been deleted successfully!",
+            type: "success",
+          });
           props.onDelete(postId); // Remove post from UI
         } else {
-          toast.error(res.data.message);
+          props.setNotification({
+            message: res.data.message,
+            type: "error",
+          });
         }
       } catch (error) {
-        console.error("Error deleting the post:", error);
-        toast.error("Error deleting the post");
+        props.setNotification({
+          message: "Error deleting the post",
+          type: "error",
+        });
       }
     }
   };
@@ -289,7 +331,7 @@ export function Post(props) {
   const handleEditPost = async (postId) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("No token found");
+      props.setNotification({ message: "No token found", type: "error" });
       return;
     }
 
@@ -306,13 +348,21 @@ export function Post(props) {
         );
 
         if (res.data.success) {
-          toast.success("Post has been edited successfully!");
+          props.setNotification({
+            message: "Post has been edited successfully!",
+            type: "success",
+          });
         } else {
-          toast.error(res.data.message);
+          props.setNotification({
+            message: res.data.message,
+            type: "error",
+          });
         }
       } catch (error) {
-        console.error("Error editing the post:", error);
-        toast.error("Error editing the post");
+        props.setNotification({
+          message: "Error editing the post",
+          type: "error",
+        });
       }
     }
   };
@@ -330,6 +380,7 @@ export function Post(props) {
         <img
           src={postdetail.UserImg}
           className="w-12 h-12 rounded-full border border-indigo-500"
+          alt="User"
         />
         <div className="ml-4">
           <div className="font-bold flex justify-start text-left items-start text-s">
@@ -367,6 +418,7 @@ export function Post(props) {
             src={img2}
             className="w-6 h-6 cursor-pointer"
             onClick={() => setShowOptions(!showOptions)}
+            alt="Options"
           />
           {showOptions && (
             <div className="absolute right-0.1 mt-1 p-1 text-[10px] border-[#d5deff] border rounded-lg shadow-lg">
@@ -428,6 +480,7 @@ export function Post(props) {
             src={UV}
             className="w-6 h-6 cursor-pointer"
             onClick={() => handleUpvote(postdetail.postId)}
+            alt="Upvote"
           />
           <span>{upvote}</span>
         </div>
@@ -436,6 +489,7 @@ export function Post(props) {
             src={DV}
             className="w-6 h-6 cursor-pointer"
             onClick={() => handleDevote(postdetail.postId)}
+            alt="Devote"
           />
           <span>{devote}</span>
         </div>
@@ -448,6 +502,7 @@ export function Post(props) {
             src={share}
             className="w-6 h-6 cursor-pointer"
             onClick={() => handleShare(postdetail.postId)}
+            alt="Share"
           />
           <span>{postdetail.share}</span>
         </div>

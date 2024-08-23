@@ -9,12 +9,12 @@ import docImg from "../../../assets/pdf_icon.png";
 import Comment from "./comment";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import Notification from "../SystemNotification"; // Import Notification
 
 export function PostCall({ query }) {
   const [PostData, setPostData] = useState([]);
   const [error, setError] = useState(null);
+  const [notification, setNotification] = useState({ message: "", type: "" });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -81,12 +81,17 @@ export function PostCall({ query }) {
       } catch (error) {
         console.error("Error fetching posts:", error);
         setError("Error fetching posts");
+        setNotification({ message: "Error fetching posts", type: "error" });
         navigate("/");
       }
     };
 
     fetchPosts();
   }, [navigate, query]);
+
+  const closeNotification = () => {
+    setNotification({ message: "", type: "" });
+  };
 
   const extractDocumentName = (filePath) => {
     const fileName = filePath.split("\\").pop();
@@ -101,15 +106,21 @@ export function PostCall({ query }) {
 
   return (
     <div className="flex flex-col items-center justify-center w-full">
+      {notification.message && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={closeNotification}
+        />
+      )}
       {error && <div className="text-red-500">{error}</div>}
       {PostData.length === 0 ? (
         <div>No posts yet</div>
       ) : (
         PostData.map((postdetail, index) => (
-          <Post key={index} postdetail={postdetail} onDelete={handleDeletePostFromUI} />
+          <Post key={index} postdetail={postdetail} onDelete={handleDeletePostFromUI} setNotification={setNotification} />
         ))
       )}
-      <ToastContainer />
     </div>
   );
 }
@@ -125,11 +136,11 @@ export function Post(props) {
   const handleUpvote = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("No token found");
+      props.setNotification({ message: "No token found", type: "error" });
       return;
     }
 
-    const updateUpvote = async () => {
+    try {
       const url = checked
         ? `http://localhost:3001/collablearn/user/removePostUpvote/${postdetail.postId}`
         : `http://localhost:3001/collablearn/user/upvotePost/${postdetail.postId}`;
@@ -141,29 +152,22 @@ export function Post(props) {
         },
       });
 
-      if (checked) {
-        setUpvote(upvote - 1);
-      } else {
-        setUpvote(upvote + 1);
-      }
+      setUpvote(checked ? upvote - 1 : upvote + 1);
       setChecked(!checked);
-    };
-
-    toast.promise(updateUpvote(), {
-      pending: 'Processing...',
-      success: 'Upvote updated successfully!',
-      error: 'Failed to update upvote status',
-    });
+      props.setNotification({ message: "Upvote updated successfully!", type: "success" });
+    } catch (error) {
+      props.setNotification({ message: "Failed to update upvote status", type: "error" });
+    }
   };
 
   const handleDevote = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("No token found");
+      props.setNotification({ message: "No token found", type: "error" });
       return;
     }
 
-    const updateDevote = async () => {
+    try {
       const url = checkedDevote
         ? `http://localhost:3001/collablearn/user/removePostDevote/${postdetail.postId}`
         : `http://localhost:3001/collablearn/user/devotePost/${postdetail.postId}`;
@@ -175,31 +179,24 @@ export function Post(props) {
         },
       });
 
-      if (checkedDevote) {
-        setDevote(devote - 1);
-      } else {
-        setDevote(devote + 1);
-      }
+      setDevote(checkedDevote ? devote - 1 : devote + 1);
       setCheckedDevote(!checkedDevote);
-    };
-
-    toast.promise(updateDevote(), {
-      pending: 'Processing...',
-      success: 'Devote updated successfully!',
-      error: 'Failed to update devote status',
-    });
+      props.setNotification({ message: "Devote updated successfully!", type: "success" });
+    } catch (error) {
+      props.setNotification({ message: "Failed to update devote status", type: "error" });
+    }
   };
 
   const handleShare = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("No token found");
+      props.setNotification({ message: "No token found", type: "error" });
       return;
     }
     const sharedContent = '';
 
     if (window.confirm("Do you want to share this post?")) {
-      const sharePost = async () => {
+      try {
         const res = await axios.post(
           `http://localhost:3001/collablearn/user/sharePost/${postdetail.postId}`,
           { sharedContent },
@@ -213,20 +210,18 @@ export function Post(props) {
         if (!res.data.success) {
           throw new Error(res.data.message);
         }
-      };
 
-      toast.promise(sharePost(), {
-        pending: 'Processing...',
-        success: 'Post has been shared successfully!',
-        error: 'Error sharing the post',
-      });
+        props.setNotification({ message: "Post has been shared successfully!", type: "success" });
+      } catch (error) {
+        props.setNotification({ message: "Error sharing the post", type: "error" });
+      }
     }
   };
 
   const handleDeletePost = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("No token found");
+      props.setNotification({ message: "No token found", type: "error" });
       return;
     }
 
@@ -242,14 +237,13 @@ export function Post(props) {
         );
 
         if (res.data.success) {
-          toast.success("Post has been deleted successfully!");
+          props.setNotification({ message: "Post has been deleted successfully!", type: "success" });
           props.onDelete(postdetail.postId); // Remove post from UI
         } else {
-          toast.error(res.data.message);
+          props.setNotification({ message: res.data.message, type: "error" });
         }
       } catch (error) {
-        console.error("Error deleting the post:", error);
-        toast.error("Error deleting the post");
+        props.setNotification({ message: "Error deleting the post", type: "error" });
       }
     }
   };
@@ -257,7 +251,7 @@ export function Post(props) {
   const handleEditPost = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("No token found");
+      props.setNotification({ message: "No token found", type: "error" });
       return;
     }
 
@@ -273,14 +267,13 @@ export function Post(props) {
         );
 
         if (res.data.success) {
-          toast.success("Post has been edited successfully!");
+          props.setNotification({ message: "Post has been edited successfully!", type: "success" });
           // You might want to refresh or re-fetch posts after editing
         } else {
-          toast.error(res.data.message);
+          props.setNotification({ message: res.data.message, type: "error" });
         }
       } catch (error) {
-        console.error("Error editing the post:", error);
-        toast.error("Error editing the post");
+        props.setNotification({ message: "Error editing the post", type: "error" });
       }
     }
   };
@@ -409,4 +402,3 @@ export function Post(props) {
     </div>
   );
 }
-
