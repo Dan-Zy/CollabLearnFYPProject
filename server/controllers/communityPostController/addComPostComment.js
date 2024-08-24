@@ -65,6 +65,7 @@ export const addComPostComment = async (req, res) => {
             }
         }
 
+        // Create and save the new comment
         const newComment = new Comment({
             userId: req.userId,
             parentCommentId: null,
@@ -86,6 +87,15 @@ export const addComPostComment = async (req, res) => {
         
         await post.save();
 
+        // Populate the comment with user details
+        const populatedComment = await Comment.findById(newComment._id)
+            .populate('userId', 'username profilePicture role');
+
+        console.log("Username: ", populatedComment.username);
+        console.log("Profile Picture: ", populatedComment.profilePicture);
+        console.log("Role: ", populatedComment.role);
+        
+
         const user = await User.findById(userId);
 
         const newNotification = new Notification({
@@ -96,11 +106,10 @@ export const addComPostComment = async (req, res) => {
 
         await newNotification.save();
 
-
         res.status(201).json({
             success: true,
             message: "Comment added successfully to the community post",
-            comment: newComment,
+            comment: populatedComment,
             notification: newNotification
         });
 
