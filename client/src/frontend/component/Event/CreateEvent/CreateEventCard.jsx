@@ -8,8 +8,7 @@ import {
   faHeading,
   faClipboardList,
 } from "@fortawesome/free-solid-svg-icons";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Notification from "../../SystemNotification"; // Import your Notification component
 
 function CreateEventCard() {
   const [title, setTitle] = useState("");
@@ -21,7 +20,8 @@ function CreateEventCard() {
   const [endTime, setEndTime] = useState("");
   const [genre, setGenre] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSlowInternetWarning, setShowSlowInternetWarning] = useState(false); // New state for slow internet warning
+  const [showSlowInternetWarning, setShowSlowInternetWarning] = useState(false);
+  const [notification, setNotification] = useState({ message: "", type: "" }); // State for notifications
 
   const [showTitle, setShowTitle] = useState(false);
   const [showEventDescription, setShowEventDescription] = useState(false);
@@ -77,7 +77,7 @@ function CreateEventCard() {
     const newErrors = validateFields();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      toast.error("Please fill all the required fields");
+      setNotification({ message: "Please fill all the required fields", type: "error" });
       return;
     }
 
@@ -86,12 +86,12 @@ function CreateEventCard() {
     const now = new Date();
 
     if (startDateTime < now) {
-      toast.error("Start date and time cannot be in the past");
+      setNotification({ message: "Start date and time cannot be in the past", type: "error" });
       return;
     }
 
     if (endDateTime < startDateTime) {
-      toast.error("End date and time must be greater than or equal to the start date and time");
+      setNotification({ message: "End date and time must be greater than or equal to the start date and time", type: "error" });
       return;
     }
 
@@ -99,7 +99,7 @@ function CreateEventCard() {
 
     const slowInternetTimeout = setTimeout(() => {
       setShowSlowInternetWarning(true);
-    }, 3000); // Show slow internet warning after 5 seconds
+    }, 3000); // Show slow internet warning after 3 seconds
 
     const roomName = `event-${Date.now()}`;
     const jitsiLink = `https://meet.jit.si/${roomName}`;
@@ -155,10 +155,10 @@ function CreateEventCard() {
       setShowPoster(false);
       setShowGenre(false);
       setShowSlowInternetWarning(false);
-      toast.success("Event created successfully");
+      setNotification({ message: "Event created successfully", type: "success" });
     } catch (error) {
       console.error("Error creating event:", error);
-      toast.error("Error creating event. Please try again.");
+      setNotification({ message: "Error creating event. Please try again.", type: "error" });
     } finally {
       setIsSubmitting(false); // Reset the submission state after the process
     }
@@ -166,6 +166,14 @@ function CreateEventCard() {
 
   return (
     <section className="flex flex-col h-[60vh] w-full bg-white shadow-md rounded-lg m-1 p-1 lg:flex-2 sm:flex-1 text-[1vw]">
+      {notification.message && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification({ message: "", type: "" })}
+        />
+      )}
+
       <h3 className="text-2xl text-[#7d7dc3] antialiased font-bold m-2">
         Create Scheduled Event
       </h3>
@@ -392,8 +400,6 @@ function CreateEventCard() {
           Your internet seems a bit slow. Please stay here while we process your request.
         </div>
       )}
-
-      <ToastContainer />
     </section>
   );
 }
