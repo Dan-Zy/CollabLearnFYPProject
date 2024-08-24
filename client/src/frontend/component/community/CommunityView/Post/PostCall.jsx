@@ -6,7 +6,7 @@ import UV from "../../../../../assets/upvote_icon.png";
 import DV from "../../../../../assets/devote_icon.png";
 import share from "../../../../../assets/share_icon.png";
 import docImg from "../../../../../assets/pdf_icon.png";
-import Comment from "../../../Comment/comment";
+import Comment from "./comment";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
 import Notification from '../../../SystemNotification'; // Adjust the path as necessary
@@ -57,6 +57,7 @@ export function PostCall({ communityId }) {
               name: post.userId?.username || "Unknown User",
               time: new Date(post.createdAt).toLocaleString(),
               text: post.content,
+              communityId: post.communityId,
               img: post.image ? `http://localhost:3001/${post.image}` : "",
               document: documentUrl,
               documentName: documentName,
@@ -233,13 +234,13 @@ export function Post({ postdetail, onDelete }) {
       setNotification({ message: "No token found", type: "error" });
       return;
     }
-    const sharedContent = "";
 
     if (window.confirm("Do you want to share this post?")) {
-      const sharePost = async () => {
+      try {
+        setNotification({ message: "Processing...", type: "info" });
         const res = await axios.post(
           `http://localhost:3001/collablearn/shareCommunityPost/${postId}`,
-          {}, 
+          {},
           {
             headers: {
               Authorization: `${token}`,
@@ -250,17 +251,14 @@ export function Post({ postdetail, onDelete }) {
         if (!res.data.success) {
           throw new Error(res.data.message);
         }
-      };
 
-      try {
-        setNotification({ message: "Processing...", type: "info" });
-        await sharePost();
         setNotification({ message: "Post has been shared successfully!", type: "success" });
       } catch (error) {
         setNotification({ message: "Error sharing the post", type: "error" });
       }
     }
   };
+
 
   const handleDeletePost = async (postId) => {
     const token = localStorage.getItem("token");
@@ -421,7 +419,7 @@ export function Post({ postdetail, onDelete }) {
           <span>{devote}</span>
         </div>
         <div className="flex items-center space-x-2">
-          <Comment postId={postdetail.postId} />
+          <Comment postId={postdetail.postId} communityId={postdetail.communityId} />
           <span>{postdetail.comment}</span>
         </div>
         <div className="flex items-center space-x-2">

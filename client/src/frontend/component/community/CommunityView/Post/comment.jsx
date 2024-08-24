@@ -1,21 +1,21 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import com from "../../../assets/comment_icon.png";
-import userIcon from "../../../assets/person_icon.png";
-import send from "../../../assets/send_icon.png";
-import UV from "../../../assets/upvote_icon.png";
-import DV from "../../../assets/devote_icon.png";
+import com from "../../../../../assets/comment_icon.png";
+import userIcon from "../../../../../assets/person_icon.png";
+import send from "../../../../../assets/send_icon.png";
+import UV from "../../../../../assets/upvote_icon.png";
+import DV from "../../../../../assets/devote_icon.png";
 import jwt_decode from "jwt-decode";
-import Notification from "../SystemNotification"; 
+import Notification from "../../../SystemNotification"; 
 
-function Comment({ postId }) {
+function Comment({ postId, communityId }) {
   const [comments, setComments] = useState([]);
   const [content, setContent] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showOptions, setShowOptions] = useState(null); 
-  const [notification, setNotification] = useState({ message: "", type: "" }); // Add notification state
+  const [notification, setNotification] = useState({ message: "", type: "" });
 
   const token = localStorage.getItem('token');
   let decodedToken;
@@ -29,18 +29,21 @@ function Comment({ postId }) {
     setIsLoading(true);
     setComments([]);
     try {
-      const res = await axios.get(`http://localhost:3001/collablearn/user/getComments/${postId}`, {
+      const res = await axios.get(`http://localhost:3001/collablearn/getComments/${postId}`, {
         headers: {
           'Authorization': `${token}`
         }
       });
       setComments(res.data.comments);
+      console.log('====================================');
+      console.log(comments[0].userId);
+      console.log('====================================');
     } catch (error) {
       console.error('Failed to fetch comments:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [postId, token]);
+  }, [communityId, postId, token]);
 
   useEffect(() => {
     if (isModalOpen) {
@@ -70,7 +73,7 @@ function Comment({ postId }) {
     setIsSubmitting(true);
     try {
       await axios.post(
-        `http://localhost:3001/collablearn/user/addComment/${postId}`,
+        `http://localhost:3001/collablearn/addComment/${postId}`,
         { content },
         {
           headers: {
@@ -78,8 +81,10 @@ function Comment({ postId }) {
           }
         }
       );
+      
       setContent('');
       fetchComments();
+    
       setNotification({ message: "Comment posted successfully!", type: "success" });
     } catch (error) {
       setNotification({ message: "Failed to post comment", type: "error" });
@@ -98,8 +103,8 @@ function Comment({ postId }) {
 
     try {
       const url = isUpvoted
-        ? `http://localhost:3001/collablearn/user/removeCommentUpvote/${comment.commentId}`
-        : `http://localhost:3001/collablearn/user/upvoteComment/${comment.commentId}`;
+        ? `http://localhost:3001/collablearn/removeCommentUpvote/${comment.commentId}`
+        : `http://localhost:3001/collablearn/upvoteComment/${comment.commentId}`;
       const method = isUpvoted ? "put" : "post";
 
       await axios[method](url, {}, {
@@ -125,8 +130,8 @@ function Comment({ postId }) {
 
     try {
       const url = isDevoted
-        ? `http://localhost:3001/collablearn/user/removeCommentDevote/${comment.commentId}`
-        : `http://localhost:3001/collablearn/user/devoteComment/${comment.commentId}`;
+        ? `http://localhost:3001/collablearn/removeCommentDevote/${comment.commentId}`
+        : `http://localhost:3001/collablearn/devoteComment/${comment.commentId}`;
       const method = isDevoted ? "put" : "post";
 
       await axios[method](url, {}, {
@@ -144,7 +149,7 @@ function Comment({ postId }) {
 
   const handleDeleteComment = async (commentId) => {
     try {
-      await axios.delete(`http://localhost:3001/collablearn/user/deleteComment/${commentId}`, {
+      await axios.delete(`http://localhost:3001/collablearn/deleteComment/${commentId}`, {
         headers: {
           'Authorization': `${token}`
         }
@@ -232,7 +237,7 @@ function Comment({ postId }) {
                       )}
                     </div>
                     <div className="flex justify-center items-left text-left w-full">
-                      <p className="w-[80%] mt-1 p-2 text-sm text-white bg-indigo-300 rounded-lg">
+                      <p className="w-[80%] mt-1 p-2 text-sm text-white bg-indigo-400 rounded-lg">
                         {comment.content}
                       </p>
                     </div>

@@ -117,13 +117,6 @@ const shareComPost = async (req, res) => {
         }
         console.log("Community: ", community);
 
-        // Check if the community is private
-        if (community.privacy === "Private") {
-            return res.status(400).json({
-                success: false,
-                message: "Private Community's Post cannot be shared"
-            });
-        }
 
         // Create a new post that references the original post
         const sharedPost = new CommunityPost({
