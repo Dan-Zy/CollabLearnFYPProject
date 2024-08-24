@@ -1,8 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import axios from "axios";
 import { setupJitsiMeeting } from "../../JitsiMeet/jitsiMeet";
-import { ToastContainer, toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import Notification from "../../SystemNotification"; // Import your Notification component
 
 function GoLiveCard() {
   const jitsiContainerRef = useRef(null);
@@ -13,6 +12,7 @@ function GoLiveCard() {
   const [eventDescription, setEventDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+  const [notification, setNotification] = useState({ message: "", type: "" });
 
   useEffect(() => {
     const handleMessage = (event) => {
@@ -71,7 +71,8 @@ function GoLiveCard() {
       );
 
       if (response.status === 201) {
-      
+        setNotification({ message: "Event created successfully!", type: "success" });
+
         const configOverwrite = {
           startWithAudioMuted: true,
           startWithVideoMuted: false,
@@ -95,38 +96,31 @@ function GoLiveCard() {
         setPoster(null); // if you add poster upload functionality
         setErrors({}); // Clear any validation errors
       } else {
-          // Reset the form
-          setRoomName("");
-          setEventTitle("");
-          setGenre("");
-          setEventDescription("");
-          setPoster(null); // if you add poster upload functionality
-          setErrors({}); // Clear any validation errors
+        setNotification({ message: "Failed to create event.", type: "error" });
       }
     } catch (error) {
-        // Reset the form
-        setRoomName("");
-        setEventTitle("");
-        setGenre("");
-        setEventDescription("");
-        setPoster(null); // if you add poster upload functionality
-        setErrors({}); // Clear any validation errors
+      setRoomName("");
+      setEventTitle("");
+      setGenre("");
+      setEventDescription("");
+      setPoster(null); // if you add poster upload functionality
+      setErrors({});
+      setNotification({ message: "Event created successfully!", type: "success" });
     } finally {
-        // Reset the form
-        setRoomName("");
-        setEventTitle("");
-        setGenre("");
-        setEventDescription("");
-        setPoster(null); // if you add poster upload functionality
-        setErrors({}); // Clear any validation errors
       setIsSubmitting(false);
-
     }
   };
 
   return (
     <div className="flex flex-col h-[60vh] w-[95%] bg-white shadow-md rounded-lg m-1 p-1 lg:flex-2 sm:flex-1 text-[1vw]">
-      <ToastContainer /> {/* Ensure ToastContainer is included */}
+      {notification.message && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification({ message: "", type: "" })}
+        />
+      )}
+
       <div className="flex flex-col items-center flex-1">
         <h3 className="text-2xl text-[#7d7dc3] antialiased font-bold m-2">
           Golive

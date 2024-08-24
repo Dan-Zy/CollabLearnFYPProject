@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import Notification from '..//SystemNotification'; 
 
 function LiveEventCard({ _id, eventName, title, hostId, eventLink, eventId }) {
   const [interested, setInterested] = useState(false);
-  const [participants, setParticipants] = useState([]); // State to store participants info
+  const [participants, setParticipants] = useState([]); 
+  const [notification, setNotification] = useState({ message: "", type: "" }); 
   const showJoinButton = true;
 
   useEffect(() => {
-    // Fetch participants when the component mounts
+
     const fetchParticipants = async () => {
       const token = localStorage.getItem('token');
       try {
@@ -21,13 +22,13 @@ function LiveEventCard({ _id, eventName, title, hostId, eventLink, eventId }) {
           }
         );
         if (response.status === 200) {
-          setParticipants(response.data.participants); // Assuming the API returns participants in `response.data.participants`
+          setParticipants(response.data.participants); 
         } else {
-          toast.error('Failed to load participants.');
+          setNotification({ message: "Failed to load participants.", type: "error" });
         }
       } catch (error) {
         console.error('Error fetching participants:', error);
-        toast.error('An error occurred while fetching participants.');
+        setNotification({ message: "An error occurred while fetching participants.", type: "error" });
       }
     };
 
@@ -53,19 +54,27 @@ function LiveEventCard({ _id, eventName, title, hostId, eventLink, eventId }) {
 
       if (response.status === 200) {
         // Optionally update the UI or participants list here
-        toast.success('Successfully joined the event!');
+        setNotification({ message: "Successfully joined the event!", type: "success" });
         window.open(eventLink, '_blank');
       } else {
-        toast.success('You have already added.');
+        setNotification({ message: "You have already added.", type: "info" });
       }
     } catch (error) {
       console.error('Error joining event:', error);
-      toast.error('You are already in the participant list.');
+      setNotification({ message: "You are already in the participant list.", type: "error" });
     }
   };
 
   return (
     <div className="flex flex-col m-4 items-center justify-center bg-white shadow-lg rounded-lg">
+      {notification.message && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification({ message: "", type: "" })}
+        />
+      )}
+
       <div className="flex w-[80%] flex-row pt-4">
         <img
           src={hostId?.profilePicture
