@@ -27,6 +27,9 @@ function Comment({ postId }) {
 
   const fetchComments = useCallback(async () => {
     setIsLoading(true);
+    console.log('====================================');
+    console.log(JSON.parse(localStorage.getItem('userInfo'))?.profilePicture);
+    console.log('====================================');
     setComments([]);
     try {
       const res = await axios.get(`http://localhost:3001/collablearn/user/getComments/${postId}`, {
@@ -252,7 +255,7 @@ function Comment({ postId }) {
             </div>
             <div className="mt-3 flex items-center border-t pt-3">
               <img
-                src={`http://localhost:3001/${localStorage.getItem('userInfo')?.profilePicture || userIcon}`}
+                src={`http://localhost:3001/${JSON.parse(localStorage.getItem('userInfo'))?.profilePicture}` || userIcon}
                 alt="Profile"
                 className="w-10 h-10 rounded-full"
               />

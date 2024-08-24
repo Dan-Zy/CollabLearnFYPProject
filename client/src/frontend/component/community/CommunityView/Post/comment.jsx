@@ -35,9 +35,7 @@ function Comment({ postId, communityId }) {
         }
       });
       setComments(res.data.comments);
-      console.log('====================================');
-      console.log(comments[0].userId);
-      console.log('====================================');
+
     } catch (error) {
       console.error('Failed to fetch comments:', error);
     } finally {
@@ -257,7 +255,7 @@ function Comment({ postId, communityId }) {
             </div>
             <div className="mt-3 flex items-center border-t pt-3">
               <img
-                src={`http://localhost:3001/${localStorage.getItem('userInfo')?.profilePicture || userIcon}`}
+                src={`http://localhost:3001/${JSON.parse(localStorage.getItem('userInfo'))?.profilePicture || userIcon}`}
                 alt="Profile"
                 className="w-10 h-10 rounded-full"
               />

@@ -7,7 +7,6 @@ import jwtDecode from 'jwt-decode';
 import axios from 'axios';
 
 function MainPageCollab() {
-  // Retrieve the state from localStorage or default to 'MyCollaborator'
   const initialTab = localStorage.getItem('collab_activeTab') || 'MyCollaborator';
   const initialSelectedUserId = localStorage.getItem('collab_selectedUserId') || null;
 
@@ -18,7 +17,7 @@ function MainPageCollab() {
   const [allUsers, setAllUsers] = useState([]);
   const [userInfo, setUserInfo] = useState(null);
   const [selectedUserId, setSelectedUserId] = useState(initialSelectedUserId);
-  const [flash, setFlash] = useState(false);  // State to control flash effect
+  const [flash, setFlash] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -183,10 +182,12 @@ function MainPageCollab() {
   };
 
   const handleTabClick = (tabName) => {
-    setActiveTab(tabName);
-    setSelectedUserId(null);
-    localStorage.setItem('collab_activeTab', tabName);  // Save active tab to localStorage
-    localStorage.removeItem('collab_selectedUserId');  // Clear selected user when tab changes
+    triggerFlashEffect(() => {
+      setActiveTab(tabName);
+      setSelectedUserId(null);
+      localStorage.setItem('collab_activeTab', tabName);  // Save active tab to localStorage
+      localStorage.removeItem('collab_selectedUserId');  // Clear selected user when tab changes
+    });
   };
 
   return (
@@ -194,19 +195,19 @@ function MainPageCollab() {
       {!selectedUserId && (
         <div className="flex justify-around mb-4">
           <p
-            className={`px-4 py-2 ${activeTab === 'MyCollaborator' ? 'text-indigo-500 border-b-2 text-sm border-indigo-500' : 'text-xs'}`}
+            className={`px-4 py-2 cursor-pointer ${activeTab === 'MyCollaborator' ? 'text-indigo-500 border-b-2 text-sm border-indigo-500' : 'text-xs'}`}
             onClick={() => handleTabClick('MyCollaborator')}
           >
             My Collaborator
           </p>
           <p
-            className={`px-4 py-2 ${activeTab === 'Requested' ? 'text-indigo-500 border-b-2 text-sm border-indigo-500' : 'text-xs'}`}
+            className={`px-4 py-2 cursor-pointer ${activeTab === 'Requested' ? 'text-indigo-500 border-b-2 text-sm border-indigo-500' : 'text-xs'}`}
             onClick={() => handleTabClick('Requested')}
           >
             Requested
           </p>
           <p
-            className={`px-4 py-2 ${activeTab === 'Suggested' ? 'text-indigo-500 border-b-2 text-sm border-indigo-500' : 'text-xs'}`}
+            className={`px-4 py-2 cursor-pointer ${activeTab === 'Suggested' ? 'text-indigo-500 border-b-2 text-sm border-indigo-500' : 'text-xs'}`}
             onClick={() => handleTabClick('Suggested')}
           >
             Suggested
