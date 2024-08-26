@@ -20,8 +20,8 @@ export function CommunityHome() {
   );
   const [communities, setCommunities] = useState([]);
   const [userId, setUserId] = useState("");
-  const [view, setView] = useState("CommunityHome");
-  const [communityId, setCommunityId] = useState(null);
+  const [view, setView] = useState(localStorage.getItem("view") || "CommunityHome");
+  const [communityId, setCommunityId] = useState(localStorage.getItem("communityId") || null);
   const [flash, setFlash] = useState(false);
   const [notification, setNotification] = useState({ message: "", type: "" });
 
@@ -79,6 +79,14 @@ export function CommunityHome() {
     localStorage.setItem("selectedGenre", selectedGenre);
   }, [selectedGenre]);
 
+  useEffect(() => {
+    localStorage.setItem("view", view);
+  }, [view]);
+
+  useEffect(() => {
+    localStorage.setItem("communityId", communityId);
+  }, [communityId]);
+
   const closeNotification = () => {
     setNotification({ message: "", type: "" });
   };
@@ -97,6 +105,7 @@ export function CommunityHome() {
 
   const handleBack = () => {
     setView("CommunityHome");
+    setCommunityId(null);  // Reset communityId when going back to CommunityHome
   };
 
   const triggerFlashEffect = (callback) => {
@@ -129,7 +138,7 @@ export function CommunityHome() {
         }
       );
       handleRemoveCommunity(communityId);
-      setView("CommunityHome");
+      handleBack();
       setNotification({
         message: "You have successfully left the community.",
         type: "success",
@@ -155,7 +164,7 @@ export function CommunityHome() {
         }
       );
       handleRemoveCommunity(communityId);
-      setView("CommunityHome");
+      handleBack();
       setNotification({
         message: "Community has been deleted.",
         type: "success",
@@ -196,7 +205,7 @@ export function CommunityHome() {
       (selectedGenre === "" || community.communityGenre === selectedGenre) &&
       ((activeTab === "joined" && community.members.includes(userId)) ||
         (activeTab === "suggested" && !community.members.includes(userId)) ||
-        (activeTab === "my-communities" && isAdmin)) // Only show communities where user is admin
+        (activeTab === "my-communities" && isAdmin))
     );
   });
 

@@ -1,6 +1,7 @@
 import React, { useContext, createContext, useState } from 'react';
 import PropTypes from 'prop-types';
-import { ChevronLeft, ChevronRight, Home, Users, Calendar, HelpCircle, MessageSquare } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ChevronLeft, ChevronRight, Home, Users, Calendar, MessageSquare } from 'lucide-react';
 import Logo from '../../assets/Logo.png';
 import { CreatePostModal } from './CreatePost/CreatePostModal';
 
@@ -9,6 +10,7 @@ const SidebarContext = createContext();
 
 export default function Sidebar({ children, activeItem, setActiveItem }) {
   const [expanded, setExpanded] = useState(true);
+  const navigate = useNavigate(); // Use the navigate hook
 
   return (
     <aside className="h-screen flex flex-col">
@@ -18,6 +20,8 @@ export default function Sidebar({ children, activeItem, setActiveItem }) {
             src={Logo}
             className={`overflow-hidden transition-all ${expanded ? "w-32" : "w-0"}`}
             alt="Logo"
+            onClick={() => setActiveItem('Home')} // Navigate to home screen when logo is clicked
+            style={{ cursor: 'pointer' }} // Change cursor to pointer to indicate it's clickable
           />
           <button
             onClick={() => setExpanded((curr) => !curr)}
@@ -34,8 +38,8 @@ export default function Sidebar({ children, activeItem, setActiveItem }) {
             <SidebarItem icon={<Calendar />} text="Events" active={activeItem === 'Events'} onClick={() => setActiveItem('Events')} />
             <SidebarItem icon={<Users />} text="My Collabs" active={activeItem === 'My Collabs'} onClick={() => setActiveItem('My Collabs')} />
             <div className="border-t my-2" />
-            <SidebarItem icon={<HelpCircle />} text="AI Assistant" active={activeItem === 'Help'} onClick={() => setActiveItem('Help')} />
-            <SidebarItem icon={<MessageSquare />} text="Feedback" active={activeItem === 'Feedback'} onClick={() => setActiveItem('Feedback')} />
+            <SidebarItem icon={<MessageSquare />} text="AI Assistant" active={activeItem === 'Help'} onClick={() => setActiveItem('Help')} />
+            
             {children}
           </ul>
         </SidebarContext.Provider>

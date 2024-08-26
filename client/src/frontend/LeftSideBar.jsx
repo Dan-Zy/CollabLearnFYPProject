@@ -14,10 +14,10 @@ const LeftSidebar = ({ handleSetActiveItem }) => { // Accept the function as a p
       </div>
 
       {/* Tabs Section */}
-      <div className="flex justify-between p-4 border-b">
+      <div className="p-4 border-b">
         <button
           onClick={() => setActiveTab("chat")}
-          className={`w-1/2 text-center py-2 ${
+          className={`w-full text-center py-2 ${
             activeTab === "chat"
               ? "bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800"
               : "hover:bg-indigo-50 text-gray-600"
@@ -25,22 +25,11 @@ const LeftSidebar = ({ handleSetActiveItem }) => { // Accept the function as a p
         >
           Chat
         </button>
-        <button
-          onClick={() => setActiveTab("events")}
-          className={`w-1/2 text-center py-2 ${
-            activeTab === "events"
-              ? "bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-500"
-              : "hover:bg-indigo-50 text-gray-600"
-          }`}
-        >
-          Events
-        </button>
       </div>
 
       {/* User List Section */}
       <div className="p-0 flex-1 ">
         {activeTab === "chat" && <ChatBox />}
-        {activeTab === "events" && <div>Events content here...</div>}
       </div>
 
       {/* Footer Section */}

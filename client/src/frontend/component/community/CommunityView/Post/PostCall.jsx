@@ -9,9 +9,9 @@ import docImg from "../../../../../assets/pdf_icon.png";
 import Comment from "./comment";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
-import Notification from '../../../SystemNotification'; // Adjust the path as necessary
+import Notification from '../../../SystemNotification';
 
-export function PostCall({ communityId }) {
+export function PostCall({ communityId, refreshPosts }) { // Accept refreshPosts prop
   const [PostData, setPostData] = useState([]);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ export function PostCall({ communityId }) {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              'Authorization': `${token}`,
+              Authorization: `${token}`,
             },
           }
         );
@@ -83,7 +83,7 @@ export function PostCall({ communityId }) {
     };
 
     fetchPosts();
-  }, [navigate, communityId]);
+  }, [navigate, communityId, refreshPosts]); // Re-fetch posts when refreshPosts changes
 
   const extractDocumentName = (filePath) => {
     const fileName = filePath.split("\\").pop();
@@ -112,6 +112,7 @@ export function PostCall({ communityId }) {
     </div>
   );
 }
+
 
 export function Post({ postdetail, onDelete }) {
   const [upvote, setUpvote] = useState(postdetail.upvote);
