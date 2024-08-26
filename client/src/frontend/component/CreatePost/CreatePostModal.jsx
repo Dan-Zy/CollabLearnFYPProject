@@ -14,7 +14,7 @@ export function CreatePostModal() {
   const [privacy, setPrivacy] = useState("General");
   const [loading, setLoading] = useState(false);
   const [highlightedText, setHighlightedText] = useState("");
-  const [textError, setTextError] = useState(""); 
+  const [textError, setTextError] = useState("");
   const [notification, setNotification] = useState({ message: "", type: "" });
 
   const openModal = () => {
@@ -42,12 +42,14 @@ export function CreatePostModal() {
     setLoading(true);
 
     const trimmedText = text.trim();
+    let retries = 0;
+    const maxRetries = 3; // Maximum number of retries
 
-    try {
-      const result = await query({ text: trimmedText });
-      console.log("API Response:", result);
+    while (retries < maxRetries) {
+      try {
+        const result = await query({ text: trimmedText });
+        console.log("API Response:", result);
 
-      setTimeout(() => {
         if (result.length > 0) {
           let maxScore = -1;
           let maxLabel = "";
@@ -69,52 +71,56 @@ export function CreatePostModal() {
             if (imageFile) formData.append("image", imageFile);
             if (videoFile) formData.append("video", videoFile);
             if (pdfFile) formData.append("document", pdfFile);
-            formData.append("postType", privacy); 
+            formData.append("postType", privacy);
 
             const token = localStorage.getItem("token");
 
-            fetch("http://localhost:3001/collablearn/user/uploadPost", {
+            const response = await fetch("http://localhost:3001/collablearn/user/uploadPost", {
               method: "POST",
               headers: {
                 Authorization: `${token}`,
               },
               body: formData,
-            })
-              .then((response) => response.json())
-              .then((data) => {
-                if (data.success) {
-                  setNotification({ message: "Post uploaded successfully", type: "success" });
+            });
 
-                  setText("");
-                  setImageFile(null);
-                  setVideoFile(null);
-                  setPdfFile(null);
-                  setPrivacy("General");
-                  setHighlightedText("");
-                  closeModal();
-                } else {
-                  setNotification({ message: "Failed to upload post: " + data.message, type: "error" });
-                }
-              })
-              .catch((error) => {
-                console.error("Error uploading post:", error);
-                setNotification({ message: "Error uploading post", type: "error" });
-              });
+            const data = await response.json();
+
+            if (data.success) {
+              setNotification({ message: "Post uploaded successfully", type: "success" });
+              setText("");
+              setImageFile(null);
+              setVideoFile(null);
+              setPdfFile(null);
+              setPrivacy("General");
+              setHighlightedText("");
+              closeModal();
+              break; // Exit loop on successful post
+            } else {
+              setNotification({ message: "Failed to upload post: " + data.message, type: "error" });
+              break; // Exit loop on failure that is not related to connectivity
+            }
           } else {
             const highlighted = highlightToxicWords(trimmedText, toxicWords);
             setHighlightedText(highlighted);
             setNotification({ message: "Toxic content detected in your post. Please revise.", type: "error" });
+            break; // Exit loop on toxic content
           }
         } else {
-          setNotification({ message: "There is an issue with the Toxic Word Detection Module. Please try again.", type: "error" });
+          setNotification({ message: "check your internet", type: "info" });
         }
-      }, 2000);
-    } catch (error) {
-      console.error("Error querying API:", error);
-      setNotification({ message: "Error querying toxic word detection API.", type: "error" });
-    } finally {
-      setLoading(false);
+      } catch (error) {
+        retries++;
+        if (retries < maxRetries) {
+          setNotification({ message: "Your internet is slow, retrying...", type: "warning" });
+          console.error("Retrying due to slow internet or server issue. Attempt:", retries);
+        } else {
+          setNotification({ message: "Failed to create post due to connection issues. Please try again later.", type: "error" });
+          console.error("Error querying API after maximum retries:", error);
+        }
+      }
     }
+
+    setLoading(false);
   };
 
   const handleFileChange = (event, fileType) => {

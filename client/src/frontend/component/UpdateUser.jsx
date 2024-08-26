@@ -7,6 +7,7 @@ export function UpdateProfileModal() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
+    oldPassword: "", // New state for old password
     password: "",
     confirmPassword: "",
   });
@@ -23,6 +24,7 @@ export function UpdateProfileModal() {
     const userInfo = JSON.parse(localStorage.getItem("userInfo")) || {};
     setFormData({
       username: userInfo.username || "",
+      oldPassword: "", // Reset old password
       password: "",
       confirmPassword: "",
     });
@@ -111,6 +113,12 @@ export function UpdateProfileModal() {
       return;
     }
 
+    if (formData.password && !formData.oldPassword) {
+      showNotification("Old password is required to change the password", "error");
+      setIsSavingProfile(false);
+      return;
+    }
+
     try {
       const token = localStorage.getItem("token");
 
@@ -119,7 +127,8 @@ export function UpdateProfileModal() {
       };
 
       if (formData.password) {
-        profileData.password = formData.password;
+        profileData.oldPassword = formData.oldPassword; // Include old password
+        profileData.newPassword = formData.password;
       }
 
       const response = await axios.put(
@@ -274,6 +283,21 @@ export function UpdateProfileModal() {
                   onChange={handleProfileChange}
                   className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   required
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1" htmlFor="oldPassword">
+                  Old Password
+                </label>
+                <input
+                  type="password"
+                  id="oldPassword"
+                  name="oldPassword"
+                  value={formData.oldPassword}
+                  onChange={handleProfileChange}
+                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required={formData.password ? true : false}
                 />
               </div>
 

@@ -107,14 +107,14 @@ function UserCard({ user, type, onUserClick }) {
             <button
               onClick={(e) => { handleActionClick(e, 'accepted'); }}  // Call the handler with "accepted" action
               className="bg-indigo-500 text-white px-4 py-1 rounded-full"
-              disabled={loading} // Disable button when loading
+              disabled={loading} 
             >
               {loading ? 'Wait...' : 'Accept'}
             </button>
             <button
               onClick={(e) => { handleActionClick(e, 'declined'); }}  // Call the handler with "declined" action
               className="bg-red-500 text-white px-4 py-1 rounded-full"
-              disabled={loading} // Disable button when loading
+              disabled={loading} 
             >
               {loading ? 'Wait...' : 'Decline'}
             </button>

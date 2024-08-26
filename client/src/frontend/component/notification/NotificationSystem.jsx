@@ -9,6 +9,9 @@ export function NotificationSystem() {
   const [notifications, setNotifications] = useState({ requests: [], others: [] });
   const [hasUnseen, setHasUnseen] = useState(false);
 
+  const defaultProfilePicture = "path/to/default_user_image.png"; // Replace with the path to your default image
+  const defaultUsername = "Unknown User"; // Default value for username
+
   useEffect(() => {
     const fetchNotifications = async () => {
       const token = localStorage.getItem("token");
@@ -137,12 +140,12 @@ export function NotificationSystem() {
                   notifications.requests.map(notification => (
                     <div key={notification.id} className="flex justify-start items-start text-left m-3 shadow-xl rounded-lg">
                       <img 
-                        src={`http://localhost:3001/${notification.userId.profilePicture}`} 
+                        src={`http://localhost:3001/${notification.userId?.profilePicture || defaultProfilePicture}`} 
                         alt="Profile" 
                         className="h-10 w-10 rounded-full mr-3" 
                       />
                       <div className="text-sm md:text-base flex-1">
-                        <p className="font-bold">{notification.userId.username} has sent you a collab request</p>
+                        <p className="font-bold">{notification.userId?.username || defaultUsername} has sent you a collab request</p>
                         <div className="flex m-2 justify-center items-center space-x-2">
                         
                       </div>
@@ -158,11 +161,11 @@ export function NotificationSystem() {
                     <div key={notification.id} className="flex  justify-start items-start text-left shadow-lg mb-3">
                       <div className="text-sm md:text-base flex">
                       <img 
-                        src={`http://localhost:3001/${notification.userId?.profilePicture}`} 
+                        src={`http://localhost:3001/${notification.userId?.profilePicture || defaultProfilePicture}`} 
                         alt="Profile" 
                         className="h-10 w-10 rounded-full mr-3" 
                       />
-                        <p className="font-bold">{notification.message}</p>
+                        <p className="font-bold">{notification.message || "No message provided"}</p>
                       </div>
                     </div>
                   ))
