@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import cross from "../../assets/cross_icon1.png";
 import axios from "axios";
+import UpdateProfileModal from "./UpdateUser";
 
 export function LogOut({ handleSetActiveItem }) { // Accept the function as a prop
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ export function LogOut({ handleSetActiveItem }) { // Accept the function as a pr
         <img
           src={image ? `http://localhost:3001/${image}` : 'https://via.placeholder.com/40'}
           alt="Profile"
-          className="flex rounded-full w-12 h-12 mr-3  border border-indigo-500 p-2"
+          className="flex rounded-full w-12 h-12 mr-3  border border-indigo-500 p-1"
         />
 
         <div>
@@ -73,7 +74,7 @@ export function LogOut({ handleSetActiveItem }) { // Accept the function as a pr
               <p className="ml-2">My Profile</p>
             </div>
             <div className="flex items-center p-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200">
-              <p>Settings & Privacy</p>
+             <UpdateProfileModal/>
             </div>
             <a href="/" onClick={handleClick}>
               <div className="flex items-center p-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200">
