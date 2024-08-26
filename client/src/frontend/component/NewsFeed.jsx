@@ -11,9 +11,11 @@ import Comment from "./Comment/comment";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
 import Notification from "./SystemNotification"; // Import the Notification component
+import UserCard from "./RecommendUserCard"; // Import the UserCard component
 
 export function PostCall() {
   const [PostData, setPostData] = useState([]);
+  const [recommendedUsers, setRecommendedUsers] = useState([]);
   const [error, setError] = useState(null);
   const [notification, setNotification] = useState({ message: "", type: "" });
   const navigate = useNavigate();
@@ -88,7 +90,84 @@ export function PostCall() {
       }
     };
 
+    const fetchRecommendedUsers = async () => {
+      console.log("Fetching Recommended Users");
+      
+      try {
+        // Retrieve required data from localStorage
+        const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+        // const degree = JSON.parse(localStorage.getItem("studentDetails")).degree;
+        // const subject = JSON.parse(localStorage.getItem("studentDetails")).major;
+        // const interests = JSON.parse(localStorage.getItem("studentDetails")).interestedSubjects;
+
+        console.log("User Info: ", userInfo);
+        
+        console.log("Role: ", userInfo.role);
+        console.log("Degree: ", userInfo.studentDetails.currentAcademicStatus);
+        console.log("Subject: ", userInfo.studentDetails.degree);
+        console.log("Interests: ", userInfo.studentDetails.interestedSubjects);
+
+        const role = userInfo.role;
+        const degree = userInfo.studentDetails.currentAcademicStatus
+        const subject = userInfo.studentDetails.degree;
+        const interests = userInfo.studentDetails.interestedSubjects;
+        
+        
+
+        const postData = new FormData();
+postData.append('n_recommendations', 2); // Number of recommendations
+
+if (role) postData.append('Role', role);
+if (degree) postData.append('Degree', degree);
+if (subject) postData.append('Subject', subject);
+if (Array.isArray(interests)) {
+  interests.forEach(interest => postData.append('Interests', interest));
+}
+
+        console.log("BEFORE RECOMMEND");
+
+        for (let [key, value] of postData.entries()) {
+          console.log(key, value);
+        }
+        
+        
+        console.log("POST DATA: ", postData);
+        
+        // Call the recommendation route
+        const recommendationResponse = await axios.post("http://127.0.0.1:5000/recommend", postData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        console.log("AFTER RECOMMEND");
+
+        // Extract user IDs from the recommendation response
+        const userIds = recommendationResponse.data.recommendations[0].users;
+
+        const token = localStorage.getItem("token");
+        // Fetch details for each recommended user
+        const userDetailPromises = userIds.map(userId =>
+          axios.get(`http://localhost:3001/collablearn/user/getUser/${userId}`, {
+            headers: {
+              Authorization: `${token}`, // Include the token in the Authorization header
+            },
+          })
+        );
+
+        const userDetails = await Promise.all(userDetailPromises);
+
+        // Update state with the recommended users' details
+        setRecommendedUsers(userDetails.map(response => response.data.user));
+      } catch (error) {
+        console.error("Error fetching recommended users:", error);
+        setError("Error fetching recommended users");
+        setNotification({ message: "Error fetching recommended users", type: "error" });
+      }
+    };
+
     fetchPosts();
+    fetchRecommendedUsers();
   }, [navigate]);
 
   const extractDocumentName = (filePath) => {
@@ -106,6 +185,13 @@ export function PostCall() {
     setNotification({ message: "", type: "" });
   };
 
+  const handleMouseScroll = (event) => {
+    const container = event.currentTarget;
+    if (event.deltaY !== 0) {
+      container.scrollLeft += event.deltaY;
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center w-full">
       {notification.message && (
@@ -116,6 +202,35 @@ export function PostCall() {
         />
       )}
       {error && <div className="text-red-500">{error}</div>}
+
+      {/* Display the recommended users */}
+      <div
+        className="relative w-[90%] mt-10 flex overflow-x-auto space-x-4 mb-4 scrollbar-hide"
+        onWheel={handleMouseScroll}
+      >
+        <button
+          className="absolute left-0 top-1/2 transform -translate-y-1/2 p-2 z-10 bg-gray-200 rounded-full"
+          onClick={() => document.getElementById('recommend-container').scrollBy({ left: -200, behavior: 'smooth' })}
+        >
+          &lt;
+        </button>
+        <div id="recommend-container" className="flex space-x-4 overflow-x-auto no-scrollbar">
+          {recommendedUsers.map((user, index) => (
+            <UserCard
+              key={index}
+              profilePicture={`http://localhost:3001/${user.profilePicture}`}
+              username={user.username}
+              role={user.role}
+            />
+          ))}
+        </div>
+        <button
+          className="absolute right-0 top-1/2 transform -translate-y-1/2 p-2 z-10 bg-gray-200 rounded-full"
+          onClick={() => document.getElementById('recommend-container').scrollBy({ left: 200, behavior: 'smooth' })}
+        >
+          &gt;
+        </button>
+      </div>
 
       {PostData.map((postdetail, index) => (
         <Post
@@ -129,7 +244,7 @@ export function PostCall() {
   );
 }
 
-
+// The Post component remains unchanged.
 export function Post(props) {
   const postdetail = props.postdetail;
   const [upvote, setUpvote] = useState(postdetail.upvote);
