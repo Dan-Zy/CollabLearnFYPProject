@@ -3,6 +3,7 @@ import axios from 'axios';
 import { PostCall } from '../UserProfile/userPost';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons'; // Import the spinner icon
 
 export default function OtherUserProfile({ userId, type, onGoBack }) {  
   
@@ -11,6 +12,8 @@ export default function OtherUserProfile({ userId, type, onGoBack }) {
   const [postStats, setPostStats] = useState({ totalPosts: 0, totalUpvotes: 0, totalDevotes: 0 });
   const [collablers, setCollablers] = useState([]);
   const [showCollablersList, setShowCollablersList] = useState(false);
+  const [actionStatus, setActionStatus] = useState(type);
+  const [isLoading, setIsLoading] = useState(false); // New state for loading indicator
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -75,43 +78,80 @@ export default function OtherUserProfile({ userId, type, onGoBack }) {
 
   const handleActionClick = async (e) => {
     e.stopPropagation();
-    let endpoint, method;
+    setIsLoading(true); // Start loading indicator
 
-    switch (type) {
-      case 'suggested':
-        endpoint = `/sendCollabRequest/${userId}`;
-        method = 'post';
-        break;
-      case 'received':
-        endpoint = `/acceptCollabRequest/${userId}`;
-        method = 'put';
-        break;
-      case 'collaborator':
-        endpoint = `/deleteCollabler/${userId}`;
-        method = 'put';
-        break;
-      default:
-        console.error('Unknown type:', type);
-        return;
-    }
+    let endpoint, method;
 
     try {
       const token = localStorage.getItem("token");
-      await axios({
-        method: method,
-        url: `http://localhost:3001/collablearn${endpoint}`,
-        headers: {
-          Authorization: `${token}`,
-        },
-      });
-      // Handle action result (e.g., updating state)
+
+      switch (actionStatus) {
+        case 'suggested':
+          endpoint = `/sendCollabRequest/${userId}`;
+          method = 'post';
+          await axios({
+            method: method,
+            url: `http://localhost:3001/collablearn${endpoint}`,
+            headers: {
+              Authorization: `${token}`,
+            },
+          });
+          setActionStatus('undo');
+          break;
+
+        case 'received':
+          endpoint = `/acceptCollabRequest/${userId}`;
+          method = 'put';
+          await axios({
+            method: method,
+            url: `http://localhost:3001/collablearn${endpoint}`,
+            headers: {
+              Authorization: `${token}`,
+            },
+          });
+          setActionStatus('remove');
+          break;
+
+        case 'collaborator':
+        case 'undo':
+        case 'remove':
+          endpoint = `/deleteCollabler/${userId}`;
+          method = 'put';
+          await axios({
+            method: method,
+            url: `http://localhost:3001/collablearn${endpoint}`,
+            headers: {
+              Authorization: `${token}`,
+            },
+          });
+          setActionStatus('suggested'); // Reset back to the initial state or change based on your logic
+          break;
+
+        default:
+          console.error('Unknown actionStatus:', actionStatus);
+          return;
+      }
+      
     } catch (error) {
       console.error(`Error handling action for type ${type}:`, error);
+    } finally {
+      setIsLoading(false); // Stop loading indicator
     }
   };
 
   const renderButton = () => {
-    switch (type) {
+    if (isLoading) {
+      return (
+        <button 
+          className="bg-indigo-500 text-white px-4 py-1 rounded-full mt-2 flex items-center justify-center"
+          disabled
+        >
+          <FontAwesomeIcon icon={faSpinner} spin className="mr-2" /> Processing...
+        </button>
+      );
+    }
+
+    switch (actionStatus) {
       case 'suggested':
         return (
           <button 
@@ -139,6 +179,24 @@ export default function OtherUserProfile({ userId, type, onGoBack }) {
             Remove
           </button>
         );
+      case 'undo':
+        return (
+          <button 
+            className="bg-indigo-500 text-white px-4 py-1 rounded-full mt-2"
+            onClick={handleActionClick}
+          >
+            Undo
+          </button>
+        );
+      case 'remove':
+        return (
+          <button 
+            className="bg-indigo-500 text-white px-1 py-1 rounded-full mt-2"
+            onClick={handleActionClick}
+          >
+            Remove
+          </button>
+        );
       default:
         return null;
     }
@@ -153,9 +211,9 @@ export default function OtherUserProfile({ userId, type, onGoBack }) {
       <div className='flex'>
         <button 
           className="bg-indigo-500 text-white px-2 py-1 rounded-full flex items-center" 
-          onClick={onGoBack}  // Call the onGoBack function
+          onClick={onGoBack}
         >
-          <FontAwesomeIcon icon={faArrowLeft} className="mr-2" /> {/* Icon */}
+          <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
           Go Back
         </button>
       </div>
@@ -293,10 +351,7 @@ const renderRoleSpecificInfo = (userInfo) => {
           <span className="flex-1 font-semibold">Research Interset: </span>
           {userInfo.facultyDetails.researchInterests.join(', ')}
         </li>
-        <li className="flex flex-row text-s">
-          <span className="flex-1 font-semibold">Institution: </span>
-          {userInfo.facultyDetails.institution}
-        </li>
+  
         <li className="flex flex-row text-s">
           <span className="flex-1 font-semibold">Position: </span>
           {userInfo.facultyDetails.academicPosition}
