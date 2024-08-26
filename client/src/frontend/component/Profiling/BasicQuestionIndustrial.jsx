@@ -16,6 +16,7 @@ export default function BasicQuestionIndustrial() {
   });
 
   const [otherCompany, setOtherCompany] = useState(false);
+  const [dobError, setDobError] = useState("");
 
   const companiesByCity = {
     Lahore: ["NETSOL Technologies", "Systems Limited", "Techlogix"],
@@ -39,6 +40,20 @@ export default function BasicQuestionIndustrial() {
     } else if (name === "currentlyWorkingAt") {
       setOtherCompany(false);
     }
+
+    if (name === "dateOfBirth") {
+      validateDOB(value);
+    }
+  };
+
+  const validateDOB = (date) => {
+    const selectedDate = new Date(date);
+    const minDate = new Date("2006-01-01");
+    if (selectedDate >= minDate) {
+      setDobError("Date of Birth must be later than January 1, 2006.");
+    } else {
+      setDobError("");
+    }
   };
 
   const handleArrayChange = (e, index, fieldName) => {
@@ -59,6 +74,13 @@ export default function BasicQuestionIndustrial() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Final validation check before submission
+    if (dobError || !form.dateOfBirth || new Date(form.dateOfBirth) <= new Date("2018-01-01")) {
+      validateDOB(form.dateOfBirth);
+      return;
+    }
+
     navigate("/SetProfileImage", { state: { userInfo, role, form } });
   };
 
@@ -122,6 +144,7 @@ export default function BasicQuestionIndustrial() {
                 className="w-full p-2 border border-gray-300 rounded"
                 required
               />
+              {dobError && <p className="text-red-500">{dobError}</p>}
             </div>
 
             {/* City Dropdown */}

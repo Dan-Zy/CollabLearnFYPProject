@@ -96,7 +96,7 @@ export function SignIn() {
                 onChange={(e) => setPassword(e.target.value)}
               />
               {error && <p className="text-red-600">{error}</p>}
-              <p className="text-gray-600 mb-4">Forget your Password?</p>
+              
               <button
                 type="submit"
                 className="w-full py-2 mb-4 bg-indigo-600 text-white rounded-full hover:bg-transparent hover:text-indigo-600 border border-indigo-600 transition duration-300"
