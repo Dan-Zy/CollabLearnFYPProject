@@ -10,7 +10,7 @@ export default function BasicQuestionFaculty() {
     city: "",
     highestQualification: "",
     lastDegreeMajor: "",
-    degree: "",
+    degreeSubject: "", // Updated field name
     currentlyTeachingAt: "",
     academicPosition: "",
     coursesCurrentlyTeaching: [""],
@@ -83,14 +83,14 @@ export default function BasicQuestionFaculty() {
       "city",
       "highestQualification",
       "lastDegreeMajor",
-      "degree",
+      "degreeSubject", // Updated field name
       "currentlyTeachingAt",
       "academicPosition",
     ];
 
     fieldsToValidate.forEach((field) => {
       if (!form[field]) {
-        newErrors[field] = `${field.replace(/([A-Z])/g, ' $1')} is required.`;
+        newErrors[field] = `${field.replace(/([A-Z])/g, " $1")} is required.`;
       }
     });
 
@@ -152,8 +152,9 @@ export default function BasicQuestionFaculty() {
                 name="gender"
                 value={form.gender}
                 onChange={handleChange}
-                className={`w-full p-2 border border-gray-300 rounded ${errors.gender ? "border-red-500" : ""
-                  }`}
+                className={`w-full p-2 border border-gray-300 rounded ${
+                  errors.gender ? "border-red-500" : ""
+                }`}
                 required
               >
                 <option value="" disabled>
@@ -175,8 +176,9 @@ export default function BasicQuestionFaculty() {
                 name="dateOfBirth"
                 value={form.dateOfBirth}
                 onChange={handleChange}
-                className={`w-full p-2 border border-gray-300 rounded ${errors.dateOfBirth ? "border-red-500" : ""
-                  }`}
+                className={`w-full p-2 border border-gray-300 rounded ${
+                  errors.dateOfBirth ? "border-red-500" : ""
+                }`}
                 required
               />
               {errors.dateOfBirth && (
@@ -190,8 +192,9 @@ export default function BasicQuestionFaculty() {
                 name="city"
                 value={form.city}
                 onChange={handleChange}
-                className={`w-full p-2 border border-gray-300 rounded ${errors.city ? "border-red-500" : ""
-                  }`}
+                className={`w-full p-2 border border-gray-300 rounded ${
+                  errors.city ? "border-red-500" : ""
+                }`}
                 required
               >
                 <option value="" disabled>
@@ -214,8 +217,9 @@ export default function BasicQuestionFaculty() {
                 name="highestQualification"
                 value={form.highestQualification}
                 onChange={handleChange}
-                className={`w-full p-2 border border-gray-300 rounded ${errors.highestQualification ? "border-red-500" : ""
-                  }`}
+                className={`w-full p-2 border border-gray-300 rounded ${
+                  errors.highestQualification ? "border-red-500" : ""
+                }`}
                 required
               >
                 <option value="" disabled>
@@ -237,8 +241,9 @@ export default function BasicQuestionFaculty() {
                 name="lastDegreeMajor"
                 value={form.lastDegreeMajor}
                 onChange={handleChange}
-                className={`w-full p-2 border border-gray-300 rounded ${errors.lastDegreeMajor ? "border-red-500" : ""
-                  }`}
+                className={`w-full p-2 border border-gray-300 rounded ${
+                  errors.lastDegreeMajor ? "border-red-500" : ""
+                }`}
                 required
               >
                 <option value="" disabled>
@@ -251,18 +256,19 @@ export default function BasicQuestionFaculty() {
               )}
             </div>
 
-            {/* Degree Dropdown */}
+            {/* Degree Subject Dropdown */}
             <div className="mb-4">
               <select
-                name="degree"
-                value={form.degree}
+                name="degreeSubject" // Updated field name
+                value={form.degreeSubject} // Updated field name
                 onChange={handleChange}
-                className={`w-full p-2 border border-gray-300 rounded ${errors.degree ? "border-red-500" : ""
-                  }`}
+                className={`w-full p-2 border border-gray-300 rounded ${
+                  errors.degreeSubject ? "border-red-500" : ""
+                }`}
                 required
               >
                 <option value="" disabled>
-                  Select Degree
+                  Select Degree Subject
                 </option>
                 <option value="Computer Science">Computer Science</option>
                 <option value="Software Engineering">
@@ -270,8 +276,8 @@ export default function BasicQuestionFaculty() {
                 </option>
                 <option value="Data Science">Data Science</option>
               </select>
-              {errors.degree && (
-                <p className="text-red-500 text-sm">{errors.degree}</p>
+              {errors.degreeSubject && (
+                <p className="text-red-500 text-sm">{errors.degreeSubject}</p>
               )}
             </div>
 
@@ -281,8 +287,9 @@ export default function BasicQuestionFaculty() {
                 name="currentlyTeachingAt"
                 value={form.currentlyTeachingAt}
                 onChange={handleChange}
-                className={`w-full p-2 border border-gray-300 rounded ${errors.currentlyTeachingAt ? "border-red-500" : ""
-                  }`}
+                className={`w-full p-2 border border-gray-300 rounded ${
+                  errors.currentlyTeachingAt ? "border-red-500" : ""
+                }`}
                 required
               >
                 <option value="" disabled>
@@ -324,8 +331,9 @@ export default function BasicQuestionFaculty() {
                 name="academicPosition"
                 value={form.academicPosition}
                 onChange={handleChange}
-                className={`w-full p-2 border border-gray-300 rounded ${errors.academicPosition ? "border-red-500" : ""
-                  }`}
+                className={`w-full p-2 border border-gray-300 rounded ${
+                  errors.academicPosition ? "border-red-500" : ""
+                }`}
                 required
               >
                 <option value="" disabled>
@@ -334,9 +342,7 @@ export default function BasicQuestionFaculty() {
                 <option value="Lab Instructor">Lab Instructor</option>
                 <option value="Lecturer">Lecturer</option>
                 <option value="Professor">Professor</option>
-                <option value="Associate Professor">
-                  Associate Professor
-                </option>
+                <option value="Associate Professor">Associate Professor</option>
               </select>
               {errors.academicPosition && (
                 <p className="text-red-500 text-sm">
@@ -353,8 +359,9 @@ export default function BasicQuestionFaculty() {
                   onChange={(e) =>
                     handleArrayChange(e, index, "coursesCurrentlyTeaching")
                   }
-                  className={`w-full p-2 border border-gray-300 rounded ${errors.coursesCurrentlyTeaching ? "border-red-500" : ""
-                    }`}
+                  className={`w-full p-2 border border-gray-300 rounded ${
+                    errors.coursesCurrentlyTeaching ? "border-red-500" : ""
+                  }`}
                   required
                 >
                   <option value="" disabled>
@@ -410,8 +417,9 @@ export default function BasicQuestionFaculty() {
                   onChange={(e) =>
                     handleArrayChange(e, index, "researchInterests")
                   }
-                  className={`w-full p-2 border border-gray-300 rounded ${errors.researchInterests ? "border-red-500" : ""
-                    }`}
+                  className={`w-full p-2 border border-gray-300 rounded ${
+                    errors.researchInterests ? "border-red-500" : ""
+                  }`}
                   required
                 >
                   <option value="" disabled>
@@ -453,8 +461,9 @@ export default function BasicQuestionFaculty() {
                   onChange={(e) =>
                     handleArrayChange(e, index, "interestedSubjects")
                   }
-                  className={`w-full p-2 border border-gray-300 rounded ${errors.interestedSubjects ? "border-red-500" : ""
-                    }`}
+                  className={`w-full p-2 border border-gray-300 rounded ${
+                    errors.interestedSubjects ? "border-red-500" : ""
+                  }`}
                   required
                 >
                   <option value="" disabled>

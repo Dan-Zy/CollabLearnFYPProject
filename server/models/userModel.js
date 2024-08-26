@@ -12,7 +12,7 @@ const studentSchema = new mongoose.Schema({
         required: true,
     },
 
-    degree: {
+    degreeSubject: {
         type: String,
         required: true
     },
@@ -39,7 +39,7 @@ const facultySchema = new mongoose.Schema({
         required: true
     },
 
-    degree: {
+    degreeSubject: {
         type: String,
         required: true
     },
@@ -65,12 +65,22 @@ const facultySchema = new mongoose.Schema({
 
 const industrialSchema = new mongoose.Schema({
 
+    highestQualification: {
+        type: String,
+        required: true
+    },
+
     profession: {
         type: String,
         required: true
     },
 
     designation: {
+        type: String,
+        required: true
+    },
+
+    degreeSubject: {
         type: String,
         required: true
     },

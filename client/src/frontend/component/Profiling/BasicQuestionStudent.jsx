@@ -10,7 +10,7 @@ export default function BasicQuestionStudent() {
     city: "",
     currentAcademicStatus: "",
     major: "",
-    degree: "",
+    degreeSubject: "", // Updated field name
     interestedSubjects: [""],
     institution: "",
   });
@@ -148,8 +148,9 @@ export default function BasicQuestionStudent() {
                 name="dateOfBirth"
                 value={form.dateOfBirth}
                 onChange={handleChange}
-                className={`w-full p-2 border border-gray-300 rounded ${errors.dateOfBirth ? "border-red-500" : ""
-                  }`}
+                className={`w-full p-2 border border-gray-300 rounded ${
+                  errors.dateOfBirth ? "border-red-500" : ""
+                }`}
                 required
               />
               {errors.dateOfBirth && (
@@ -248,17 +249,17 @@ export default function BasicQuestionStudent() {
               </select>
             </div>
 
-            {/* Degree Dropdown */}
+            {/* Degree Subject Dropdown */}
             <div className="mb-4">
               <select
-                name="degree"
-                value={form.degree}
+                name="degreeSubject" // Updated field name
+                value={form.degreeSubject} // Updated field name
                 onChange={handleChange}
                 className="w-full p-2 border border-gray-300 rounded"
                 required
               >
                 <option value="" disabled>
-                  Select Degree
+                  Select Degree Subject
                 </option>
                 <option value="Computer Science">Computer Science</option>
                 <option value="Software Engineering">

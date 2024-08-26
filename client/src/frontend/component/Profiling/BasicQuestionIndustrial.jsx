@@ -8,8 +8,10 @@ export default function BasicQuestionIndustrial() {
     gender: "",
     dateOfBirth: "",
     city: "",
+    highestQualification: "", // Added field
     profession: "",
     designation: "",
+    degreeSubject: "", // Added field
     currentlyWorkingAt: "",
     yearsOfExperience: "",
     interestedSubjects: [""],
@@ -142,8 +144,9 @@ export default function BasicQuestionIndustrial() {
                 name="dateOfBirth"
                 value={form.dateOfBirth}
                 onChange={handleChange}
-                className={`w-full p-2 border border-gray-300 rounded ${errors.dateOfBirth ? "border-red-500" : ""
-                  }`}
+                className={`w-full p-2 border border-gray-300 rounded ${
+                  errors.dateOfBirth ? "border-red-500" : ""
+                }`}
                 required
               />
               {errors.dateOfBirth && (
@@ -168,6 +171,24 @@ export default function BasicQuestionIndustrial() {
                     {city}
                   </option>
                 ))}
+              </select>
+            </div>
+
+            {/* Highest Qualification Dropdown */}
+            <div className="mb-4">
+              <select
+                name="highestQualification" // Added field
+                value={form.highestQualification}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded"
+                required
+              >
+                <option value="" disabled>
+                  Select Highest Qualification
+                </option>
+                <option value="Bachelors">Bachelors</option>
+                <option value="Masters">Masters</option>
+                <option value="PHD">PHD</option>
               </select>
             </div>
 
@@ -206,6 +227,26 @@ export default function BasicQuestionIndustrial() {
                 <option value="App Developer">App Developer</option>
                 <option value="Game Developer">Game Developer</option>
                 <option value="Others">Others</option>
+              </select>
+            </div>
+
+            {/* Degree Subject Dropdown */}
+            <div className="mb-4">
+              <select
+                name="degreeSubject" // Added field
+                value={form.degreeSubject}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded"
+                required
+              >
+                <option value="" disabled>
+                  Select Degree Subject
+                </option>
+                <option value="Computer Science">Computer Science</option>
+                <option value="Software Engineering">
+                  Software Engineering
+                </option>
+                <option value="Data Science">Data Science</option>
               </select>
             </div>
 
