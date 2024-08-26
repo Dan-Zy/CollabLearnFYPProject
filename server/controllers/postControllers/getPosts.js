@@ -1,13 +1,10 @@
 import { Post } from "../../models/postModel.js";
-import User from "../../models/userModel.js";  // Import User model
+import User from "../../models/userModel.js";
 
 export const getPosts = async (req, res) => {
     try {
-        // Assuming req.userId is populated by middleware (e.g., after token verification)
-        const userId = req.userId;
-
-        // Fetch the user data along with their collablers
-        const user = await User.findById(userId).populate('collablers');
+        const userId = req.userId;  // Already set by verifyBearerToken middleware
+        const user = req.user;      // Already set by verifyBearerToken middleware
 
         if (!user) {
             return res.status(404).json({
@@ -36,17 +33,10 @@ export const getPosts = async (req, res) => {
         .populate('originalAuthor', 'username')
         .sort({ createdAt: -1 });  // Sort by creation date
 
-        // Extract the IDs of users who made the posts
-        // const userIds = posts.map(post => post.userId);
-
-        // // Display the result
-        // console.log(userIds);
-        
         res.status(200).json({
             success: true,
             message: "Posts fetched successfully",
             length: posts.length,
-            userIds,
             posts
         });
 

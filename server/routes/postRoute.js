@@ -1,5 +1,5 @@
 import express from "express";
-import { verifyToken } from "../middlewares/authorization.js";
+import { verifyBearerToken, verifyToken } from "../middlewares/authorization.js";
 import { uploadPost } from "../controllers/postControllers/uploadPost.js";
 import upload from "../config/commentMulter.js";
 import uploadP from "../config/postMulter.js"
@@ -38,7 +38,7 @@ router.put("/editPost/:postId", verifyToken , uploadP.fields([
 router.delete("/deletePost/:postId", verifyToken, deletePost);
 
 // Get Post
-router.get("/getPosts", verifyToken, getPosts);
+router.get("/getPosts", verifyBearerToken, getPosts);
 
 
 
