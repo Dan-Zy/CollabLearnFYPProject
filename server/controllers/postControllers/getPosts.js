@@ -1,24 +1,10 @@
 import { Post } from "../../models/postModel.js";
 import User from "../../models/userModel.js";  // Import User model
-import jwt from "jsonwebtoken";  // Import jsonwebtoken
 
 export const getPosts = async (req, res) => {
     try {
-        // Extract the token from the Authorization header
-        let token = req.header("Authorization");
-        if (!token) {
-            return res.status(401).json({
-                success: false,
-                message: "Unauthorized Access. Token is missing"
-            });
-        }
-
-        // Remove 'Bearer ' prefix if it exists
-        token = token.split(" ")[1];
-
-        // Decode the token to get the user ID
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const userId = decoded.id;
+        // Assuming req.userId is populated by middleware (e.g., after token verification)
+        const userId = req.userId;
 
         // Fetch the user data along with their collablers
         const user = await User.findById(userId).populate('collablers');
@@ -30,21 +16,37 @@ export const getPosts = async (req, res) => {
             });
         }
 
-        // Filter posts: Include posts from the user and their collablers, 
-        // and where the postType is "General" or matches the user's role
+        // Get the list of collaborator IDs
+        const collablersIds = user.collablers.map(collabler => collabler._id);
+
+        // Query to find posts
         const posts = await Post.find({
             $or: [
-                { userId: { $in: [...user.collablers, userId] } },  // Posts from collablers and the user
-                { postType: 'General' },                            // Posts of type "General"
-                { postType: user.role }                             // Posts matching the user's role
+                { userId: userId },  // User's own posts
+                {  // Posts from collablers with specific post types
+                    userId: { $in: collablersIds },
+                    $or: [
+                        { postType: 'General' },  // General posts
+                        { postType: user.role }   // Posts matching user's role
+                    ]
+                }
             ]
         })
         .populate('userId', 'username profilePicture')
         .populate('originalAuthor', 'username')
         .sort({ createdAt: -1 });  // Sort by creation date
 
+        // Extract the IDs of users who made the posts
+        // const userIds = posts.map(post => post.userId);
+
+        // // Display the result
+        // console.log(userIds);
+        
         res.status(200).json({
             success: true,
+            message: "Posts fetched successfully",
+            length: posts.length,
+            userIds,
             posts
         });
 

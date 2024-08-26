@@ -38,7 +38,7 @@ router.put("/editPost/:postId", verifyToken , uploadP.fields([
 router.delete("/deletePost/:postId", verifyToken, deletePost);
 
 // Get Post
-router.get("/getPosts", getPosts);
+router.get("/getPosts", verifyToken, getPosts);
 
 
 
