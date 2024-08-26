@@ -83,6 +83,40 @@ function MainPageCollab() {
     }
   }, [userInfo, allUsers]);
 
+  const recommendation = async (number, userRole, degree, subject, interest) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No token found');
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        'http://localhost:3001/collablearn/recommendation',
+        {
+          number,
+          userRole,
+          degree,
+          subject,
+          interest,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      console.log('Recommendation response:', response.data);
+
+      
+      setSuggestedUsers(response.data.recommendedUsers);
+
+    } catch (error) {
+      console.error('Error fetching recommendations:', error);
+    }
+  };
+
   const handleUserCardClick = (userId) => {
     setSelectedUserId(userId);
     localStorage.setItem('collab_selectedUserId', userId);  // Save to localStorage

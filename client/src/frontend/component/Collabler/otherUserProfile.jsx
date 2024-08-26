@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 export default function OtherUserProfile({ userId, type, onGoBack }) {  
-  // Add onGoBack as a prop
+  
   const [userInfo, setUserInfo] = useState(null);
   const [posts, setPosts] = useState([]);
   const [postStats, setPostStats] = useState({ totalPosts: 0, totalUpvotes: 0, totalDevotes: 0 });
@@ -44,17 +44,20 @@ export default function OtherUserProfile({ userId, type, onGoBack }) {
         );
         setCollablers(collablersResponse.data.collablers);
 
-        // Fetch the posts and calculate stats
-        const postsResponse = await axios.get(
+        const postsResponse = await fetch(
           "http://localhost:3001/collablearn/user/getPosts",
           {
+            method: "GET",
             headers: {
-              Authorization: `${token}`,
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
             },
           }
         );
-
-        const allPosts = postsResponse.data.posts || [];
+  
+        const postsData = await postsResponse.json();
+        const allPosts = postsData.posts || [];
+        
         const userPosts = allPosts.filter((post) => post.userId?._id === userId);
         const totalUpvotes = userPosts.reduce((acc, post) => acc + (post.upvotes.length || 0), 0);
         const totalDevotes = userPosts.reduce((acc, post) => acc + (post.devotes.length || 0), 0);
@@ -241,15 +244,12 @@ export default function OtherUserProfile({ userId, type, onGoBack }) {
 }
 
 const renderRoleSpecificInfo = (userInfo) => {
-  if (!userInfo || !userInfo.role) {
-    return <p>Loading role-specific information...</p>;
-  }
-
+    
   if (userInfo.role === 'Student') {
     return (
       <ul className="w-full justify-center items-center text-gray-700">
         <li className="flex flex-row text-s">
-          <span className="flex-1 font-semibold text-s">Current Academic: </span>
+          <span className="flex-1 font-semibold text-s">Current Academic Status: </span>
           {userInfo.studentDetails.currentAcademicStatus}
         </li>
         <li className="flex flex-row text-s">
@@ -262,7 +262,7 @@ const renderRoleSpecificInfo = (userInfo) => {
         </li>
         <li className="flex flex-row text-s">
           <span className="flex-1 font-semibold">Interested Subjects: </span>
-          {userInfo.studentDetails.interestedSubjects}
+          {userInfo.studentDetails.interestedSubjects.join(', ')}
         </li>
         <li className="flex flex-row text-s">
           <span className="flex-1 font-semibold">Institution: </span>
@@ -275,23 +275,56 @@ const renderRoleSpecificInfo = (userInfo) => {
       <ul className="space-y-2 text-gray-700">
         <li className="flex flex-row text-s">
           <span className="flex-1 font-semibold">Current Academic Status: </span>
-          {userInfo.facultyDetails.currentAcademicStatus}
+          {userInfo.facultyDetails.highestQualification}
         </li>
         <li className="flex flex-row text-s">
           <span className="flex-1 font-semibold">Major: </span>
-          {userInfo.facultyDetails.major}
+          {userInfo.facultyDetails.lastDegreeMajor}
         </li>
         <li className="flex flex-row text-s">
           <span className="flex-1 font-semibold">Degree: </span>
           {userInfo.facultyDetails.degree}
         </li>
         <li className="flex flex-row text-s">
-          <span className="flex-1 font-semibold">Interested Subjects: </span>
-          {userInfo.facultyDetails.interestedSubjects}
+          <span className="flex-1 font-semibold">Current Teaching: </span>
+          {userInfo.facultyDetails.coursesCurrentlyTeaching.join(', ')}
+        </li>
+        <li className="flex flex-row text-s">
+          <span className="flex-1 font-semibold">Research Interset: </span>
+          {userInfo.facultyDetails.researchInterests.join(', ')}
         </li>
         <li className="flex flex-row text-s">
           <span className="flex-1 font-semibold">Institution: </span>
           {userInfo.facultyDetails.institution}
+        </li>
+        <li className="flex flex-row text-s">
+          <span className="flex-1 font-semibold">Position: </span>
+          {userInfo.facultyDetails.academicPosition}
+        </li>
+      </ul>
+    );
+  } else if (userInfo.role === 'Industrial') {
+    return (
+      <ul className="space-y-2 text-gray-700">
+        <li className="flex flex-row text-s">
+          <span className="flex-1 font-semibold">Profession: </span>
+          {userInfo.industrialDetails.profession}
+        </li>
+        <li className="flex flex-row text-s">
+          <span className="flex-1 font-semibold">Designation: </span>
+          {userInfo.industrialDetails.designation}
+        </li>
+        <li className="flex flex-row text-s">
+          <span className="flex-1 font-semibold">Currently Working At: </span>
+          {userInfo.industrialDetails.currentlyWorkingAt}
+        </li>
+        <li className="flex flex-row text-s">
+          <span className="flex-1 font-semibold">Years of Experience: </span>
+          {userInfo.industrialDetails.yearsOfExperience}
+        </li>
+        <li className="flex flex-row text-s">
+          <span className="flex-1 font-semibold">Interested Subjects: </span>
+          {userInfo.industrialDetails.interestedSubjects.join(', ')}
         </li>
       </ul>
     );

@@ -28,8 +28,12 @@ export default function Profile({ userId }) {
           }
         );
 
+        
         setUserInfo(userInfoResponse.data.user);
 
+        console.log('====================================');
+        console.log(userInfo);
+        console.log('====================================');
         // Fetch collablers
         const collablersResponse = await axios.get(
           `http://localhost:3001/collablearn/getAllCollablers`,
@@ -40,22 +44,33 @@ export default function Profile({ userId }) {
           }
         );
 
+        
+
         setCollablers(collablersResponse.data.collablers);
-        // Fetch the posts and calculate stats
-        const postsResponse = await axios.get(
+        
+        
+        const postsResponse = await fetch(
           "http://localhost:3001/collablearn/user/getPosts",
           {
+            method: "GET",
             headers: {
-              Authorization: `${token}`,
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
             },
           }
         );
-
-        const allPosts = postsResponse.data.posts || [];
+  
+        const postsData = await postsResponse.json();
+        const allPosts = postsData.posts || [];
+     
+        
         const userPosts = allPosts.filter((post) => post.userId?._id === userId);
         const totalUpvotes = userPosts.reduce((acc, post) => acc + (post.upvotes.length || 0), 0);
         const totalDevotes = userPosts.reduce((acc, post) => acc + (post.devotes.length || 0), 0);
 
+          console.log('====================================');
+          console.log(totalUpvotes);
+          console.log('====================================');
         setPosts(userPosts);
         setPostStats({ totalPosts: userPosts.length, totalUpvotes, totalDevotes });
 
@@ -84,7 +99,7 @@ export default function Profile({ userId }) {
         }
       );
 
-      // Update the collablers list after removal
+     
       setCollablers((prev) => prev.filter((collabler) => collabler._id !== collablerId));
     } catch (error) {
       console.error("Error removing collabler:", error);
@@ -92,11 +107,12 @@ export default function Profile({ userId }) {
   };
 
   const renderRoleSpecificInfo = () => {
+    
     if (userInfo.role === 'Student') {
       return (
         <ul className="w-full justify-center items-center text-gray-700">
           <li className="flex flex-row text-s">
-            <span className="flex-1 font-semibold text-s">Current Academic: </span>
+            <span className="flex-1 font-semibold text-s">Current Academic Status: </span>
             {userInfo.studentDetails.currentAcademicStatus}
           </li>
           <li className="flex flex-row text-s">
@@ -109,7 +125,7 @@ export default function Profile({ userId }) {
           </li>
           <li className="flex flex-row text-s">
             <span className="flex-1 font-semibold">Interested Subjects: </span>
-            {userInfo.studentDetails.interestedSubjects}
+            {userInfo.studentDetails.interestedSubjects.join(', ')}
           </li>
           <li className="flex flex-row text-s">
             <span className="flex-1 font-semibold">Institution: </span>
@@ -122,23 +138,56 @@ export default function Profile({ userId }) {
         <ul className="space-y-2 text-gray-700">
           <li className="flex flex-row text-s">
             <span className="flex-1 font-semibold">Current Academic Status: </span>
-            {userInfo.facultyDetails.currentAcademicStatus}
+            {userInfo.facultyDetails.highestQualification}
           </li>
           <li className="flex flex-row text-s">
             <span className="flex-1 font-semibold">Major: </span>
-            {userInfo.facultyDetails.major}
+            {userInfo.facultyDetails.lastDegreeMajor}
           </li>
           <li className="flex flex-row text-s">
             <span className="flex-1 font-semibold">Degree: </span>
             {userInfo.facultyDetails.degree}
           </li>
           <li className="flex flex-row text-s">
-            <span className="flex-1 font-semibold">Interested Subjects: </span>
-            {userInfo.facultyDetails.interestedSubjects}
+            <span className="flex-1 font-semibold">Current Teaching: </span>
+            {userInfo.facultyDetails.coursesCurrentlyTeaching.join(', ')}
+          </li>
+          <li className="flex flex-row text-s">
+            <span className="flex-1 font-semibold">Research Interset: </span>
+            {userInfo.facultyDetails.researchInterests.join(', ')}
           </li>
           <li className="flex flex-row text-s">
             <span className="flex-1 font-semibold">Institution: </span>
             {userInfo.facultyDetails.institution}
+          </li>
+          <li className="flex flex-row text-s">
+            <span className="flex-1 font-semibold">Position: </span>
+            {userInfo.facultyDetails.academicPosition}
+          </li>
+        </ul>
+      );
+    } else if (userInfo.role === 'Industrial') {
+      return (
+        <ul className="space-y-2 text-gray-700">
+          <li className="flex flex-row text-s">
+            <span className="flex-1 font-semibold">Profession: </span>
+            {userInfo.industrialDetails.profession}
+          </li>
+          <li className="flex flex-row text-s">
+            <span className="flex-1 font-semibold">Designation: </span>
+            {userInfo.industrialDetails.designation}
+          </li>
+          <li className="flex flex-row text-s">
+            <span className="flex-1 font-semibold">Currently Working At: </span>
+            {userInfo.industrialDetails.currentlyWorkingAt}
+          </li>
+          <li className="flex flex-row text-s">
+            <span className="flex-1 font-semibold">Years of Experience: </span>
+            {userInfo.industrialDetails.yearsOfExperience}
+          </li>
+          <li className="flex flex-row text-s">
+            <span className="flex-1 font-semibold">Interested Subjects: </span>
+            {userInfo.industrialDetails.interestedSubjects.join(', ')}
           </li>
         </ul>
       );
@@ -146,6 +195,7 @@ export default function Profile({ userId }) {
       return <p>Role not recognized</p>;
     }
   };
+  
 
   if (!userInfo) {
     return <div>Loading...</div>;

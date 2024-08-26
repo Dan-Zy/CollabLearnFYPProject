@@ -8,10 +8,10 @@ function UserCard({ user, type, onUserClick }) {
   const [errorMessage, setErrorMessage] = useState(''); // State to manage error message
 
   const handleActionClick = async (e, actionType = null) => {
-    e.stopPropagation(); // Prevent click event from propagating to the card
-    setLoading(true); // Set loading state to true
-    setSuccessMessage(''); // Clear any previous success message
-    setErrorMessage(''); // Clear any previous error message
+    e.stopPropagation(); 
+    setLoading(true); 
+    setSuccessMessage(''); 
+    setErrorMessage(''); 
 
     let endpoint, method;
 
@@ -29,7 +29,7 @@ function UserCard({ user, type, onUserClick }) {
           endpoint = `/acceptCollabRequest/${user._id}`;
           method = 'put';
         } else if (actionType === 'declined') {
-          endpoint = `/cancelCollabRequest/${user._id}`; // Adjusted endpoint for decline
+          endpoint = `/cancelCollabRequest/${user._id}`; 
           method = 'put';
         }
         break;
@@ -68,14 +68,14 @@ function UserCard({ user, type, onUserClick }) {
     } catch (error) {
       console.error(`Error handling action for type ${type}:`, error);
       setErrorMessage('Action failed. Please try again.'); // Set error message
-      // Revert the state change if there's an error
+      
       if (actionState === 'undo') {
         setActionState('undo'); // Keep it as 'undo' if undo action fails
       } else if (actionState === 'suggested') {
         setActionState('suggested'); // Keep it as 'suggested' if sending request fails
       }
     } finally {
-      setLoading(false); // Set loading state to false
+      setLoading(false); 
     }
   };
 
@@ -85,10 +85,10 @@ function UserCard({ user, type, onUserClick }) {
         return (
           <button 
             className="bg-indigo-500 text-white px-4 py-1 rounded-full mt-2"
-            onClick={handleActionClick}  // Call the handler with the event
-            disabled={loading} // Disable button when loading
+            onClick={handleActionClick} 
+            disabled={loading} 
           >
-            {loading ? 'Processing...' : 'Send Request'}
+            {loading ? 'Wait...' : 'Send Request'}
           </button>
         );
       case 'undo':
@@ -98,7 +98,7 @@ function UserCard({ user, type, onUserClick }) {
             onClick={handleActionClick}  // Call the handler with the event
             disabled={loading} // Disable button when loading
           >
-            {loading ? 'Processing...' : 'Undo'}
+            {loading ? 'Wait...' : 'Undo'}
           </button>
         );
       case 'received':
@@ -109,14 +109,14 @@ function UserCard({ user, type, onUserClick }) {
               className="bg-indigo-500 text-white px-4 py-1 rounded-full"
               disabled={loading} // Disable button when loading
             >
-              {loading ? 'Processing...' : 'Accept'}
+              {loading ? 'Wait...' : 'Accept'}
             </button>
             <button
               onClick={(e) => { handleActionClick(e, 'declined'); }}  // Call the handler with "declined" action
               className="bg-red-500 text-white px-4 py-1 rounded-full"
               disabled={loading} // Disable button when loading
             >
-              {loading ? 'Processing...' : 'Decline'}
+              {loading ? 'Wait...' : 'Decline'}
             </button>
           </div>
         );
