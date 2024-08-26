@@ -18,8 +18,8 @@ export default function BasicQuestionFaculty() {
     interestedSubjects: [""],
   });
 
+  const [errors, setErrors] = useState({});
   const [otherInstitution, setOtherInstitution] = useState(false);
-  const [dobError, setDobError] = useState("");
 
   const institutionsByCity = {
     Lahore: [
@@ -50,18 +50,8 @@ export default function BasicQuestionFaculty() {
       setOtherInstitution(false);
     }
 
-    if (name === "dateOfBirth") {
-      validateDOB(value);
-    }
-  };
-
-  const validateDOB = (date) => {
-    const selectedDate = new Date(date);
-    const minDate = new Date("2006-01-01");
-    if (selectedDate >= minDate) {
-      setDobError("Date of Birth must be later than January 1, 2006.");
-    } else {
-      setDobError("");
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: "" });
     }
   };
 
@@ -72,6 +62,10 @@ export default function BasicQuestionFaculty() {
       ...form,
       [fieldName]: newArray,
     });
+
+    if (errors[fieldName]) {
+      setErrors({ ...errors, [fieldName]: "" });
+    }
   };
 
   const addField = (fieldName) => {
@@ -81,12 +75,39 @@ export default function BasicQuestionFaculty() {
     });
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+    const fieldsToValidate = [
+      "gender",
+      "dateOfBirth",
+      "city",
+      "highestQualification",
+      "lastDegreeMajor",
+      "degree",
+      "currentlyTeachingAt",
+      "academicPosition",
+    ];
+
+    fieldsToValidate.forEach((field) => {
+      if (!form[field]) {
+        newErrors[field] = `${field.replace(/([A-Z])/g, ' $1')} is required.`;
+      }
+    });
+
+    const enteredYear = new Date(form.dateOfBirth).getFullYear();
+    if (enteredYear >= 2006) {
+      newErrors.dateOfBirth = "Date of Birth must be before 2006.";
+    }
+
+    return newErrors;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Final validation check before submission
-    if (dobError || !form.dateOfBirth || new Date(form.dateOfBirth) <= new Date("2018-01-01")) {
-      validateDOB(form.dateOfBirth);
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
 
@@ -131,7 +152,8 @@ export default function BasicQuestionFaculty() {
                 name="gender"
                 value={form.gender}
                 onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded"
+                className={`w-full p-2 border border-gray-300 rounded ${errors.gender ? "border-red-500" : ""
+                  }`}
                 required
               >
                 <option value="" disabled>
@@ -141,6 +163,9 @@ export default function BasicQuestionFaculty() {
                 <option value="Female">Female</option>
                 <option value="Others">Others</option>
               </select>
+              {errors.gender && (
+                <p className="text-red-500 text-sm">{errors.gender}</p>
+              )}
             </div>
 
             {/* Date of Birth */}
@@ -150,10 +175,13 @@ export default function BasicQuestionFaculty() {
                 name="dateOfBirth"
                 value={form.dateOfBirth}
                 onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded"
+                className={`w-full p-2 border border-gray-300 rounded ${errors.dateOfBirth ? "border-red-500" : ""
+                  }`}
                 required
               />
-              {dobError && <p className="text-red-500">{dobError}</p>}
+              {errors.dateOfBirth && (
+                <p className="text-red-500 text-sm">{errors.dateOfBirth}</p>
+              )}
             </div>
 
             {/* City Dropdown */}
@@ -162,7 +190,8 @@ export default function BasicQuestionFaculty() {
                 name="city"
                 value={form.city}
                 onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded"
+                className={`w-full p-2 border border-gray-300 rounded ${errors.city ? "border-red-500" : ""
+                  }`}
                 required
               >
                 <option value="" disabled>
@@ -174,6 +203,9 @@ export default function BasicQuestionFaculty() {
                   </option>
                 ))}
               </select>
+              {errors.city && (
+                <p className="text-red-500 text-sm">{errors.city}</p>
+              )}
             </div>
 
             {/* Highest Qualification Dropdown */}
@@ -182,7 +214,8 @@ export default function BasicQuestionFaculty() {
                 name="highestQualification"
                 value={form.highestQualification}
                 onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded"
+                className={`w-full p-2 border border-gray-300 rounded ${errors.highestQualification ? "border-red-500" : ""
+                  }`}
                 required
               >
                 <option value="" disabled>
@@ -191,6 +224,11 @@ export default function BasicQuestionFaculty() {
                 <option value="Masters">Masters</option>
                 <option value="PHD">PHD</option>
               </select>
+              {errors.highestQualification && (
+                <p className="text-red-500 text-sm">
+                  {errors.highestQualification}
+                </p>
+              )}
             </div>
 
             {/* Last Degree Major Dropdown */}
@@ -199,7 +237,8 @@ export default function BasicQuestionFaculty() {
                 name="lastDegreeMajor"
                 value={form.lastDegreeMajor}
                 onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded"
+                className={`w-full p-2 border border-gray-300 rounded ${errors.lastDegreeMajor ? "border-red-500" : ""
+                  }`}
                 required
               >
                 <option value="" disabled>
@@ -207,6 +246,9 @@ export default function BasicQuestionFaculty() {
                 </option>
                 <option value="Computer Science">Computer Science</option>
               </select>
+              {errors.lastDegreeMajor && (
+                <p className="text-red-500 text-sm">{errors.lastDegreeMajor}</p>
+              )}
             </div>
 
             {/* Degree Dropdown */}
@@ -215,7 +257,8 @@ export default function BasicQuestionFaculty() {
                 name="degree"
                 value={form.degree}
                 onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded"
+                className={`w-full p-2 border border-gray-300 rounded ${errors.degree ? "border-red-500" : ""
+                  }`}
                 required
               >
                 <option value="" disabled>
@@ -227,6 +270,9 @@ export default function BasicQuestionFaculty() {
                 </option>
                 <option value="Data Science">Data Science</option>
               </select>
+              {errors.degree && (
+                <p className="text-red-500 text-sm">{errors.degree}</p>
+              )}
             </div>
 
             {/* Currently Teaching At Dropdown */}
@@ -235,7 +281,8 @@ export default function BasicQuestionFaculty() {
                 name="currentlyTeachingAt"
                 value={form.currentlyTeachingAt}
                 onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded"
+                className={`w-full p-2 border border-gray-300 rounded ${errors.currentlyTeachingAt ? "border-red-500" : ""
+                  }`}
                 required
               >
                 <option value="" disabled>
@@ -249,6 +296,11 @@ export default function BasicQuestionFaculty() {
                   ))}
                 <option value="Others">Others</option>
               </select>
+              {errors.currentlyTeachingAt && (
+                <p className="text-red-500 text-sm">
+                  {errors.currentlyTeachingAt}
+                </p>
+              )}
             </div>
 
             {/* Other Institution Input */}
@@ -272,7 +324,8 @@ export default function BasicQuestionFaculty() {
                 name="academicPosition"
                 value={form.academicPosition}
                 onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded"
+                className={`w-full p-2 border border-gray-300 rounded ${errors.academicPosition ? "border-red-500" : ""
+                  }`}
                 required
               >
                 <option value="" disabled>
@@ -281,8 +334,15 @@ export default function BasicQuestionFaculty() {
                 <option value="Lab Instructor">Lab Instructor</option>
                 <option value="Lecturer">Lecturer</option>
                 <option value="Professor">Professor</option>
-                <option value="Associate Professor">Associate Professor</option>
+                <option value="Associate Professor">
+                  Associate Professor
+                </option>
               </select>
+              {errors.academicPosition && (
+                <p className="text-red-500 text-sm">
+                  {errors.academicPosition}
+                </p>
+              )}
             </div>
 
             {/* Courses Currently Teaching */}
@@ -293,7 +353,9 @@ export default function BasicQuestionFaculty() {
                   onChange={(e) =>
                     handleArrayChange(e, index, "coursesCurrentlyTeaching")
                   }
-                  className="w-full p-2 border border-gray-300 rounded"
+                  className={`w-full p-2 border border-gray-300 rounded ${errors.coursesCurrentlyTeaching ? "border-red-500" : ""
+                    }`}
+                  required
                 >
                   <option value="" disabled>
                     Select Course Currently Teaching
@@ -325,6 +387,11 @@ export default function BasicQuestionFaculty() {
                   </option>
                   <option value="Others">Others</option>
                 </select>
+                {errors.coursesCurrentlyTeaching && (
+                  <p className="text-red-500 text-sm">
+                    {errors.coursesCurrentlyTeaching[index]}
+                  </p>
+                )}
               </div>
             ))}
             <button
@@ -343,7 +410,9 @@ export default function BasicQuestionFaculty() {
                   onChange={(e) =>
                     handleArrayChange(e, index, "researchInterests")
                   }
-                  className="w-full p-2 border border-gray-300 rounded"
+                  className={`w-full p-2 border border-gray-300 rounded ${errors.researchInterests ? "border-red-500" : ""
+                    }`}
+                  required
                 >
                   <option value="" disabled>
                     Select Research Interest
@@ -361,6 +430,11 @@ export default function BasicQuestionFaculty() {
                     Human Computer Interaction
                   </option>
                 </select>
+                {errors.researchInterests && (
+                  <p className="text-red-500 text-sm">
+                    {errors.researchInterests[index]}
+                  </p>
+                )}
               </div>
             ))}
             <button
@@ -379,7 +453,9 @@ export default function BasicQuestionFaculty() {
                   onChange={(e) =>
                     handleArrayChange(e, index, "interestedSubjects")
                   }
-                  className="w-full p-2 border border-gray-300 rounded"
+                  className={`w-full p-2 border border-gray-300 rounded ${errors.interestedSubjects ? "border-red-500" : ""
+                    }`}
+                  required
                 >
                   <option value="" disabled>
                     Select Interested Subject
@@ -397,6 +473,11 @@ export default function BasicQuestionFaculty() {
                     Human Computer Interaction
                   </option>
                 </select>
+                {errors.interestedSubjects && (
+                  <p className="text-red-500 text-sm">
+                    {errors.interestedSubjects[index]}
+                  </p>
+                )}
               </div>
             ))}
             <button

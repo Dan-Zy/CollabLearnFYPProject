@@ -21,8 +21,10 @@ export function SignUp() {
 
     // Validate username
     if (name === 'name') {
-      if (value.length <= 2) {
-        setUsernameError('Username must be more than 2 characters');
+      if (value.length < 2) {
+        setUsernameError('Username must be at least 2 characters');
+      } else if (value.length > 50) {
+        setUsernameError('Username must be less than 50 characters');
       } else {
         setUsernameError('');
       }

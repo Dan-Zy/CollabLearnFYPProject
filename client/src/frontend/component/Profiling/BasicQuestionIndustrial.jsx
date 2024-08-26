@@ -15,8 +15,8 @@ export default function BasicQuestionIndustrial() {
     interestedSubjects: [""],
   });
 
+  const [errors, setErrors] = useState({});
   const [otherCompany, setOtherCompany] = useState(false);
-  const [dobError, setDobError] = useState("");
 
   const companiesByCity = {
     Lahore: ["NETSOL Technologies", "Systems Limited", "Techlogix"],
@@ -41,18 +41,8 @@ export default function BasicQuestionIndustrial() {
       setOtherCompany(false);
     }
 
-    if (name === "dateOfBirth") {
-      validateDOB(value);
-    }
-  };
-
-  const validateDOB = (date) => {
-    const selectedDate = new Date(date);
-    const minDate = new Date("2006-01-01");
-    if (selectedDate >= minDate) {
-      setDobError("Date of Birth must be later than January 1, 2006.");
-    } else {
-      setDobError("");
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: "" });
     }
   };
 
@@ -72,12 +62,23 @@ export default function BasicQuestionIndustrial() {
     });
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    const enteredYear = new Date(form.dateOfBirth).getFullYear();
+    if (enteredYear >= 2006) {
+      newErrors.dateOfBirth = "Date of Birth must be before 2006.";
+    }
+
+    return newErrors;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Final validation check before submission
-    if (dobError || !form.dateOfBirth || new Date(form.dateOfBirth) <= new Date("2018-01-01")) {
-      validateDOB(form.dateOfBirth);
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
 
@@ -141,10 +142,13 @@ export default function BasicQuestionIndustrial() {
                 name="dateOfBirth"
                 value={form.dateOfBirth}
                 onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded"
+                className={`w-full p-2 border border-gray-300 rounded ${errors.dateOfBirth ? "border-red-500" : ""
+                  }`}
                 required
               />
-              {dobError && <p className="text-red-500">{dobError}</p>}
+              {errors.dateOfBirth && (
+                <p className="text-red-500 text-sm">{errors.dateOfBirth}</p>
+              )}
             </div>
 
             {/* City Dropdown */}

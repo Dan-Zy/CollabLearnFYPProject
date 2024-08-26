@@ -217,7 +217,7 @@ export default function Profile({ userId }) {
             className="w-24 h-24 rounded-full border-4 border-white"
           />
         </div>
-        <div className="absolute bottom-0 left-32 p-0">
+        <div className="absolute bottom-0 left-32 p-2 bg-white bg-opacity-20 rounded-xl">
           <h1 className="text-xl font-bold text-left">{userInfo.username}</h1>
           <p className="text-gray-600 font-extralight text-xs text-left">{userInfo.email}</p>
         </div>
