@@ -1,4 +1,10 @@
 Role,Degree,Subject,Interests,UserId,Name
-Student,Bachelors,Software Engineering,"""Data Science""",66c7247657f150e5786a8ca8,Daniyal Zafar 5
-Industrial,Bachelors,Computer Science,"""Data Science""",66c7271457f150e5786a9814,DanZee Malik
-Industrial,Bachelors,Computer Science,"""Artificial Intelligence""",66cc7fc430b4b9d86ef46b96,Ayesha Industrial
+Faculty,Masters,Computer Science,"""Data Science""",66cd4a7b1ca03e2445249f13,Muhammad Hassan
+Student,Bachelors,Computer Science,"""Data Science""",66cd4aec1ca03e244524a2ba,Daniyal Zafar
+Faculty,Masters,Software Engineering,"""Data Science""",66cd4d8caa3096a040d06f43,Malik Daniyal Zafar
+Industrial,Masters,Software Engineering,"""Software Development""",66cd4e27aa3096a040d06fb9,Danzymer Official
+Student,Bachelors,Software Engineering,"""Human Computer Interaction"", ""Artificial Intelligence""",66cd4f7caa3096a040d07022,Ghulam Haider
+Faculty,Doctorate,Data Science,"""Human Computer Interaction"", ""Software Development""",66cd502eaa3096a040d070ae,Hafiz Abdul Rehman
+Industrial,Masters,Computer Science,"""Networking"", ""Artificial Intelligence""",66cd50f8aa3096a040d07115,Qalab E Abbas
+Student,Masters,Software Engineering,"""Software Development"", ""Human Computer Interaction""",66cd5209aa3096a040d07174,Talha Ejaz
+Faculty,Doctorate,Data Science,"Human Computer Interaction, ""Data Science""",66cd532caa3096a040d071e0,Hassan Zaheer
