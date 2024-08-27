@@ -45,6 +45,7 @@ function UserCard({ user, type, onUserClick }) {
 
     try {
       const token = localStorage.getItem("token");
+      console.log('test  ',token);
       await axios({
         method: method,
         url: `http://localhost:3001/collablearn${endpoint}`,

@@ -43,3 +43,21 @@ const getUser = async (req, res) => {
 }
 
 export default getUser;
+
+
+// if (userInfo.role === 'Student') {
+//     postData.append('Role', userInfo.role);
+//     postData.append('Degree', userInfo.studentDetails.currentAcademicStatus);
+//     postData.append('Subject', userInfo.studentDetails.degreeSubject);
+//     userInfo.studentDetails.interestedSubjects.forEach(interest => postData.append('Interests', interest));
+//   } else if (userInfo.role === 'Faculty') {
+//     postData.append('Role', userInfo.role);
+//     postData.append('Degree', userInfo.facultyDetails.highestQualification);
+//     postData.append('Subject', userInfo.facultyDetails.degreeSubject);
+//     userInfo.facultyDetails.interestedSubjects.forEach(interest => postData.append('Interests', interest));
+//   } else if (userInfo.role === 'Industrial') {
+//     postData.append('Role', userInfo.role);
+//     postData.append('Degree', userInfo.industrialDetails.highestQualification);
+//     postData.append('Subject', userInfo.industrialDetails.degreeSubject);
+//     userInfo.industrialDetails.interestedSubjects.forEach(interest => postData.append('Interests', interest));
+//   }

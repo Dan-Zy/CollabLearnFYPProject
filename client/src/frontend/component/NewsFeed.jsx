@@ -113,41 +113,30 @@ export function PostCall() {
 
     const fetchRecommendedUsers = async () => {
       try {
-        const token = localStorage.getItem("token");
-    
+        console.log("User Role:", userInfo.role); // Ensure role is accessed correctly
+        
         const postData = new FormData();
-        postData.append('n_recommendations', 2);
-    
-        // Check the user's role and append the appropriate details
+        postData.append('n_recommendations', 6);
+        
         if (userInfo.role === 'Student') {
           postData.append('Role', userInfo.role);
           postData.append('Degree', userInfo.studentDetails.currentAcademicStatus);
           postData.append('Subject', userInfo.studentDetails.degreeSubject);
-          if (Array.isArray(userInfo.studentDetails.interestedSubjects)) {
-            userInfo.studentDetails.interestedSubjects.forEach(interest =>
-              postData.append('Interests', interest)
-            );
-          }
+          userInfo.studentDetails.interestedSubjects.forEach(interest => postData.append('Interests', interest));
         } else if (userInfo.role === 'Faculty') {
           postData.append('Role', userInfo.role);
           postData.append('Degree', userInfo.facultyDetails.highestQualification);
           postData.append('Subject', userInfo.facultyDetails.degreeSubject);
-          if (Array.isArray(userInfo.facultyDetails.interestedSubjects)) {
-            userInfo.facultyDetails.interestedSubjects.forEach(interest =>
-              postData.append('Interests', interest)
-            );
-          }
+          userInfo.facultyDetails.interestedSubjects.forEach(interest => postData.append('Interests', interest));
         } else if (userInfo.role === 'Industrial') {
           postData.append('Role', userInfo.role);
           postData.append('Degree', userInfo.industrialDetails.highestQualification);
           postData.append('Subject', userInfo.industrialDetails.degreeSubject);
-          if (Array.isArray(userInfo.industrialDetails.interestedSubjects)) {
-            userInfo.industrialDetails.interestedSubjects.forEach(interest =>
-              postData.append('Interests', interest)
-            );
-          }
+          userInfo.industrialDetails.interestedSubjects.forEach(interest => postData.append('Interests', interest));
         }
-    
+        
+        console.log("FormData entries:", ...postData.entries());
+        
         const recommendationResponse = await axios.post("http://127.0.0.1:5000/recommend", postData, {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -155,16 +144,20 @@ export function PostCall() {
         });
     
         const userIds = recommendationResponse.data.recommendations[0].users;
+        console.log("Recommended User IDs:", userIds);
+        const token = localStorage.getItem("token");
     
-        const userDetailPromises = userIds.map(userId =>
-          axios.get(`http://localhost:3001/collablearn/user/getUser/${userId}`, {
+        const userDetailPromises = userIds.map(userId => {
+          console.log("Fetching details for User ID:", userId);  // Log userId here
+          return axios.get(`http://localhost:3001/collablearn/user/getUser/${userId}`, {
             headers: {
               Authorization: `${token}`,
             },
-          })
-        );
+          });
+        });
     
         const userDetails = await Promise.all(userDetailPromises);
+        console.log("Fetched User Details:", userDetails);
     
         const filteredUsers = userDetails.filter(userDetail =>
           userInfo._id.toString() !== userDetail.data.user._id.toString() &&
@@ -175,11 +168,12 @@ export function PostCall() {
     
         setRecommendedUsers(filteredUsers.map(response => response.data.user));
       } catch (error) {
-        console.error("Error fetching recommended users:", error);
+        console.error("Error fetching recommended users:", error.response?.data || error.message || error);
         setError("Error fetching recommended users");
         setNotification({ message: "Error fetching recommended users", type: "error" });
       }
     };
+    
     
 
     fetchOriginalInfo().then(() => {

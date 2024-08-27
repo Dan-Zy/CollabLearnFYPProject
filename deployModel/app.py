@@ -11,7 +11,7 @@ recommender.set_model_params(20, 'brute', 'cosine', -1)
 @app.route('/recommend', methods=['POST'])
 def recommend():
     # Parse input from the POST request
-    n_recommendations = int(request.form.get('n_recommendations', 5))
+    n_recommendations = int(request.form.get('n_recommendations', 4))
     role = request.form.get('Role')
     degree = request.form.get('Degree')
     subject = request.form.get('Subject')
