@@ -114,31 +114,48 @@ export function PostCall() {
     const fetchRecommendedUsers = async () => {
       try {
         const token = localStorage.getItem("token");
-
+    
         const postData = new FormData();
-        postData.append('n_recommendations', 2); 
-
-        if (userInfo.role) postData.append('Role', userInfo.role);
-        if (userInfo.studentDetails?.currentAcademicStatus) {
+        postData.append('n_recommendations', 2);
+    
+        // Check the user's role and append the appropriate details
+        if (userInfo.role === 'Student') {
+          postData.append('Role', userInfo.role);
           postData.append('Degree', userInfo.studentDetails.currentAcademicStatus);
+          postData.append('Subject', userInfo.studentDetails.degreeSubject);
+          if (Array.isArray(userInfo.studentDetails.interestedSubjects)) {
+            userInfo.studentDetails.interestedSubjects.forEach(interest =>
+              postData.append('Interests', interest)
+            );
+          }
+        } else if (userInfo.role === 'Faculty') {
+          postData.append('Role', userInfo.role);
+          postData.append('Degree', userInfo.facultyDetails.highestQualification);
+          postData.append('Subject', userInfo.facultyDetails.degreeSubject);
+          if (Array.isArray(userInfo.facultyDetails.interestedSubjects)) {
+            userInfo.facultyDetails.interestedSubjects.forEach(interest =>
+              postData.append('Interests', interest)
+            );
+          }
+        } else if (userInfo.role === 'Industrial') {
+          postData.append('Role', userInfo.role);
+          postData.append('Degree', userInfo.industrialDetails.highestQualification);
+          postData.append('Subject', userInfo.industrialDetails.degreeSubject);
+          if (Array.isArray(userInfo.industrialDetails.interestedSubjects)) {
+            userInfo.industrialDetails.interestedSubjects.forEach(interest =>
+              postData.append('Interests', interest)
+            );
+          }
         }
-        if (userInfo.studentDetails?.degree) {
-          postData.append('Subject', userInfo.studentDetails.degree);
-        }
-        if (Array.isArray(userInfo.studentDetails?.interestedSubjects)) {
-          userInfo.studentDetails.interestedSubjects.forEach(interest => 
-            postData.append('Interests', interest)
-          );
-        }
-
+    
         const recommendationResponse = await axios.post("http://127.0.0.1:5000/recommend", postData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         });
-
+    
         const userIds = recommendationResponse.data.recommendations[0].users;
-
+    
         const userDetailPromises = userIds.map(userId =>
           axios.get(`http://localhost:3001/collablearn/user/getUser/${userId}`, {
             headers: {
@@ -146,16 +163,16 @@ export function PostCall() {
             },
           })
         );
-
+    
         const userDetails = await Promise.all(userDetailPromises);
-
+    
         const filteredUsers = userDetails.filter(userDetail =>
           userInfo._id.toString() !== userDetail.data.user._id.toString() &&
           !userInfo.collablers.includes(userDetail.data.user._id.toString()) &&
           !userInfo.sendedRequests.includes(userDetail.data.user._id.toString()) &&
           !userInfo.receivedRequests.some(req => req.user.toString() === userDetail.data.user._id.toString())
         );
-
+    
         setRecommendedUsers(filteredUsers.map(response => response.data.user));
       } catch (error) {
         console.error("Error fetching recommended users:", error);
@@ -163,6 +180,7 @@ export function PostCall() {
         setNotification({ message: "Error fetching recommended users", type: "error" });
       }
     };
+    
 
     fetchOriginalInfo().then(() => {
       fetchPosts();
